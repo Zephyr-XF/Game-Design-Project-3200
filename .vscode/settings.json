@@ -56,5 +56,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "ECE3200 Final Project.sln"
+    "dotnet.defaultSolution": "Game-Design-Project-3200.sln"
 }
