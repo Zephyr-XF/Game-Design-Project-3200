@@ -16,11 +16,11 @@ public class EnemyMovement : MonoBehaviour
     public LayerMask playerLayer;
 
     public float speed = 1.5f;
-    private int facingDirection = -1; // 1 for right, -1 for left
+    private int facingDirection = 1; // 1 for right, -1 for left
     public int attackrange = 2;
 
     public EnemyState enemyState;
-     
+
     private Rigidbody2D rb;
     private Transform player;
     private Animator anim;
@@ -34,33 +34,38 @@ public class EnemyMovement : MonoBehaviour
 
     void Update()
     {
-        CheckForPlayer();
-        if (attackCoolDownTimer > 0 )
+        if (enemyState != EnemyState.knockback)
         {
-            attackCoolDownTimer -= Time.deltaTime;
+            CheckForPlayer();
+            if (attackCoolDownTimer > 0)
+            {
+                attackCoolDownTimer -= Time.deltaTime;
+            }
+            if (enemyState == EnemyState.chase)
+            {
+                ChasePlayer();
+            }
+            else if (enemyState == EnemyState.attack)
+            {
+                // Ensure the enemy stops moving when idle
+            }
         }
-        if (enemyState == EnemyState.chase)
-        {
-            ChasePlayer();
-        }
-        else if (enemyState == EnemyState.attack)
-        {
-            // Ensure the enemy stops moving when idle
-        }
+
     }
     private void CheckForPlayer()
     {
-        Collider2D[] hits = Physics2D.OverlapCircleAll(dectectionPoint.position,playerRange,playerLayer);
+        Collider2D[] hits = Physics2D.OverlapCircleAll(dectectionPoint.position, playerRange, playerLayer);
         if (hits.Length > 0)
         {
             player = hits[0].transform;
-            
+
             if (Vector2.Distance(transform.position, player.position) <= attackrange && attackCoolDownTimer <= 0)
             {
                 attackCoolDownTimer = attacCoolDown;
                 rb.velocity = Vector2.zero; // Stop moving when in attack range
                 ChangeState(EnemyState.attack);
-            }else if (Vector2.Distance(transform.position, player.position) > attackrange)
+            }
+            else if (Vector2.Distance(transform.position, player.position) > attackrange && enemyState != EnemyState.attack)
             {
                 ChangeState(EnemyState.chase);
             }
@@ -73,13 +78,14 @@ public class EnemyMovement : MonoBehaviour
         }
     }
 
-  
+
 
     private void ChasePlayer()
     {
-        
-        if (player.position.x > transform.position.x && facingDirection == -1 || player.position.x < transform.position.x && facingDirection == 1)
+        if (player.position.x > transform.position.x && facingDirection == -1 ||
+            player.position.x < transform.position.x && facingDirection == 1)
         {
+
             facingDirection *= -1;
             transform.localScale = new Vector3(transform.localScale.x * -1, transform.localScale.y, transform.localScale.z);
         }
@@ -89,7 +95,7 @@ public class EnemyMovement : MonoBehaviour
         rb.velocity = direction * speed;
     }
 
-    private void ChangeState(EnemyState newState)
+    public void ChangeState(EnemyState newState)
     {
         // 关闭当前状态的动画
         if (enemyState == EnemyState.idle)
@@ -129,7 +135,7 @@ public class EnemyMovement : MonoBehaviour
     {
         // Attack logic here
         Debug.Log("Enemy attacks!");
-        
+
         // 攻击完成后可以返回追逐状态或idle状态
         if (player != null && Vector2.Distance(transform.position, player.position) <= attackrange)
         {
@@ -155,5 +161,6 @@ public enum EnemyState
 {
     idle,
     chase,
-    attack
+    attack,
+    knockback
 }

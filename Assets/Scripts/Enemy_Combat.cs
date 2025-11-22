@@ -8,25 +8,22 @@ public class Enemy_Combat : MonoBehaviour
     public int atk = 20;
     public Transform attackPoint;
     public float attackRange = 1.5f;
-    
-
+    public float knockbackForce;
+    public float stunTime;
     public LayerMask playerLayers;
 
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if(collision.gameObject.tag == "Player")
-        {
-            PlayerHealth playerHealth = collision.gameObject.GetComponent<PlayerHealth>();
-            Debug.Log("Enemy collided with " + collision.gameObject.name);
-            if (playerHealth != null)
-            {
-                playerHealth.ChangeHealth(-atk); // Reduce player health by 20 on collision
-                Debug.Log("Player hit by enemy! Health reduced by " + atk);
-            }
-            ;
-        }
-        
-    }
+    // private void OnCollisionEnter2D(Collision2D collision)
+    // {
+    //     if(collision.gameObject.tag == "Player")
+    //     {
+    //         PlayerHealth playerHealth = collision.gameObject.GetComponent<PlayerHealth>();
+    //         if (playerHealth != null)
+    //         {
+    //             playerHealth.ChangeHealth(-atk); // Reduce player health by 20 on collision
+    //         }
+    //         ;
+    //     }
+    // }
 
     public void Attack()
     {
@@ -36,6 +33,7 @@ public class Enemy_Combat : MonoBehaviour
         if (hitPlayers.Length > 0)
         {
             hitPlayers[0].GetComponent<PlayerHealth>().ChangeHealth(-atk);
+            hitPlayers[0].GetComponent<PlayerMovement>().Knockback(transform, knockbackForce, stunTime);
         }
     }
 }
