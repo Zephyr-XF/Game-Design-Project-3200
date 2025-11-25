@@ -32,15 +32,15 @@ public class PlayerHealth : MonoBehaviour
     {
         if (enableDebug) Debug.Log($"ChangeHealth called: {amount}, Current: {currentHealth}");
         healthTextAnim.Play("UI");
-        currentHealth += amount;
+        StatsManager.Instance.currentHealth += amount;
 
-        if (currentHealth > maxHealth)
+        if (StatsManager.Instance.currentHealth > maxHealth)
         {
-            currentHealth = maxHealth;
+            StatsManager.Instance.currentHealth = maxHealth;
         }
-        else if (currentHealth <= 0)
+        else if (StatsManager.Instance.currentHealth <= 0)
         {
-            currentHealth = 0;
+            StatsManager.Instance.currentHealth = 0;
             UpdateHealthUI();
             Die();
             return;
@@ -55,7 +55,7 @@ public class PlayerHealth : MonoBehaviour
     {
         if (healthText != null)
         {
-            string newText = "HP:" + currentHealth + "/" + maxHealth;
+            string newText = "HP:" + StatsManager.Instance.currentHealth + "/" + StatsManager.Instance.maxHealth;
             healthText.text = newText;
 
             if (enableDebug)

@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public float speed = 5f;
     public Rigidbody2D rb;
     public Animator anim;
     public bool isWalking = false;
@@ -24,7 +23,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetButtonDown("Slash"))
+        if (Input.GetButtonDown("Slash") && player_Combat.enabled == true)
         {
             player_Combat.Attack();
         }
@@ -51,7 +50,7 @@ public class PlayerMovement : MonoBehaviour
                 anim.SetBool("isWalking", false);
             }
 
-            rb.velocity = movement * speed;
+            rb.velocity = movement * StatsManager.Instance.speed;
         }
 
     }
