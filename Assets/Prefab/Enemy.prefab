@@ -111,7 +111,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -1781500217
-  m_SortingLayer: 0
+  m_SortingLayer: 4
   m_SortingOrder: 0
   m_Sprite: {fileID: -53592269, guid: a5729bfe69fec49418742f92a28ccea7, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -205,7 +205,7 @@ MonoBehaviour:
   stunTime: 0.05
   playerLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 128
 --- !u!114 &8588896935918926829
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -224,7 +224,7 @@ MonoBehaviour:
   dectectionPoint: {fileID: 8822874496815324692}
   playerLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 128
   speed: 2
   attackrange: 2
   enemyState: 0
