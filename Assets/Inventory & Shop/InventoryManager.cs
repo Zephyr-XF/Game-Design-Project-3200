@@ -27,7 +27,7 @@ public class InventoryManager : MonoBehaviour
         Loot.OnItemLooted -= AddItem;
     }
 
-    private void AddItem(ItemSO itemSO, int quantity)
+    public  void AddItem(ItemSO itemSO, int quantity) //change from private to public
     {
         if(itemSO.isGold)
         {
