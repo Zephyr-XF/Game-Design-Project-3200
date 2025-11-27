@@ -23,6 +23,7 @@ public class StatsUI : MonoBehaviour
                 Time.timeScale = 1;
                 UpdateAllStats();
                 statsCanvas.alpha = 0;
+                statsCanvas.blocksRaycasts = false;
                 statsOpen = false;
             }
 
@@ -31,6 +32,7 @@ public class StatsUI : MonoBehaviour
                 Time.timeScale = 0;
                 UpdateAllStats();
                 statsCanvas.alpha = 1;
+                statsCanvas.blocksRaycasts = true;
                 statsOpen = true;
             }
                
