@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Player_Combat : MonoBehaviour
 {
+    public enum AttackType { None, BasicCombo, Skill1, Skill2 }
+
     [Header("Combat References")]
     public Transform attackPoint;
     public LayerMask enemyLayer;
@@ -14,87 +16,157 @@ public class Player_Combat : MonoBehaviour
     public int maxCombo = 3;           // 最大连击段数
     public float comboResetTimer = 1f; // 超过这个时间未攻击，连击重置
     public float minAttackInterval = 0.2f; // 防止玩家按键过快（最小攻击间隔）
+    public string attackAnmiTrigger = "AttackTrigger";
+
+    [Header("Skill 1 Settings")]
+    public float skill1Cooldown = 5f;      // 技能1冷却时间
+    public float skill1DamageMult = 2.0f;  // 技能1伤害倍率
+    public string skill1AnimTrigger = "Skill1Trigger"; // 动画机里的Trigger名字
+
+    [Header("Skill 2 Settings")]
+    public float skill2Cooldown = 8f;      // 技能2冷却时间
+    public float skill2DamageMult = 3.0f;  // 技能2伤害倍率
+    public string skill2AnimTrigger = "Skill2Trigger"; // 动画机里的Trigger名字
 
     private int currentComboStep = 0;  // 当前连击段数
     private float lastAttackTime = 0;  // 上次按下攻击键的时间
     private float nextAttackAllowedTime = 0; // 下一次允许攻击的时间点
 
+    private float skill1Timer = 0; // 技能1当前剩余冷却时间
+    private float skill2Timer = 0; // 技能2当前剩余冷却时间
+
+    private AttackType currentAttackType = AttackType.None; // 当前正在进行的攻击类型
+
     private void Update()
     {
-        // 连击超时重置逻辑
-        // 如果当前有连击，且距离上次攻击时间已经超过了允许的重置时间，则重置
+        // 1. 处理普通攻击连击重置
         if (currentComboStep > 0 && Time.time - lastAttackTime > comboResetTimer)
         {
             ResetCombo();
         }
+
+        // 2. 处理技能冷却倒计时
+        if (skill1Timer > 0) skill1Timer -= Time.deltaTime;
+        if (skill2Timer > 0) skill2Timer -= Time.deltaTime;
+
+        if (Input.GetKeyDown(KeyCode.J)) Attack();      // 普攻
+        if (Input.GetKeyDown(KeyCode.K)) CastSkill1();  // 技能1
+        if (Input.GetKeyDown(KeyCode.L)) CastSkill2();  // 技能2
     }
 
     public void Attack()
     {
-        // 检查是否允许攻击（防止一秒钟按10次导致的动画鬼畜）
-        if (Time.time < nextAttackAllowedTime) return;
+        // 如果正在放技能，或者攻击间隔未到，禁止普攻
+        if (Time.time < nextAttackAllowedTime || IsCastingSkill()) return;
 
-        // 更新连击步数
+        currentAttackType = AttackType.BasicCombo; // 标记当前为普攻
+
         currentComboStep++;
+        if (currentComboStep > maxCombo) currentComboStep = 1;
 
-        // 如果超过最大连击数，重置为1（或者根据需求重置为0）
-        if (currentComboStep > maxCombo)
-        {
-            currentComboStep = 1;
-        }
-
-        // 发送参数给 Animator
         anim.SetInteger("AttackComboStep", currentComboStep);
-        anim.SetTrigger("AttackTrigger");
+        anim.SetTrigger(attackAnmiTrigger);
 
-        // 更新时间记录
         lastAttackTime = Time.time;
         nextAttackAllowedTime = Time.time + minAttackInterval;
     }
 
-    // 这个方法由动画事件(Animation Event)调用，在每一段攻击动画的“击中帧”添加此事件
+    // --- 技能1 逻辑 ---
+    public void CastSkill1()
+    {
+        // 检查冷却 & 是否允许攻击
+        if (skill1Timer > 0 || IsCastingSkill()) return;
+
+        currentAttackType = AttackType.Skill1; // 标记当前为技能1
+        skill1Timer = skill1Cooldown;          // 重置冷却
+
+        // 可以在这里重置连击段数，防止技能接普攻出现动画不连贯
+        ResetCombo();
+
+        anim.SetTrigger(skill1AnimTrigger);
+    }
+
+    // --- 技能2 逻辑 ---
+    public void CastSkill2()
+    {
+        // 检查冷却 & 是否允许攻击
+        if (skill2Timer > 0 || IsCastingSkill()) return;
+
+        currentAttackType = AttackType.Skill2; // 标记当前为技能2
+        skill2Timer = skill2Cooldown;          // 重置冷却
+
+        ResetCombo();
+
+        anim.SetTrigger(skill2AnimTrigger);
+    }
+
     public void DealDamage()
     {
-
         statsUI.UpdateDamage();
 
-        // 获取范围内所有敌人
         Collider2D[] enemies = Physics2D.OverlapCircleAll(attackPoint.position, StatsManager.Instance.weaponRange, enemyLayer);
 
-        // 遍历所有敌人造成伤害
         foreach (Collider2D enemy in enemies)
         {
-            // 判空保护
             EnemyHealth health = enemy.GetComponent<EnemyHealth>();
             EnemyKonckBack knockback = enemy.GetComponent<EnemyKonckBack>();
 
             if (health != null)
             {
-                // 根据连击段数，这里甚至可以做伤害倍率（例如第3段伤害更高）
-                int finalDamage = StatsManager.Instance.damage;
-                if (currentComboStep == maxCombo) finalDamage = (int)(finalDamage * 1.5f); // 举例：终结技1.5倍伤害
+                // 获取基础伤害
+                float damageToDeal = StatsManager.Instance.damage;
 
-                health.ChangeHealth(-finalDamage);
+                // 根据当前攻击类型计算最终伤害
+                switch (currentAttackType)
+                {
+                    case AttackType.BasicCombo:
+                        // 普攻逻辑：最终段伤害加成
+                        if (currentComboStep == maxCombo) damageToDeal *= 1.5f;
+                        break;
+
+                    case AttackType.Skill1:
+                        damageToDeal *= skill1DamageMult;
+                        break;
+
+                    case AttackType.Skill2:
+                        damageToDeal *= skill2DamageMult;
+                        break;
+                }
+
+                health.ChangeHealth(-(int)damageToDeal);
             }
 
             if (knockback != null)
             {
-                knockback.Knockback(transform, StatsManager.Instance.knockbackForce, StatsManager.Instance.knockbackTime, StatsManager.Instance.stunTime);
+                // 技能可能造成更强的击退（可选）
+                float forceMult = (currentAttackType == AttackType.Skill1 || currentAttackType == AttackType.Skill2) ? 1.5f : 1f;
+                knockback.Knockback(transform, StatsManager.Instance.knockbackForce * forceMult, StatsManager.Instance.knockbackTime, StatsManager.Instance.stunTime);
             }
         }
     }
+
+    private bool IsCastingSkill()
+    {
+        // 如果当前标记是技能，且还没被重置（说明动作还没做完或者刚开始）
+        // 注意：这里逻辑比较简单，如果需要严格锁死输入，建议在 FinishAttacking 中重置 currentAttackType
+        return currentAttackType == AttackType.Skill1 || currentAttackType == AttackType.Skill2;
+    }
+
+    public void FinishAttacking()
+    {
+        currentAttackType = AttackType.None; // 攻击动作结束，状态归零
+        // 这里也可以把 nextAttackAllowedTime 稍微重置一下，允许立刻接下一个动作
+    }
+
+    public float GetSkill1CooldownRatio() => Mathf.Clamp01(skill1Timer / skill1Cooldown);
+    public float GetSkill2CooldownRatio() => Mathf.Clamp01(skill2Timer / skill2Cooldown);
+
 
     // 辅助方法：重置连击
     private void ResetCombo()
     {
         currentComboStep = 0;
         anim.SetInteger("AttackComboStep", 0);
-    }
-
-    // 用于动画结束时的事件
-    public void FinishAttacking()
-    {
-
     }
 
     private void OnDrawGizmosSelected()
