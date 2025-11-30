@@ -1,6 +1,8 @@
 using Cinemachine;
 using System.Linq;
 using UnityEngine;
+using System.Collections; // 为协程支持
+using TMPro;
 
 public class LevelController2D : MonoBehaviour
 {
@@ -19,11 +21,26 @@ public class LevelController2D : MonoBehaviour
     [Header("摄像机限制")]
     //public Collider2D cameraBoundsCollider;
 
+    [Header("加载动画")]
+    public int delayTime = 6;
+    public Animator transitionAnimator;
+
+    [Header("加载等待UI")]
+    [Tooltip("传送/加载等待时显示的 UI（例如遮罩、Loading 提示）。仅在等待计时中启用，结束后自动关闭")]
+    public GameObject loadingUI;
+    [Tooltip("显示 Loading 动态文字的 TextMeshPro 组件")]
+    public TMP_Text loadingText; // 不再关联生命值
+
+    // Loading 动态省略号状态（只在协程内部使用）
+    private float loadingDotInterval = 0.5f; // 点更新间隔
+
     public SpawnPoint2D[] allSpawnPoints;
 
     private void Start()
     {
         Time.timeScale = 1f;
+        if (loadingUI != null) loadingUI.SetActive(false); // 初始关闭
+        if (loadingText != null) loadingText.text = ""; // 初始清空
         Debug.Log($"[LevelController2D] Start() 被调用，当前关卡索引: {currentIndex}");
         LoadLevel(currentIndex);
     }
@@ -51,29 +68,36 @@ public class LevelController2D : MonoBehaviour
             Debug.LogError($"[LevelController2D] Level index 超出范围: {index}");
             return;
         }
+        // 启动协程执行原始加载流程（带过渡等待）
+        StartCoroutine(LoadLevelSequence(index));
+    }
+
+    private IEnumerator LoadLevelSequence(int index)
+    {
+        yield return TransitionTimer(); // 显示 Loading 动效
 
         LevelConfig2D config = levelConfigs[index];
         Debug.Log($"[LevelController2D] 加载关卡: {config.levelName}, levelID: {config.levelID}");
 
-        // 预先查找所有重生点
         if (allSpawnPoints == null || allSpawnPoints.Length == 0)
         {
             allSpawnPoints = FindObjectsOfType<SpawnPoint2D>(true);
             Debug.Log($"[LevelController2D] 自动查找 SpawnPoint2D，共找到 {allSpawnPoints.Length} 个");
+            if (allSpawnPoints.Length > 0)
+            {
+                Debug.Log("[LevelController2D] SpawnPoint 列表: " + string.Join(", ", allSpawnPoints.Select(s => s.spawnId + ":" + s.name)));
+            }
         }
 
-        // 如果场景中有重生点，则传送玩家
         if (allSpawnPoints.Length > 0)
         {
             TeleportPlayer2D(config, config.levelID);
         }
         else
         {
-            Debug.LogWarning($"[LevelController2D] 场景中没有 SpawnPoint2D，跳过玩家传送。" +
-                           "请在场景中添加至少一个 SpawnPoint2D 组件。");
+            Debug.LogWarning("[LevelController2D] 场景中没有 SpawnPoint2D，跳过玩家传送。请添加一个 SpawnPoint2D。");
         }
 
-        // 同步 Cinemachine 相机
         if (snapCameraOnLevelLoad && player != null)
         {
             SnapCinemachine2DToPlayer();
@@ -87,16 +111,16 @@ public class LevelController2D : MonoBehaviour
         if (player == null)
         {
             Debug.LogError("[LevelController2D] Player 引用为空，无法传送玩家。");
-            return; // 添加 return，防止继续执行
+            return;
         }
-        
+        Debug.Log($"[LevelController2D] TeleportPlayer2D -> spawnId {spawnId}");
         TeleportPlayerToSpawnId(spawnId);
-        Debug.Log($"[LevelController2D] TeleportPlayer2D() 被调用，传送玩家到关卡: {config.levelName}");
+        Debug.Log($"[LevelController2D] TeleportPlayer2D() 完成: {config.levelName}");
     }
 
     public void TeleportPlayerToSpawnId(int spawnId)
     {
-        Debug.Log($"[LevelController2D] TeleportPlayerToSpawnId() 被调用，目标 spawnId: {spawnId}");
+        Debug.Log($"[LevelController2D] TeleportPlayerToSpawnId() 开始，目标 spawnId: {spawnId}");
 
         if (player == null)
         {
@@ -104,92 +128,85 @@ public class LevelController2D : MonoBehaviour
             return;
         }
 
-        // 自动查找所有 SpawnPoint2D（包括禁用的）
         if (allSpawnPoints == null || allSpawnPoints.Length == 0)
         {
             allSpawnPoints = FindObjectsOfType<SpawnPoint2D>(true);
-            Debug.Log($"[LevelController2D] 自动查找 SpawnPoint2D，共找到 {allSpawnPoints.Length} 个");
-            
-            // 如果还是找不到，报错并返回
+            Debug.Log($"[LevelController2D] (传送时) 自动查找 SpawnPoint2D，共找到 {allSpawnPoints.Length} 个");
             if (allSpawnPoints.Length == 0)
             {
-                Debug.LogError($"[LevelController2D] 场景中没有任何 SpawnPoint2D，无法传送玩家");
+                Debug.LogError("[LevelController2D] 场景中没有任何 SpawnPoint2D，无法传送玩家");
                 return;
             }
+            Debug.Log("[LevelController2D] SpawnPoint 列表: " + string.Join(", ", allSpawnPoints.Select(s => s.spawnId + ":" + s.name)));
         }
 
-        // 查找匹配的重生点
         SpawnPoint2D sp = allSpawnPoints.FirstOrDefault(p => p.spawnId == spawnId);
         if (sp == null)
         {
-            Debug.LogError($"[LevelController2D] 找不到 spawnId = {spawnId} 的 SpawnPoint2D。" +
-                          $"可用的 spawnId: {string.Join(", ", allSpawnPoints.Select(p => p.spawnId))}");
+            Debug.LogError($"[LevelController2D] 找不到 spawnId = {spawnId} 的 SpawnPoint2D。可用: {string.Join(", ", allSpawnPoints.Select(p => p.spawnId))}");
             return;
         }
 
-        Debug.Log($"[LevelController2D] 找到重生点: {sp.gameObject.name}, spawnId = {sp.spawnId}");
+        Debug.Log($"[LevelController2D] 匹配到重生点对象 {sp.name} (spawnId={sp.spawnId}) useTransformPosition={sp.useTransformPosition}");
 
-        // 1. 根据配置决定是否清理玩家状态
         if (sp.resetPlayerState)
         {
+            Debug.Log("[LevelController2D] 重生点要求清理玩家状态");
             ClearPlayerState(player);
         }
 
-        // 2. 获取重生点的世界坐标
         Vector3 targetPos = sp.GetWorldPosition();
-
-        Debug.Log($"[LevelController2D] 重生点世界坐标: {targetPos}");
-        Debug.Log($"[LevelController2D] 玩家当前位置: {player.transform.position}");
-
-        // 3. 传送玩家到目标位置
+        Debug.Log($"[LevelController2D] 传送前 玩家: {player.transform.position} -> 目标: {targetPos}");
         player.transform.position = targetPos;
+        Debug.Log($"[LevelController2D] 传送后 玩家位置: {player.transform.position}");
 
-        Debug.Log($"[LevelController2D] 玩家已传送，新位置: {player.transform.position}");
-
-        // 4. 相机是否跟随对齐
         if (sp.snapCameraToPlayer && snapCameraOnLevelLoad)
         {
+            Debug.Log("[LevelController2D] 重生点要求相机对齐");
             SnapCinemachine2DToPlayer();
         }
 
-        Debug.Log($"[LevelController2D] 玩家已成功传送到重生点: {spawnId}");
+        Debug.Log($"[LevelController2D] TeleportPlayerToSpawnId() 完成，spawnId: {spawnId}");
     }
 
-    /// <summary>
-    /// 让 Cinemachine 2D 相机立刻跟到玩家当前位置，避免切关卡时抖动
-    /// </summary>
     private void SnapCinemachine2DToPlayer()
     {
         if (vcam == null || player == null)
+        {
+            Debug.LogWarning("[LevelController2D] SnapCinemachine2DToPlayer 被跳过，vcam 或 player 为空");
             return;
+        }
 
-        // 确保相机 Follow 目标是玩家
         if (vcam.Follow != player)
+        {
+            Debug.Log("[LevelController2D] 相机 Follow 目标修正为玩家");
             vcam.Follow = player.transform;
+        }
 
-        // 把虚拟相机移到玩家附近（保持原来的 Z）
         var camTr = vcam.transform;
+        Vector3 before = camTr.position;
         camTr.position = new Vector3(
             player.transform.position.x,
             player.transform.position.y,
             camTr.position.z
         );
+        Debug.Log($"[LevelController2D] 相机位置同步: {before} -> {camTr.position}");
 
         var brain = CinemachineCore.Instance.GetActiveBrain(0);
         if (brain != null)
         {
             brain.ManualUpdate();
-            Debug.Log("[LevelController2D] Cinemachine 相机已强制更新");
+            Debug.Log("[LevelController2D] Cinemachine Brain 强制更新");
         }
     }
 
     public void ClearPlayerState(GameObject player)
     {
-        Debug.Log("[LevelController2D] ClearPlayerState() 被调用");
+        Debug.Log("[LevelController2D] ClearPlayerState() 开始");
 
         if (player == null)
         {
-            Debug.LogWarning("[LevelController2D] Player 为空，无法清理状态");
+            Debug.LogWarning("[LevelController2D] ClearPlayerState() 取消，player 为空");
             return;
         }
 
@@ -197,14 +214,63 @@ public class LevelController2D : MonoBehaviour
         {
             playerRb2D.velocity = Vector2.zero;
             playerRb2D.angularVelocity = 0f;
-            Debug.Log("[LevelController2D] 玩家速度已清理");
+            Debug.Log("[LevelController2D] 刚体速度 / 角速度 已清零");
         }
 
         PlayerHealth playerHealth = player.GetComponent<PlayerHealth>();
         if (playerHealth != null)
         {
             playerHealth.SetMaxHealth();
-            Debug.Log("[LevelController2D] 玩家血量已回满");
+            Debug.Log("[LevelController2D] PlayerHealth 已重置为最大");
         }
+
+        Debug.Log("[LevelController2D] ClearPlayerState() 结束");
+    }
+
+    // 加载动画协程（内部处理 Loading 文字）
+    public IEnumerator TransitionTimer()
+    {
+        Debug.Log("[LevelController2D] TransitionTimer() 开始");
+        if (loadingUI != null) loadingUI.SetActive(true);
+        if (transitionAnimator != null) transitionAnimator.SetBool("IsTransition", true);
+
+        float elapsed = 0f;
+        float nextDotTime = 0f;
+        int dotCount = 0; // 局部点数量
+
+        while (elapsed < delayTime)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            if (elapsed >= nextDotTime)
+            {
+                nextDotTime += loadingDotInterval;
+                dotCount = (dotCount + 1) % 4; // 0-3 循环
+                if (loadingText != null)
+                {
+                    loadingText.text = "Loading" + new string('.', dotCount);
+                }
+            }
+            yield return null;
+        }
+
+        if (transitionAnimator != null) transitionAnimator.SetBool("IsTransition", false);
+        if (loadingUI != null) loadingUI.SetActive(false);
+        if (loadingText != null) loadingText.text = ""; // 收尾清空或可改成 "Done"
+        Debug.Log("[LevelController2D] TransitionTimer() 结束");
+    }
+
+    public void TeleportPlayerWithDelay(int spawnId)
+    {
+        Debug.Log($"[LevelController2D] TeleportPlayerWithDelay() 调用，spawnId={spawnId}");
+        StartCoroutine(TeleportDelaySequence(spawnId));
+    }
+
+    private IEnumerator TeleportDelaySequence(int spawnId)
+    {
+        Debug.Log("[LevelController2D] TeleportDelaySequence 协程开始");
+        yield return TransitionTimer();
+        Debug.Log("[LevelController2D] TransitionTimer 完成，开始实际传送");
+        TeleportPlayerToSpawnId(spawnId);
+        Debug.Log("[LevelController2D] TeleportDelaySequence 协程结束");
     }
 }
