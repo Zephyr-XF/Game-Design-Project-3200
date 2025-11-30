@@ -7,7 +7,7 @@ public class PlayerHealth : MonoBehaviour
 {
     [Header("Health Settings")]
     public int currentHealth;
-    public int maxHealth = 100;
+    public int maxHealth = 20;
 
     [Header("UI References")]
     public TMP_Text healthText;
@@ -49,6 +49,19 @@ public class PlayerHealth : MonoBehaviour
         UpdateHealthUI();
 
         if (enableDebug) Debug.Log($"Health after change: {currentHealth}");
+    }
+
+    public void SetMaxHealth()
+    {
+        //if (enableDebug) Debug.Log($"ChangeHealth called: {amount}, Current: {currentHealth}");
+        healthTextAnim.Play("UI");
+        
+
+        
+        StatsManager.Instance.currentHealth = maxHealth;
+
+        UpdateHealthUI();
+
     }
 
     private void UpdateHealthUI()
