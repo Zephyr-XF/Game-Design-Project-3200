@@ -78,6 +78,16 @@ public class BlessingManager : MonoBehaviour
         }
     }
 
+    // New API for manually closing the UI
+    public void CloseBlessingUI()
+    {
+        if (blessingUI != null)
+        {
+            blessingUI.Hide();
+            Time.timeScale = 1; // Resume game
+        }
+    }
+
     public void ChooseBlessing(BlessingData choice)
     {
         // 1. Apply Stat (Persistent)

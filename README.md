@@ -10,3 +10,12 @@
 ### WYC
 
 ### XLH
+- 创建了初版祝福系统页面prefab, 名字是BlessingSysterm
+- 4位梦神会随机出现三位 背景可是视频/图片 有一定动画
+- 使用流程
+1.把 BlessingSystem Prefab 拖进场景。
+2.在你想触发祝福的地方调用
+BlessingManager.Instance.TriggerBlessing();
+3.点击任意一个选项关闭页面
+4.BlessingManager.Instance.CloseBlessingUI(); 强制关闭页面
+5.测试按钮B
