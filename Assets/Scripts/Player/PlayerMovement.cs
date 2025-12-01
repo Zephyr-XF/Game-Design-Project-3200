@@ -23,10 +23,10 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetButtonDown("Slash") && player_Combat.enabled == true)
-        {
-            player_Combat.Attack();
-        }
+        // if (Input.GetButtonDown("Slash") && player_Combat.enabled == true)
+        // {
+        //     player_Combat.Attack();
+        // }
     }
 
     // Start is called before the first frame update
