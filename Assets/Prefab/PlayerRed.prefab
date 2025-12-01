@@ -131,7 +131,7 @@ Transform:
   m_GameObject: {fileID: 1761097652390107435}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.75, y: -1.18, z: 0}
+  m_LocalPosition: {x: 1, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -253,8 +253,8 @@ Transform:
   m_GameObject: {fileID: 3716206984241666664}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.052, y: 3.81, z: -0.022313561}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0.18, y: 6.24, z: -0.022313561}
+  m_LocalScale: {x: 0.8, y: 0.8, z: 0.8}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1214544378384854324}
@@ -321,7 +321,7 @@ CapsuleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.1, y: -1.2}
+  m_Offset: {x: 0, y: 0}
   m_Size: {x: 0.8, y: 2}
   m_Direction: 0
 --- !u!114 &4302814273949186373
@@ -340,7 +340,7 @@ MonoBehaviour:
   anim: {fileID: 8974902892306802055}
   isWalking: 0
   player_Combat: {fileID: 7731727476320265924}
-  showDirectionRay: 1
+  showDirectionRay: 0
   rayLength: 2
   rayColor: {r: 1, g: 0, b: 0, a: 1}
   facingRight: 1
@@ -441,7 +441,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3716206984241666664}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b4ea5558cb473e04d90059f4097f4a20, type: 3}
   m_Name: 
@@ -449,7 +449,7 @@ MonoBehaviour:
   attackPoint: {fileID: 3871933538491090331}
   enemyLayer:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 128
   statsUI: {fileID: 0}
   anim: {fileID: 8974902892306802055}
   maxCombo: 4

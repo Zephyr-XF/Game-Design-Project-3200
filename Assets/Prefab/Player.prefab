@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 8761840841766314572}
   - component: {fileID: 8327941493963339352}
   - component: {fileID: 7076989447894705568}
-  m_Layer: 7
+  m_Layer: 6
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -220,7 +220,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1312683216006825196}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b4ea5558cb473e04d90059f4097f4a20, type: 3}
   m_Name: 
@@ -228,10 +228,19 @@ MonoBehaviour:
   attackPoint: {fileID: 1923156508664912615}
   enemyLayer:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 128
   statsUI: {fileID: 0}
   anim: {fileID: 2414698175712082225}
-  slash_Cooldown: 0
+  maxCombo: 3
+  comboResetTimer: 1
+  minAttackInterval: 0.2
+  attackAnmiTrigger: AttackTrigger
+  skill1Cooldown: 5
+  skill1DamageMult: 2
+  skill1AnimTrigger: Skill1Trigger
+  skill2Cooldown: 8
+  skill2DamageMult: 3
+  skill2AnimTrigger: Skill2Trigger
 --- !u!1 &1799668996689682275
 GameObject:
   m_ObjectHideFlags: 0
@@ -242,7 +251,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4254854373323048739}
   - component: {fileID: 3564524555897564856}
-  m_Layer: 7
+  m_Layer: 6
   m_Name: Capsule
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -327,7 +336,7 @@ GameObject:
   - component: {fileID: 9209596836208470907}
   - component: {fileID: 629151740849061050}
   - component: {fileID: 4617562832001745956}
-  m_Layer: 7
+  m_Layer: 6
   m_Name: Square
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -431,7 +440,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1923156508664912615}
-  m_Layer: 7
+  m_Layer: 6
   m_Name: AttackPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
