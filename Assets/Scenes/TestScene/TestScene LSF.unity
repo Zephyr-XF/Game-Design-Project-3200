@@ -13626,18 +13626,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1636779821827771683, guid: dc855fc24a34dd7479c131ae7f828d18, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 0.8
-      objectReference: {fileID: 0}
-    - target: {fileID: 1636779821827771683, guid: dc855fc24a34dd7479c131ae7f828d18, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 0.8
-      objectReference: {fileID: 0}
-    - target: {fileID: 1636779821827771683, guid: dc855fc24a34dd7479c131ae7f828d18, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 0.8
-      objectReference: {fileID: 0}
+    - target: {fileID: 1560531575419317916, guid: dc855fc24a34dd7479c131ae7f828d18, type: 3}
+      propertyPath: healthText
+      value: 
+      objectReference: {fileID: 1163834291}
+    - target: {fileID: 1560531575419317916, guid: dc855fc24a34dd7479c131ae7f828d18, type: 3}
+      propertyPath: healthTextAnim
+      value: 
+      objectReference: {fileID: 1163834293}
     - target: {fileID: 1636779821827771683, guid: dc855fc24a34dd7479c131ae7f828d18, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.052
@@ -13678,14 +13674,26 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1636779821827771683, guid: dc855fc24a34dd7479c131ae7f828d18, type: 3}
-      propertyPath: m_ConstrainProportionsScale
-      value: 1
+    - target: {fileID: 3169596355234946492, guid: dc855fc24a34dd7479c131ae7f828d18, type: 3}
+      propertyPath: m_SortingLayer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3169596355234946492, guid: dc855fc24a34dd7479c131ae7f828d18, type: 3}
+      propertyPath: m_SortingLayerID
+      value: -1635505155
       objectReference: {fileID: 0}
     - target: {fileID: 3716206984241666664, guid: dc855fc24a34dd7479c131ae7f828d18, type: 3}
       propertyPath: m_Name
       value: PlayerRed
       objectReference: {fileID: 0}
+    - target: {fileID: 3871933538491090331, guid: dc855fc24a34dd7479c131ae7f828d18, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7731727476320265924, guid: dc855fc24a34dd7479c131ae7f828d18, type: 3}
+      propertyPath: statsUI
+      value: 
+      objectReference: {fileID: 1115810799}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -13696,6 +13704,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1636779821827771683, guid: dc855fc24a34dd7479c131ae7f828d18, type: 3}
   m_PrefabInstance: {fileID: 905802673}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &905802675 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7731727476320265924, guid: dc855fc24a34dd7479c131ae7f828d18, type: 3}
+  m_PrefabInstance: {fileID: 905802673}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4ea5558cb473e04d90059f4097f4a20, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &923963710
 GameObject:
   m_ObjectHideFlags: 0
@@ -22061,7 +22080,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04cd2bceb9200c64da186b9e5ccbad3a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  combat: {fileID: 0}
+  combat: {fileID: 905802675}
 --- !u!114 &2061031062
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22772,6 +22791,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Enemy
       objectReference: {fileID: 0}
+    - target: {fileID: 4067207561007968939, guid: 26d2b5c941c329e42abfe2beabbd4c76, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 4441746239153314674, guid: 26d2b5c941c329e42abfe2beabbd4c76, type: 3}
       propertyPath: m_LocalPosition.x
       value: 3.3
@@ -22815,6 +22838,14 @@ PrefabInstance:
     - target: {fileID: 8588896935918926829, guid: 26d2b5c941c329e42abfe2beabbd4c76, type: 3}
       propertyPath: attacCoolDown
       value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8588896935918926829, guid: 26d2b5c941c329e42abfe2beabbd4c76, type: 3}
+      propertyPath: playerLayer.m_Bits
+      value: 64
+      objectReference: {fileID: 0}
+    - target: {fileID: 9001288950933298630, guid: 26d2b5c941c329e42abfe2beabbd4c76, type: 3}
+      propertyPath: playerLayers.m_Bits
+      value: 64
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
