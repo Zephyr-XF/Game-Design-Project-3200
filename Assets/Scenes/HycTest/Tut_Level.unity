@@ -40907,7 +40907,16 @@ MonoBehaviour:
     m_Bits: 64
   statsUI: {fileID: 36275807}
   anim: {fileID: 1817739984}
-  slash_Cooldown: 0
+  maxCombo: 3
+  comboResetTimer: 1
+  minAttackInterval: 0.2
+  attackAnmiTrigger: AttackTrigger
+  skill1Cooldown: 5
+  skill1DamageMult: 2
+  skill1AnimTrigger: Skill1Trigger
+  skill2Cooldown: 8
+  skill2DamageMult: 3
+  skill2AnimTrigger: Skill2Trigger
 --- !u!114 &1817739982
 MonoBehaviour:
   m_ObjectHideFlags: 0
