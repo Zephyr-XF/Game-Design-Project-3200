@@ -45,12 +45,26 @@ public class BlessingManager : MonoBehaviour
         // 1. Pause Game
         Time.timeScale = 0;
 
-        // 2. Pick 3 random blessings (or just show the 3 specific ones if that's the design)
-        // For now, let's just show the first 3 in the list
+        // 2. Pick 3 random blessings unique
         BlessingData[] options = new BlessingData[3];
-        for(int i=0; i<3 && i<allBlessings.Count; i++)
+        
+        // Create a temporary list to shuffle so we don't mess up the original order
+        List<BlessingData> shuffledList = new List<BlessingData>(allBlessings);
+        
+        // Fisher-Yates shuffle
+        for (int i = shuffledList.Count - 1; i > 0; i--)
         {
-            options[i] = allBlessings[i];
+            int rnd = Random.Range(0, i + 1);
+            BlessingData temp = shuffledList[i];
+            shuffledList[i] = shuffledList[rnd];
+            shuffledList[rnd] = temp;
+        }
+
+        // Take the first 3 (or fewer if we don't have enough)
+        int count = Mathf.Min(3, shuffledList.Count);
+        for(int i=0; i<count; i++)
+        {
+            options[i] = shuffledList[i];
         }
 
         // 3. Show UI
