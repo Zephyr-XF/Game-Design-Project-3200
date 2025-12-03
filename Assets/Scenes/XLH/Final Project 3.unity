@@ -23910,6 +23910,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8547128887155774071, guid: 81597ad4ace0155499fd4bf225d6ebb4, type: 3}
+      propertyPath: animationHoldDuration
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
