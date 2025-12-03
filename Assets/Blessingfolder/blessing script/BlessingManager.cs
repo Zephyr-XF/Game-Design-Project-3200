@@ -14,7 +14,9 @@ public class BlessingManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // Keep it across scenes if needed, or just for this session
+            // Ensure this is a root object, otherwise DontDestroyOnLoad won't work
+            transform.SetParent(null); 
+            DontDestroyOnLoad(gameObject); 
         }
         else
         {
