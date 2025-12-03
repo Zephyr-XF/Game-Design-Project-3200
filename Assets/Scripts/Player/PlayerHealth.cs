@@ -32,13 +32,11 @@ public class PlayerHealth : MonoBehaviour
     {
         if (enableDebug) Debug.Log($"ChangeHealth called: {amount}, Current: {currentHealth}");
         healthTextAnim.Play("UI");
-        StatsManager.Instance.currentHealth += amount;
+        // Use StatsManager to handle health update and clamping (just like UseItem.cs)
+        StatsManager.Instance.UpdateHealth(amount);
 
-        if (StatsManager.Instance.currentHealth > maxHealth)
-        {
-            StatsManager.Instance.currentHealth = maxHealth;
-        }
-        else if (StatsManager.Instance.currentHealth <= 0)
+        // We only need to check for death here
+        if (StatsManager.Instance.currentHealth <= 0)
         {
             StatsManager.Instance.currentHealth = 0;
             UpdateHealthUI();
@@ -58,7 +56,7 @@ public class PlayerHealth : MonoBehaviour
         
 
         
-        StatsManager.Instance.currentHealth = maxHealth;
+        StatsManager.Instance.currentHealth = StatsManager.Instance.maxHealth;
 
         UpdateHealthUI();
 
