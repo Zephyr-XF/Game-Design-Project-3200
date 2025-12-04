@@ -10,34 +10,77 @@ public class BlessingCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     public TMP_Text descriptionText;
     public Button selectButton;
 
-    private BlessingData data;
-    private Vector3 originalScale;
+    public BlessingData Data { get; private set; }
+    public Transform scaleTarget; // Assign the object you want to scale (e.g., GodImage). If empty, it scales the whole card.
+    private Vector3 originalScale = Vector3.one; // Default to 1
 
     private void Start()
     {
-        originalScale = transform.localScale;
+        InitializeScale();
     }
 
     public void Setup(BlessingData newData)
     {
-        data = newData;
-        godImage.sprite = data.godImage;
-        godNameText.text = data.godName;
-        descriptionText.text = data.description;
+        InitializeScale();
+
+        Data = newData;
+        godImage.sprite = Data.godImage;
+        godNameText.text = Data.godName;
+        descriptionText.text = Data.description;
 
         selectButton.onClick.RemoveAllListeners();
-        selectButton.onClick.AddListener(() => BlessingManager.Instance.ChooseBlessing(data));
+        selectButton.onClick.AddListener(() => BlessingManager.Instance.ChooseBlessing(Data));
+    }
+
+    private void InitializeScale()
+    {
+        if (scaleTarget == null) scaleTarget = transform;
+        
+        // Try to get base scale from GodAnimation if present
+        var anim = scaleTarget.GetComponent<GodAnimation>();
+        if (anim != null)
+        {
+            originalScale = anim.baseScale;
+        }
+        else
+        {
+            // Fallback: if we haven't captured it yet or it's zero, try current
+            if (originalScale == Vector3.one && scaleTarget.localScale != Vector3.one && scaleTarget.localScale != Vector3.zero)
+            {
+                originalScale = scaleTarget.localScale;
+            }
+        }
     }
 
     // Mouse Enter: Scale Up
     public void OnPointerEnter(PointerEventData eventData)
     {
-        transform.localScale = originalScale * 1.1f;
+        if(scaleTarget != null)
+        {
+            // Notify animation script to stop breathing
+            var anim = scaleTarget.GetComponent<GodAnimation>();
+            if (anim != null) anim.SetHover(true);
+
+            scaleTarget.localScale = originalScale * 1.1f;
+        }
     }
 
     // Mouse Exit: Scale Back
     public void OnPointerExit(PointerEventData eventData)
     {
-        transform.localScale = originalScale;
+        if(scaleTarget != null)
+        {
+            scaleTarget.localScale = originalScale;
+
+            // Notify animation script to resume breathing
+            var anim = scaleTarget.GetComponent<GodAnimation>();
+            if (anim != null) anim.SetHover(false);
+        }
+    }
+
+    public void ResetScale()
+    {
+        InitializeScale(); // Ensure we have the latest correct scale
+        if (scaleTarget != null) scaleTarget.localScale = originalScale;
     }
 }

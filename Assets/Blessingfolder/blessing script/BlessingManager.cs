@@ -14,7 +14,9 @@ public class BlessingManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // Keep it across scenes if needed, or just for this session
+            // Ensure this is a root object, otherwise DontDestroyOnLoad won't work
+            transform.SetParent(null); 
+            DontDestroyOnLoad(gameObject); 
         }
         else
         {
@@ -83,8 +85,11 @@ public class BlessingManager : MonoBehaviour
     {
         if (blessingUI != null)
         {
-            blessingUI.Hide();
-            Time.timeScale = 1; // Resume game
+            // Pass null as chosenData for generic close (or handle it gracefully in UI)
+            blessingUI.Hide(null, () => 
+            {
+                Time.timeScale = 1; // Resume game AFTER animation
+            });
         }
     }
 
@@ -93,27 +98,25 @@ public class BlessingManager : MonoBehaviour
         // 1. Apply Stat (Persistent)
         ApplyStatPersistent(choice);
 
-        // 2. Hide UI
-        blessingUI.Hide();
-
-        // 3. Resume Game
-        Time.timeScale = 1;
-        
-        // For testing: Don't restart, just continue playing so we can trigger it again
-        // RestartGame(); 
-        
-        // Apply stats immediately to current instance too
-        if(StatsManager.Instance != null)
+        // 2. Hide UI with Animation
+        blessingUI.Hide(choice, () => 
         {
-             StatsManager.Instance.damage += (choice.statType == StatType.Damage ? choice.amount : 0);
-             if(choice.statType == StatType.Speed) StatsManager.Instance.UpdateSpeed(choice.amount);
-             if(choice.statType == StatType.MaxHealth) 
-             {
-                 StatsManager.Instance.UpdateMaxHealth(choice.amount);
-                 StatsManager.Instance.currentHealth = StatsManager.Instance.maxHealth; // Heal up
-                 StatsManager.Instance.UpdateHealth(0);
-             }
-        }
+            // 3. Resume Game AFTER animation
+            Time.timeScale = 1;
+
+            // Apply stats immediately to current instance too
+            if(StatsManager.Instance != null)
+            {
+                 StatsManager.Instance.damage += (choice.statType == StatType.Damage ? choice.amount : 0);
+                 if(choice.statType == StatType.Speed) StatsManager.Instance.UpdateSpeed(choice.amount);
+                 if(choice.statType == StatType.MaxHealth) 
+                 {
+                     StatsManager.Instance.UpdateMaxHealth(choice.amount);
+                     StatsManager.Instance.currentHealth = StatsManager.Instance.maxHealth; // Heal up
+                     StatsManager.Instance.UpdateHealth(0);
+                 }
+            }
+        });
     }
 
     private void RestartGame()
