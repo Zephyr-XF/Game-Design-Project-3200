@@ -14,6 +14,9 @@ public class LevelController2D : MonoBehaviour
     public GameObject player;           // 玩家 Transform
     public Rigidbody2D playerRb2D;     // 玩家刚体（如果有）
 
+    //[Header("祝福系统")]
+    //public GameObject BlessingSystem;
+
     [Header("Cinemachine 2D")]
     public CinemachineVirtualCamera vcam;
     public bool snapCameraOnLevelLoad = true;
@@ -55,12 +58,13 @@ public class LevelController2D : MonoBehaviour
             Debug.Log("[LevelController2D] 所有关卡结束");
             return;
         }
-
+        
         LoadLevel(currentIndex);
     }
 
     public void LoadLevel(int index)
     {
+        
         Debug.Log($"[LevelController2D] LoadLevel() 被调用，加载关卡索引: {index}");
 
         if (index < 0 || index >= levelConfigs.Length)
@@ -68,11 +72,20 @@ public class LevelController2D : MonoBehaviour
             Debug.LogError($"[LevelController2D] Level index 超出范围: {index}");
             return;
         }
-        // 启动协程执行原始加载流程（带过渡等待）
+        // 启动协程执行加载流程（包含祝福系统）
+        
         StartCoroutine(LoadLevelSequence(index));
+
+
+        
     }
 
-    private IEnumerator LoadLevelSequence(int index)
+    /// <summary>
+    /// 加载关卡序列，包含祝福触发
+    /// </summary>
+    
+
+    private IEnumerator LoadLevelSequence(int index )
     {
         yield return TransitionTimer(); // 显示 Loading 动效
 
@@ -102,6 +115,11 @@ public class LevelController2D : MonoBehaviour
         {
             SnapCinemachine2DToPlayer();
         }
+
+        BlessingManager.Instance.TriggerBlessing();
+
+
+
 
         Debug.Log($"[LevelController2D] 加载关卡完成: {config.levelName}");
     }

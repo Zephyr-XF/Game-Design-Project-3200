@@ -7,35 +7,54 @@ public class TNT : MonoBehaviour
     [Header("爆炸设置")]
     public int explosionDamage = 20;
     
-    [Header("爆炸范围物体")]
-    public GameObject explosionRangeObject; // 包含CircleCollider2D的外挂物体
+    [Header("爆炸范围设置")]
+    public GameObject explosionRangeObject; // 需要有CircleCollider2D的子物体
     
     [Header("目标层级")]
     public LayerMask enemyLayer;
     public LayerMask playerLayer;
 
-   public bool damageEnemies = true;
-    public bool damagePlayer = true; // 确保对玩家造成伤害
+    public bool damageEnemies = true;
+    public bool damagePlayer = true;
     
     [Header("触发设置")]
     public bool explodeOnPlayerAttack = true;
     
-    [Header("组件引用")]
+    [Header("动画设置")]
     public Animator anim;
     
-    [Header("销毁设置")]
+    [Header("销毁延迟")]
     public float destroyDelay = 0.01f;
+    
+    [Header("音效设置")]
+    public AudioSource audioSource;
+    public AudioClip igniteSound;      // 引爆音效（动画开始时播放）
+    public AudioClip explosionSound;   // 爆炸音效（爆炸瞬间播放）
     
     [Header("调试")]
     public bool enableDebug = true;
     
     private bool hasTriggered = false;
+    private bool isInitialized = false;
     private Collider2D explosionRangeCollider;
     private Collider2D tntCollider; // TNT自身的碰撞体
 
     void Start()
     {
-        // 从外挂物体获取CircleCollider2D
+        if (enableDebug)
+            Debug.Log($"[TNT] Start 被调用 - Time.time: {Time.time}");
+        
+        // 强制禁用 AudioSource 的 PlayOnAwake，防止自动播放
+        if (audioSource != null)
+        {
+            audioSource.playOnAwake = false;
+            audioSource.Stop();
+            
+            if (enableDebug)
+                Debug.Log($"[TNT] AudioSource.playOnAwake 已设置为 false");
+        }
+        
+        // 从子物体获取CircleCollider2D
         if (explosionRangeObject != null)
         {
             explosionRangeCollider = explosionRangeObject.GetComponent<Collider2D>();
@@ -58,6 +77,18 @@ public class TNT : MonoBehaviour
         tntCollider = GetComponent<Collider2D>();
         
         ValidateComponents();
+        
+        // 延迟初始化
+        StartCoroutine(InitializeAfterDelay());
+    }
+    
+    IEnumerator InitializeAfterDelay()
+    {
+        yield return new WaitForSeconds(0.2f);
+        isInitialized = true;
+        
+        if (enableDebug)
+            Debug.Log($"[TNT] ? 初始化完成，音效系统已启用 - Time.time: {Time.time}");
     }
     
     void ValidateComponents()
@@ -91,18 +122,32 @@ public class TNT : MonoBehaviour
     {
         if (hasTriggered)
         {
-            if (enableDebug) Debug.LogWarning("TNT动画已触发过，忽略重复调用");
+            if (enableDebug) Debug.LogWarning("TNT已经被触发，不可重复触发");
             return;
         }
         
         hasTriggered = true;
         
-        // 只设置动画参数为TRUE，不执行爆炸逻辑
+        if (enableDebug)
+            Debug.Log($"[TNT] TriggerExplosion 被调用 - isInitialized: {isInitialized}, Time.time: {Time.time}");
+        
+        // 播放引爆音效（只有在初始化完成后才播放）
+        if (isInitialized && audioSource != null && igniteSound != null)
+        {
+            audioSource.PlayOneShot(igniteSound);
+            if (enableDebug)
+                Debug.Log($"[TNT] ? 引爆音效已播放 - AudioClip: {igniteSound.name}");
+        }
+        else if (!isInitialized && enableDebug)
+        {
+            Debug.Log($"[TNT] ? 初始化未完成，跳过播放引爆音效");
+        }
+        
+        // 只设置动画参数为TRUE即可执行爆炸逻辑
         if (anim != null)
         {
             anim.SetBool("IsExploded", true);
-            if (enableDebug) Debug.Log("TNT动画触发，等待动画事件调用Explode()");
-            
+            if (enableDebug) Debug.Log("TNT：设置动画，等待事件调用Explode()");
         }
         else if (enableDebug)
         {
@@ -117,7 +162,22 @@ public class TNT : MonoBehaviour
     {
         if (enableDebug)
         {
-            Debug.Log($"TNT在位置 {transform.position} 爆炸!");
+            Debug.Log($"[TNT] Explode 被调用，位置: {transform.position}, Time.time: {Time.time}");
+        }
+        
+        // 播放爆炸音效（爆炸瞬间）
+        if (audioSource != null && explosionSound != null)
+        {
+            audioSource.PlayOneShot(explosionSound);
+            if (enableDebug)
+                Debug.Log($"[TNT] ? 爆炸音效已播放 - AudioClip: {explosionSound.name}");
+        }
+        else if (enableDebug)
+        {
+            if (audioSource == null)
+                Debug.LogWarning($"[TNT] ? AudioSource 为空");
+            if (explosionSound == null)
+                Debug.LogWarning($"[TNT] ? explosionSound 为空");
         }
         
         // 执行伤害判定
