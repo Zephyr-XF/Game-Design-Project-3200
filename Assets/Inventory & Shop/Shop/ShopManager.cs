@@ -63,6 +63,16 @@ public class ShopManager : MonoBehaviour
             }
         }
     }
+    
+    public void SellTool(ToolSO toolSO)
+    {
+        if (toolSO == null)
+            return;
+            
+        // 使用工具的卖价
+        inventoryManager.gold += toolSO.sellPrice;
+        inventoryManager.goldText.text = inventoryManager.gold.ToString();
+    }
 }
 [System.Serializable]
 public class ShopItems

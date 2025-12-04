@@ -92,5 +92,14 @@ public class InventoryManager : MonoBehaviour
             slot.UpdateUI();
         }
     }
+    public void SellTool(ToolSO toolSO)
+    {
+        if (toolSO == null)
+            return;
+            
+        // 使用工具的卖价
+        gold += toolSO.sellPrice;
+        goldText.text = gold.ToString();
+    }
 
 }

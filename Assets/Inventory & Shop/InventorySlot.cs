@@ -14,6 +14,10 @@ public class InventorySlot : MonoBehaviour, IPointerClickHandler
     public TMP_Text quantityText;
     private InventoryManager inventoryManager;
     private static ShopManager activeShop;
+    
+    [Header("调试")]
+    public bool enableDebug = false;
+    
     private void Start()
     {
         inventoryManager = GetComponentInParent<InventoryManager>();
@@ -57,20 +61,31 @@ public class InventorySlot : MonoBehaviour, IPointerClickHandler
 
     public void UpdateUI()
     {
+        if (enableDebug)
+            Debug.Log($"[InventorySlot] UpdateUI 调用 - Slot: {name}, ItemSO: {itemSO?.itemName ?? "null"}, Quantity: {quantity}");
+        
         if (quantity <= 0)
         {
             itemSO = null;
+            if (enableDebug)
+                Debug.Log($"[InventorySlot] 数量<=0，清空itemSO - Slot: {name}");
         }
         if(itemSO != null)
         {
             itemImage.sprite = itemSO.icon;
             itemImage.gameObject.SetActive(true);
             quantityText.text = quantity.ToString();
+            
+            if (enableDebug)
+                Debug.Log($"[InventorySlot] 显示物品 - Slot: {name}, Item: {itemSO.itemName}, Icon: {itemSO.icon?.name ?? "null"}, Image Active: {itemImage.gameObject.activeSelf}");
         }
         else
         {
             itemImage.gameObject.SetActive(false);
             quantityText.text = "";
+            
+            if (enableDebug)
+                Debug.Log($"[InventorySlot] 隐藏物品图标 - Slot: {name}");
         }
     }
 }
