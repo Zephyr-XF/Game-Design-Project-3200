@@ -7,7 +7,7 @@ public class EnemyMovement : MonoBehaviour
     static string IsIdling = "IsIdling";
     static string IsWalking = "IsWalking";
     static string IsAttacking = "IsAttacking";
-
+    static string IsStunned = "IsStunned";
 
     public float attacCoolDown = 1f;
     public float attackCoolDownTimer = 1f;
@@ -16,7 +16,7 @@ public class EnemyMovement : MonoBehaviour
     public LayerMask playerLayer;
 
     public float speed = 1.5f;
-    private int facingDirection = 1; // 1 for right, -1 for left
+    private int facingDirection = 1;
     public int attackrange = 2;
 
     public EnemyState enemyState;
@@ -24,134 +24,131 @@ public class EnemyMovement : MonoBehaviour
     private Rigidbody2D rb;
     private Transform player;
     private Animator anim;
+    private SpriteRenderer sr;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
+        sr = GetComponent<SpriteRenderer>();
         ChangeState(EnemyState.idle);
     }
 
     void Update()
     {
-        if (enemyState != EnemyState.knockback)
+        // 只有非击退、非清醒状态才执行逻辑
+        if (enemyState != EnemyState.knockback && enemyState != EnemyState.dreamshatter)
         {
             CheckForPlayer();
+
             if (attackCoolDownTimer > 0)
             {
                 attackCoolDownTimer -= Time.deltaTime;
             }
+
             if (enemyState == EnemyState.chase)
             {
                 ChasePlayer();
             }
-            else if (enemyState == EnemyState.attack)
-            {
-                // Ensure the enemy stops moving when idle
-            }
         }
-
     }
+
     private void CheckForPlayer()
     {
         Collider2D[] hits = Physics2D.OverlapCircleAll(dectectionPoint.position, playerRange, playerLayer);
+
         if (hits.Length > 0)
         {
             player = hits[0].transform;
+            float distance = Vector2.Distance(transform.position, player.position);
 
-            if (Vector2.Distance(transform.position, player.position) <= attackrange && attackCoolDownTimer <= 0)
+            // 1. 攻击判定：距离够近 且 冷却好了 且 当前没有在攻击中
+            if (distance <= attackrange && attackCoolDownTimer <= 0 && enemyState != EnemyState.attack)
             {
+                // 注意：这里不要急着重置冷却时间，最好在 FinishAttack 里重置，或者在这里重置
                 attackCoolDownTimer = attacCoolDown;
-                rb.velocity = Vector2.zero; // Stop moving when in attack range
+                rb.velocity = Vector2.zero;
                 ChangeState(EnemyState.attack);
             }
-            else if (Vector2.Distance(transform.position, player.position) > attackrange && enemyState != EnemyState.attack)
+            // 2. 追逐判定：距离远 且 没在攻击
+            else if (distance > attackrange && enemyState != EnemyState.attack)
             {
                 ChangeState(EnemyState.chase);
             }
-
         }
         else
         {
-            rb.velocity = Vector2.zero; // Stop moving when player exits
-            ChangeState(EnemyState.idle);
+            // 没人时切回 Idle
+            if (enemyState != EnemyState.knockback && enemyState != EnemyState.dreamshatter && enemyState != EnemyState.attack)
+            {
+                rb.velocity = Vector2.zero;
+                ChangeState(EnemyState.idle);
+            }
         }
     }
 
-
-
     private void ChasePlayer()
     {
+        if (player == null) return;
+
+        // 简单的转向逻辑
         if (player.position.x > transform.position.x && facingDirection == -1 ||
             player.position.x < transform.position.x && facingDirection == 1)
         {
-
             facingDirection *= -1;
             transform.localScale = new Vector3(transform.localScale.x * -1, transform.localScale.y, transform.localScale.z);
         }
 
-        // 移动
         Vector2 direction = (player.position - transform.position).normalized;
         rb.velocity = direction * speed;
     }
 
     public void ChangeState(EnemyState newState)
     {
-        // 关闭当前状态的动画
-        if (enemyState == EnemyState.idle)
+        // 退出旧状态清理
+        if (enemyState == EnemyState.idle) anim.SetBool(IsIdling, false);
+        else if (enemyState == EnemyState.chase) anim.SetBool(IsWalking, false);
+        else if (enemyState == EnemyState.attack) anim.SetBool(IsAttacking, false);
+        else if (enemyState == EnemyState.dreamshatter)
         {
-            anim.SetBool(IsIdling, false);
-        }
-        else if (enemyState == EnemyState.chase)
-        {
-            anim.SetBool(IsWalking, false);
-        }
-        else if (enemyState == EnemyState.attack)
-        {
-            anim.SetBool(IsAttacking, false);
+            sr.color = Color.white;
         }
 
         enemyState = newState;
 
-        // 设置新状态的动画和行为
+        // 进入新状态设置
         if (enemyState == EnemyState.idle)
         {
             anim.SetBool(IsIdling, true);
-            rb.velocity = Vector2.zero;  // ✅ 停止移动
+            rb.velocity = Vector2.zero;
         }
         else if (enemyState == EnemyState.chase)
         {
             anim.SetBool(IsWalking, true);
-            // chase 状态下的移动由 ChasePlayer() 方法处理
         }
         else if (enemyState == EnemyState.attack)
         {
             anim.SetBool(IsAttacking, true);
-            rb.velocity = Vector2.zero;  // ✅ 攻击时停止移动
+            rb.velocity = Vector2.zero;
+        }
+        else if (enemyState == EnemyState.dreamshatter)
+        {
+            rb.velocity = Vector2.zero;
+            sr.color = Color.magenta;
         }
     }
 
-    public void Attack()
+    // ★★★ 关键修改：新增这个方法 ★★★
+    // 必须在 Attack 动画的最后一帧添加 Animation Event 调用此方法
+    public void FinishAttack()
     {
-        // Attack logic here
-        Debug.Log("Enemy attacks!");
-
-        // 攻击完成后可以返回追逐状态或idle状态
-        if (player != null && Vector2.Distance(transform.position, player.position) <= attackrange)
-        {
-            // 如果玩家仍在攻击范围内，继续攻击或返回追逐
-            ChangeState(EnemyState.chase);
-        }
-        else
-        {
-            ChangeState(EnemyState.idle);
-        }
+        // 强制把状态切回 Idle，这样 Update 里的 CheckForPlayer 才能再次让敌人动起来
+        ChangeState(EnemyState.idle);
     }
 
     private void OnDrawGizmosSelected()
     {
-        if (dectectionPoint == null)
-            return;
+        if (dectectionPoint == null) return;
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(dectectionPoint.position, playerRange);
     }
@@ -162,5 +159,6 @@ public enum EnemyState
     idle,
     chase,
     attack,
-    knockback
+    knockback,
+    dreamshatter
 }

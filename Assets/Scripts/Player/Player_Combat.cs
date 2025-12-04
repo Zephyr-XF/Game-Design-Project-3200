@@ -13,29 +13,34 @@ public class Player_Combat : MonoBehaviour
     public Animator anim;
 
     [Header("Combo Settings")]
-    public int maxCombo = 3;           // 最大连击段数
+    public int maxCombo = 3;            // 最大连击段数
     public float comboResetTimer = 1f; // 超过这个时间未攻击，连击重置
-    public float minAttackInterval = 0.2f; // 防止玩家按键过快（最小攻击间隔）
+    public float minAttackInterval = 0.2f; // 防止玩家按键过快
     public string attackAnmiTrigger = "AttackTrigger";
 
+    [Header("Poise / Impact Settings (新功能)")]
+    public float basePoiseDamage = 5f;   // 普攻削韧值
+    public float skill1PoiseDamage = 20f; // 技能1削韧值 (高)
+    public float skill2PoiseDamage = 40f; // 技能2削韧值 (极高，容易打出清醒状态)
+
     [Header("Skill 1 Settings")]
-    public float skill1Cooldown = 5f;      // 技能1冷却时间
-    public float skill1DamageMult = 2.0f;  // 技能1伤害倍率
-    public string skill1AnimTrigger = "Skill1Trigger"; // 动画机里的Trigger名字
+    public float skill1Cooldown = 5f;      
+    public float skill1DamageMult = 2.0f;  
+    public string skill1AnimTrigger = "Skill1Trigger"; 
 
     [Header("Skill 2 Settings")]
-    public float skill2Cooldown = 8f;      // 技能2冷却时间
-    public float skill2DamageMult = 3.0f;  // 技能2伤害倍率
-    public string skill2AnimTrigger = "Skill2Trigger"; // 动画机里的Trigger名字
+    public float skill2Cooldown = 8f;      
+    public float skill2DamageMult = 3.0f;  
+    public string skill2AnimTrigger = "Skill2Trigger"; 
 
-    private int currentComboStep = 0;  // 当前连击段数
-    private float lastAttackTime = 0;  // 上次按下攻击键的时间
-    private float nextAttackAllowedTime = 0; // 下一次允许攻击的时间点
+    private int currentComboStep = 0;  
+    private float lastAttackTime = 0;  
+    private float nextAttackAllowedTime = 0; 
 
-    private float skill1Timer = 0; // 技能1当前剩余冷却时间
-    private float skill2Timer = 0; // 技能2当前剩余冷却时间
+    private float skill1Timer = 0; 
+    private float skill2Timer = 0; 
 
-    private AttackType currentAttackType = AttackType.None; // 当前正在进行的攻击类型
+    private AttackType currentAttackType = AttackType.None; 
 
     private void Update()
     {
@@ -56,10 +61,9 @@ public class Player_Combat : MonoBehaviour
 
     public void Attack()
     {
-        // 如果正在放技能，或者攻击间隔未到，禁止普攻
         if (Time.time < nextAttackAllowedTime || IsCastingSkill()) return;
 
-        currentAttackType = AttackType.BasicCombo; // 标记当前为普攻
+        currentAttackType = AttackType.BasicCombo; 
 
         currentComboStep++;
         if (currentComboStep > maxCombo) currentComboStep = 1;
@@ -71,75 +75,78 @@ public class Player_Combat : MonoBehaviour
         nextAttackAllowedTime = Time.time + minAttackInterval;
     }
 
-    // --- 技能1 逻辑 ---
     public void CastSkill1()
     {
-        // 检查冷却 & 是否允许攻击
         if (skill1Timer > 0 || IsCastingSkill()) return;
 
-        currentAttackType = AttackType.Skill1; // 标记当前为技能1
-        skill1Timer = skill1Cooldown;          // 重置冷却
-
-        // 可以在这里重置连击段数，防止技能接普攻出现动画不连贯
+        currentAttackType = AttackType.Skill1; 
+        skill1Timer = skill1Cooldown;          
         ResetCombo();
-
         anim.SetTrigger(skill1AnimTrigger);
     }
 
-    // --- 技能2 逻辑 ---
     public void CastSkill2()
     {
-        // 检查冷却 & 是否允许攻击
         if (skill2Timer > 0 || IsCastingSkill()) return;
 
-        currentAttackType = AttackType.Skill2; // 标记当前为技能2
-        skill2Timer = skill2Cooldown;          // 重置冷却
-
+        currentAttackType = AttackType.Skill2; 
+        skill2Timer = skill2Cooldown;          
         ResetCombo();
-
         anim.SetTrigger(skill2AnimTrigger);
     }
 
+    // --- 核心修改：造成伤害逻辑 ---
     public void DealDamage()
     {
-        statsUI.UpdateDamage();
+        if(statsUI != null) statsUI.UpdateDamage(); // 保护判空
 
+        // 获取范围内的敌人
         Collider2D[] enemies = Physics2D.OverlapCircleAll(attackPoint.position, StatsManager.Instance.weaponRange, enemyLayer);
 
         foreach (Collider2D enemy in enemies)
         {
+            // 获取新的 EnemyHealth 脚本 (之前修改过的)
             EnemyHealth health = enemy.GetComponent<EnemyHealth>();
             EnemyKonckBack knockback = enemy.GetComponent<EnemyKonckBack>();
 
             if (health != null)
             {
-                // 获取基础伤害
+                // 1. 基础数值准备
                 float damageToDeal = StatsManager.Instance.damage;
+                float poiseToDeal = basePoiseDamage; // 默认削韧
 
-                // 根据当前攻击类型计算最终伤害
+                // 2. 根据攻击类型计算 伤害倍率 和 削韧值
                 switch (currentAttackType)
                 {
                     case AttackType.BasicCombo:
-                        // 普攻逻辑：最终段伤害加成
-                        if (currentComboStep == maxCombo) damageToDeal *= 1.5f;
+                        // 普攻连击最后一下伤害和削韧都提高
+                        if (currentComboStep == maxCombo) 
+                        {
+                            damageToDeal *= 1.5f;
+                            poiseToDeal *= 1.5f; 
+                        }
                         break;
 
                     case AttackType.Skill1:
                         damageToDeal *= skill1DamageMult;
+                        poiseToDeal = skill1PoiseDamage; // 使用技能设定值
                         break;
 
                     case AttackType.Skill2:
                         damageToDeal *= skill2DamageMult;
+                        poiseToDeal = skill2PoiseDamage; // 使用技能设定值
                         break;
                 }
 
-                health.ChangeHealth(-(int)damageToDeal);
+                // 3. 调用新的 TakeDamage 方法 (传入 int 伤害 和 float 削韧)
+                health.TakeDamage((int)damageToDeal, poiseToDeal);
             }
 
+            // 4. 处理击退 (击退逻辑保持不变，或者你可以让技能造成更强的击退)
             if (knockback != null)
             {
-                // 技能可能造成更强的击退（可选）
                 float forceMult = (currentAttackType == AttackType.Skill1 || currentAttackType == AttackType.Skill2) ? 1.5f : 1f;
+                // 注意：如果 StatsManager 没有 knockbackTime，请替换为具体数值或在 StatsManager 中添加
                 knockback.Knockback(transform, StatsManager.Instance.knockbackForce * forceMult, StatsManager.Instance.knockbackTime, StatsManager.Instance.stunTime);
             }
         }
@@ -147,22 +154,17 @@ public class Player_Combat : MonoBehaviour
 
     private bool IsCastingSkill()
     {
-        // 如果当前标记是技能，且还没被重置（说明动作还没做完或者刚开始）
-        // 注意：这里逻辑比较简单，如果需要严格锁死输入，建议在 FinishAttacking 中重置 currentAttackType
         return currentAttackType == AttackType.Skill1 || currentAttackType == AttackType.Skill2;
     }
 
     public void FinishAttacking()
     {
-        currentAttackType = AttackType.None; // 攻击动作结束，状态归零
-        // 这里也可以把 nextAttackAllowedTime 稍微重置一下，允许立刻接下一个动作
+        currentAttackType = AttackType.None; 
     }
 
     public float GetSkill1CooldownRatio() => Mathf.Clamp01(skill1Timer / skill1Cooldown);
     public float GetSkill2CooldownRatio() => Mathf.Clamp01(skill2Timer / skill2Cooldown);
 
-
-    // 辅助方法：重置连击
     private void ResetCombo()
     {
         currentComboStep = 0;
@@ -173,6 +175,8 @@ public class Player_Combat : MonoBehaviour
     {
         if (attackPoint == null) return;
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(attackPoint.position, StatsManager.Instance.weaponRange);
+        // 注意：如果 StatsManager 在编辑器模式下报错，可以加个判空或者写死一个半径用于Debug
+        float range = (StatsManager.Instance != null) ? StatsManager.Instance.weaponRange : 1.5f;
+        Gizmos.DrawWireSphere(attackPoint.position, range);
     }
 }

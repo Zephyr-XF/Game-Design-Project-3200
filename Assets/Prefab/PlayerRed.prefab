@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1214544378384854324}
   - component: {fileID: 7189528599867205863}
   - component: {fileID: 4533037936640423192}
-  m_Layer: 7
+  m_Layer: 6
   m_Name: Square
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -115,7 +115,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3871933538491090331}
-  m_Layer: 7
+  m_Layer: 6
   m_Name: AttackPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -147,7 +147,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7614014208765442829}
   - component: {fileID: 817943564665004010}
-  m_Layer: 7
+  m_Layer: 6
   m_Name: Capsule
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -237,7 +237,7 @@ GameObject:
   - component: {fileID: 3169596355234946492}
   - component: {fileID: 1560531575419317916}
   - component: {fileID: 7731727476320265924}
-  m_Layer: 7
+  m_Layer: 6
   m_Name: PlayerRed
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -441,7 +441,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3716206984241666664}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b4ea5558cb473e04d90059f4097f4a20, type: 3}
   m_Name: 
