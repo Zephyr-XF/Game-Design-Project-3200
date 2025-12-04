@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class Player_Combat : MonoBehaviour
 {
-    public enum AttackType { None, BasicCombo, Skill1, Skill2 }
+    // --- 修改 ---: 在枚举中添加 Skill3
+    public enum AttackType { None, BasicCombo, Skill1, Skill2, Skill3 }
 
     [Header("Combat References")]
     public Transform attackPoint;
@@ -13,53 +14,73 @@ public class Player_Combat : MonoBehaviour
     public Animator anim;
 
     [Header("Combo Settings")]
-    public int maxCombo = 3;           // 最大连击段数
-    public float comboResetTimer = 1f; // 超过这个时间未攻击，连击重置
-    public float minAttackInterval = 0.2f; // 防止玩家按键过快（最小攻击间隔）
+    public int maxCombo = 3;
+    public float comboResetTimer = 1f;
+    public float minAttackInterval = 0.2f;
     public string attackAnmiTrigger = "AttackTrigger";
 
     [Header("Skill 1 Settings")]
-    public float skill1Cooldown = 5f;      // 技能1冷却时间
-    public float skill1DamageMult = 2.0f;  // 技能1伤害倍率
-    public string skill1AnimTrigger = "Skill1Trigger"; // 动画机里的Trigger名字
+    public float skill1Cooldown = 5f;
+    public float skill1DamageMult = 2.0f;
+    public string skill1AnimTrigger = "Skill1Trigger";
 
     [Header("Skill 2 Settings")]
-    public float skill2Cooldown = 8f;      // 技能2冷却时间
-    public float skill2DamageMult = 3.0f;  // 技能2伤害倍率
-    public string skill2AnimTrigger = "Skill2Trigger"; // 动画机里的Trigger名字
+    public float skill2Cooldown = 8f;
+    public float skill2DamageMult = 3.0f;
+    public string skill2AnimTrigger = "Skill2Trigger";
 
-    private int currentComboStep = 0;  // 当前连击段数
-    private float lastAttackTime = 0;  // 上次按下攻击键的时间
-    private float nextAttackAllowedTime = 0; // 下一次允许攻击的时间点
+    // --- 新增 ---: 技能3的设置
+    [Header("Skill 3 Settings")]
+    public float skill3Cooldown = 12f;     // 技能3冷却时间
+    public float skill3DamageMult = 4.0f;  // 技能3伤害倍率
+    public string skill3AnimTrigger = "Skill3Trigger"; // 动画机里的Trigger名字
 
-    private float skill1Timer = 0; // 技能1当前剩余冷却时间
-    private float skill2Timer = 0; // 技能2当前剩余冷却时间
+    private int currentComboStep = 0;
+    private float lastAttackTime = 0;
+    private float nextAttackAllowedTime = 0;
 
-    private AttackType currentAttackType = AttackType.None; // 当前正在进行的攻击类型
+    private float skill1Timer = 0;
+    private float skill2Timer = 0;
+    private float skill3Timer = 0; // --- 新增 ---: 技能3冷却计时器
+
+    private AttackType currentAttackType = AttackType.None;
 
     private void Update()
     {
-        // 1. 处理普通攻击连击重置
+        // --- 修改 ---: 扩展时停状态下的输入逻辑
+        if (PlayerBreakEffectManager.Instance.IsTimeFrozen)
+        {
+            // 在时停时，根据按下的技能键来触发对应的破防技
+            if (Input.GetKeyDown(KeyCode.K)) ExecuteBreakSkill(AttackType.Skill1);
+            else if (Input.GetKeyDown(KeyCode.L)) ExecuteBreakSkill(AttackType.Skill2);
+            else if (Input.GetKeyDown(KeyCode.U)) ExecuteBreakSkill(AttackType.Skill3);
+            return; // 阻止其他 Update 逻辑
+        }
+
+        // 连击重置
         if (currentComboStep > 0 && Time.time - lastAttackTime > comboResetTimer)
         {
             ResetCombo();
         }
 
-        // 2. 处理技能冷却倒计时
+        // 技能冷却
         if (skill1Timer > 0) skill1Timer -= Time.deltaTime;
         if (skill2Timer > 0) skill2Timer -= Time.deltaTime;
+        if (skill3Timer > 0) skill3Timer -= Time.deltaTime; // --- 新增 ---
 
-        if (Input.GetKeyDown(KeyCode.J)) Attack();      // 普攻
-        if (Input.GetKeyDown(KeyCode.K)) CastSkill1();  // 技能1
-        if (Input.GetKeyDown(KeyCode.L)) CastSkill2();  // 技能2
+        // 输入检测
+        if (Input.GetKeyDown(KeyCode.J)) Attack();
+        if (Input.GetKeyDown(KeyCode.K)) CastSkill1();
+        if (Input.GetKeyDown(KeyCode.L)) CastSkill2();
+        if (Input.GetKeyDown(KeyCode.U)) CastSkill3(); // --- 新增 ---
     }
 
     public void Attack()
     {
-        // 如果正在放技能，或者攻击间隔未到，禁止普攻
-        if (Time.time < nextAttackAllowedTime || IsCastingSkill()) return;
+        // --- 修改 ---: 使用新的状态检查方法
+        if (Time.time < nextAttackAllowedTime || IsCurrentlyAttacking()) return;
 
-        currentAttackType = AttackType.BasicCombo; // 标记当前为普攻
+        currentAttackType = AttackType.BasicCombo;
 
         currentComboStep++;
         if (currentComboStep > maxCombo) currentComboStep = 1;
@@ -71,34 +92,56 @@ public class Player_Combat : MonoBehaviour
         nextAttackAllowedTime = Time.time + minAttackInterval;
     }
 
+    #region Skill Casting
     // --- 技能1 逻辑 ---
     public void CastSkill1()
     {
-        // 检查冷却 & 是否允许攻击
-        if (skill1Timer > 0 || IsCastingSkill()) return;
+        // --- 修改 ---: 使用新的状态检查方法
+        if (skill1Timer > 0 || IsCurrentlyAttacking()) return;
+        PerformSkill1();
+    }
 
-        currentAttackType = AttackType.Skill1; // 标记当前为技能1
-        skill1Timer = skill1Cooldown;          // 重置冷却
-
-        // 可以在这里重置连击段数，防止技能接普攻出现动画不连贯
+    // 分离出核心施法逻辑，以便被强制调用
+    private void PerformSkill1()
+    {
+        currentAttackType = AttackType.Skill1;
+        skill1Timer = skill1Cooldown;
         ResetCombo();
-
         anim.SetTrigger(skill1AnimTrigger);
     }
 
     // --- 技能2 逻辑 ---
     public void CastSkill2()
     {
-        // 检查冷却 & 是否允许攻击
-        if (skill2Timer > 0 || IsCastingSkill()) return;
+        // --- 修改 ---: 使用新的状态检查方法
+        if (skill2Timer > 0 || IsCurrentlyAttacking()) return;
+        PerformSkill2();
+    }
 
-        currentAttackType = AttackType.Skill2; // 标记当前为技能2
-        skill2Timer = skill2Cooldown;          // 重置冷却
-
+    // --- 新增 ---: 分离出技能2的核心施法逻辑
+    private void PerformSkill2()
+    {
+        currentAttackType = AttackType.Skill2;
+        skill2Timer = skill2Cooldown;
         ResetCombo();
-
         anim.SetTrigger(skill2AnimTrigger);
     }
+
+    // --- 新增 ---: 技能3的完整逻辑
+    public void CastSkill3()
+    {
+        if (skill3Timer > 0 || IsCurrentlyAttacking()) return;
+        PerformSkill3();
+    }
+
+    private void PerformSkill3()
+    {
+        currentAttackType = AttackType.Skill3;
+        skill3Timer = skill3Cooldown;
+        ResetCombo();
+        anim.SetTrigger(skill3AnimTrigger);
+    }
+    #endregion
 
     public void DealDamage()
     {
@@ -113,23 +156,22 @@ public class Player_Combat : MonoBehaviour
 
             if (health != null)
             {
-                // 获取基础伤害
                 float damageToDeal = StatsManager.Instance.damage;
 
-                // 根据当前攻击类型计算最终伤害
+                // --- 修改 ---: 在switch中加入Skill3的伤害计算
                 switch (currentAttackType)
                 {
                     case AttackType.BasicCombo:
-                        // 普攻逻辑：最终段伤害加成
                         if (currentComboStep == maxCombo) damageToDeal *= 1.5f;
                         break;
-
                     case AttackType.Skill1:
                         damageToDeal *= skill1DamageMult;
                         break;
-
                     case AttackType.Skill2:
                         damageToDeal *= skill2DamageMult;
+                        break;
+                    case AttackType.Skill3: // --- 新增 ---
+                        damageToDeal *= skill3DamageMult;
                         break;
                 }
 
@@ -138,31 +180,43 @@ public class Player_Combat : MonoBehaviour
 
             if (knockback != null)
             {
-                // 技能可能造成更强的击退（可选）
-                float forceMult = (currentAttackType == AttackType.Skill1 || currentAttackType == AttackType.Skill2) ? 1.5f : 1f;
+                // --- 修改 ---: 击退逻辑也包含技能3
+                float forceMult = (currentAttackType != AttackType.None && currentAttackType != AttackType.BasicCombo) ? 1.5f : 1f;
                 knockback.Knockback(transform, StatsManager.Instance.knockbackForce * forceMult, StatsManager.Instance.knockbackTime, StatsManager.Instance.stunTime);
             }
         }
     }
 
-    private bool IsCastingSkill()
+    // --- 新增 ---: 用于锁定移动的公共方法
+    /// <summary>
+    /// 检查玩家当前是否正在进行攻击或施法动作。
+    /// 在玩家移动脚本中调用此方法，如果返回 true，则阻止移动。
+    /// </summary>
+    /// <returns>如果正在攻击或施法，返回 true。</returns>
+    public bool IsCurrentlyAttacking()
     {
-        // 如果当前标记是技能，且还没被重置（说明动作还没做完或者刚开始）
-        // 注意：这里逻辑比较简单，如果需要严格锁死输入，建议在 FinishAttacking 中重置 currentAttackType
-        return currentAttackType == AttackType.Skill1 || currentAttackType == AttackType.Skill2;
+        // 只要当前攻击类型不是None，就意味着玩家正处于一个动作中，不能移动
+        return currentAttackType != AttackType.None;
     }
 
+    // 这个方法不再需要，因为我们有了更通用的 IsCurrentlyAttacking()
+    // private bool IsCastingSkill() { ... }
+
+    /// <summary>
+    /// 【重要】这个方法需要绑定到【所有攻击和技能动画】的【最后一帧】
+    /// 动画结束时调用，将玩家状态重置为 None，允许进行下一个动作或移动。
+    /// </summary>
     public void FinishAttacking()
     {
-        currentAttackType = AttackType.None; // 攻击动作结束，状态归零
-        // 这里也可以把 nextAttackAllowedTime 稍微重置一下，允许立刻接下一个动作
+        currentAttackType = AttackType.None;
     }
 
+    #region Cooldown UI
     public float GetSkill1CooldownRatio() => Mathf.Clamp01(skill1Timer / skill1Cooldown);
     public float GetSkill2CooldownRatio() => Mathf.Clamp01(skill2Timer / skill2Cooldown);
+    public float GetSkill3CooldownRatio() => Mathf.Clamp01(skill3Timer / skill3Cooldown); // --- 新增 ---
+    #endregion
 
-
-    // 辅助方法：重置连击
     private void ResetCombo()
     {
         currentComboStep = 0;
@@ -175,4 +229,47 @@ public class Player_Combat : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(attackPoint.position, StatsManager.Instance.weaponRange);
     }
+
+    #region Cinematic Break Effect
+    public void TriggerCinematicEffect()
+    {
+        if (PlayerBreakEffectManager.Instance != null)
+        {
+            PlayerBreakEffectManager.Instance.TriggerCinematicFreeze(transform);
+        }
+    }
+
+    // --- 修改 ---: 让函数可以处理所有技能
+    void ExecuteBreakSkill(AttackType skillToExecute)
+    {
+        PlayerBreakEffectManager.Instance.UnlockTimeButKeepCamera();
+
+        // 根据传入的技能类型，强制释放对应的技能
+        switch (skillToExecute)
+        {
+            case AttackType.Skill1:
+                PerformSkill1();
+                break;
+            case AttackType.Skill2:
+                PerformSkill2();
+                break;
+            case AttackType.Skill3:
+                PerformSkill3();
+                break;
+        }
+    }
+
+    /// <summary>
+    /// 【重要】这个方法需要绑定到【所有破防演出技能】动画的【最后一帧】
+    /// </summary>
+    public void OnCinematicSkillFinished()
+    {
+        if (PlayerBreakEffectManager.Instance != null)
+        {
+            PlayerBreakEffectManager.Instance.RestoreCameraView();
+        }
+    }
+    #endregion
 }
+
+

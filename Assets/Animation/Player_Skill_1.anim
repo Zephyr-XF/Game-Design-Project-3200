@@ -41,13 +41,13 @@ AnimationClip:
     - time: 0.75
       value: {fileID: 2014485837, guid: 45a4dc53b9a12f744a5c9844d782029e, type: 3}
     - time: 0.8333333
-      value: {fileID: 835610850, guid: 45a4dc53b9a12f744a5c9844d782029e, type: 3}
+      value: {fileID: -2013380139, guid: 45a4dc53b9a12f744a5c9844d782029e, type: 3}
     - time: 0.9166667
       value: {fileID: -921260954, guid: 45a4dc53b9a12f744a5c9844d782029e, type: 3}
-    - time: 0.98333335
+    - time: 1
       value: {fileID: 1257804981, guid: 45a4dc53b9a12f744a5c9844d782029e, type: 3}
     - time: 1.0833334
-      value: {fileID: -2056566497, guid: 45a4dc53b9a12f744a5c9844d782029e, type: 3}
+      value: {fileID: -2013380139, guid: 45a4dc53b9a12f744a5c9844d782029e, type: 3}
     - time: 1.1666666
       value: {fileID: -455804157, guid: 45a4dc53b9a12f744a5c9844d782029e, type: 3}
     - time: 1.25
@@ -86,10 +86,10 @@ AnimationClip:
     - {fileID: -1365975715, guid: 45a4dc53b9a12f744a5c9844d782029e, type: 3}
     - {fileID: 1410815576, guid: 45a4dc53b9a12f744a5c9844d782029e, type: 3}
     - {fileID: 2014485837, guid: 45a4dc53b9a12f744a5c9844d782029e, type: 3}
-    - {fileID: 835610850, guid: 45a4dc53b9a12f744a5c9844d782029e, type: 3}
+    - {fileID: -2013380139, guid: 45a4dc53b9a12f744a5c9844d782029e, type: 3}
     - {fileID: -921260954, guid: 45a4dc53b9a12f744a5c9844d782029e, type: 3}
     - {fileID: 1257804981, guid: 45a4dc53b9a12f744a5c9844d782029e, type: 3}
-    - {fileID: -2056566497, guid: 45a4dc53b9a12f744a5c9844d782029e, type: 3}
+    - {fileID: -2013380139, guid: 45a4dc53b9a12f744a5c9844d782029e, type: 3}
     - {fileID: -455804157, guid: 45a4dc53b9a12f744a5c9844d782029e, type: 3}
     - {fileID: -2034472673, guid: 45a4dc53b9a12f744a5c9844d782029e, type: 3}
     - {fileID: -2034472673, guid: 45a4dc53b9a12f744a5c9844d782029e, type: 3}
@@ -120,6 +120,13 @@ AnimationClip:
   m_Events:
   - time: 1.25
     functionName: FinishAttacking
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 1.2666667
+    functionName: OnCinematicSkillFinished
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
