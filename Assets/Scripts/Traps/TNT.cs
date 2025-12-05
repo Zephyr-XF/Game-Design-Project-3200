@@ -18,7 +18,18 @@ public class TNT : MonoBehaviour
     public bool damagePlayer = true;
     
     [Header("触发设置")]
-    public bool explodeOnPlayerAttack = true;
+    [Tooltip("玩家是否可以触发TNT爆炸")]
+    public bool canBeTriggeredByPlayer = true;
+    
+    [Tooltip("敌人是否可以触发TNT爆炸")]
+    public bool canBeTriggeredByEnemy = false;
+    
+    [Header("其他触发层")]
+    [Tooltip("是否允许被其他物体触发（陷阱、投射物等）")]
+    public bool canBeTriggeredByOthers = true;
+    
+    [Tooltip("可以触发TNT的其他层级列表（如陷阱层、投射物层、其他TNT等）")]
+    public List<LayerMask> otherTriggerLayers = new List<LayerMask>();
     
     [Header("动画设置")]
     public Animator anim;
@@ -96,12 +107,12 @@ public class TNT : MonoBehaviour
         if (enableDebug)
         {
             if (explosionRangeObject == null)
-                Debug.LogError("TNT: 未设置爆炸范围物体！请在Inspector中分配包含CircleCollider2D的GameObject");
+                Debug.LogError("TNT: 未设置爆炸范围对象！请在Inspector中分配一个带CircleCollider2D的GameObject");
             else if (explosionRangeCollider == null)
-                Debug.LogError("TNT: 爆炸范围物体上没有CircleCollider2D组件！");
+                Debug.LogError("TNT: 爆炸范围对象上没有CircleCollider2D组件！");
             
             if (anim == null)
-                Debug.LogWarning("TNT: Animator组件未分配");
+                Debug.LogWarning("TNT: Animator组件未设置");
             
             if (enemyLayer == 0)
                 Debug.LogWarning("TNT: Enemy Layer未设置");
@@ -112,6 +123,26 @@ public class TNT : MonoBehaviour
             
             if (tntCollider == null)
                 Debug.LogWarning("TNT: TNT GameObject上没有Collider2D组件，无法检测碰撞");
+            
+            if (canBeTriggeredByOthers && (otherTriggerLayers == null || otherTriggerLayers.Count == 0))
+                Debug.LogWarning("TNT: 启用了其他触发但触发层列表为空");
+            else if (canBeTriggeredByOthers && otherTriggerLayers != null)
+            {
+                int enabledCount = 0;
+                int unsetCount = 0;
+                foreach (var layerMask in otherTriggerLayers)
+                {
+                    if (layerMask !=0)
+                    {
+                        enabledCount++;
+                    }
+                }
+                
+                if (enabledCount == 0)
+                    Debug.LogWarning("TNT: 启用了其他触发但所有触发层都被禁用");
+                else if (enableDebug)
+                    Debug.Log($"TNT: 已配置 {enabledCount} 个启用的触发层（{unsetCount} 个未设置Layer Mask）");
+            }
         }
     }
 
@@ -294,12 +325,12 @@ public class TNT : MonoBehaviour
     }
 
     /// <summary>
-    /// 只使用OnTriggerEnter2D来检测碰撞
+    /// 只使用OnTriggerEnter2D来处理碰撞
     /// 注释掉OnCollisionEnter2D以避免重复触发
     /// </summary>
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // 跳过自己和爆炸范围物体
+        // 忽略自己和爆炸范围对象
         if (other.gameObject == gameObject || other.gameObject == explosionRangeObject)
         {
             return;
@@ -308,13 +339,28 @@ public class TNT : MonoBehaviour
         int otherLayer = other.gameObject.layer;
         
         if (enableDebug) 
-            Debug.Log($"TNT被 {other.gameObject.name} 触发 (Layer: {LayerMask.LayerToName(otherLayer)})");
+            Debug.Log($"TNT被 {other.gameObject.name} 触碰 (Layer: {LayerMask.LayerToName(otherLayer)})");
         
-        // 检测到玩家时，只触发动画
-        if (IsInLayerMask(otherLayer, playerLayer))
+        // 检测到玩家时，触发爆炸
+        if (canBeTriggeredByPlayer && IsInLayerMask(otherLayer, playerLayer))
         {
-            if (enableDebug) Debug.Log("TNT被玩家攻击触发，触发爆炸动画");
+            if (enableDebug) Debug.Log("TNT被玩家触碰，准备触发爆炸！");
             TriggerExplosion();
+            return;
+        }
+        
+        // 检测到其他触发物体
+        if (canBeTriggeredByOthers)
+        {
+            foreach (var layerMask in otherTriggerLayers)
+            {
+                if (IsInLayerMask(otherLayer, layerMask))
+                {
+                    if (enableDebug) Debug.Log($"TNT被其他触发物体触发，准备爆炸！");
+                    TriggerExplosion();
+                    return;
+                }
+            }
         }
     }
     

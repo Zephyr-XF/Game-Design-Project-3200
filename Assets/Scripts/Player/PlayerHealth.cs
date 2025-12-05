@@ -53,9 +53,9 @@ public class PlayerHealth : MonoBehaviour
     {
         //if (enableDebug) Debug.Log($"ChangeHealth called: {amount}, Current: {currentHealth}");
         healthTextAnim.Play("UI");
-        
 
-        
+
+
         StatsManager.Instance.currentHealth = StatsManager.Instance.maxHealth;
 
         UpdateHealthUI();

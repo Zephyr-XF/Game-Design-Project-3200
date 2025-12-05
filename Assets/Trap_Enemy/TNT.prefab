@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8739742328318202299}
   - component: {fileID: 6987388717297526754}
-  m_Layer: 11
+  m_Layer: 0
   m_Name: Range
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -205,7 +205,7 @@ Rigidbody2D:
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
   m_Mass: 1
-  m_LinearDrag: 0
+  m_LinearDrag: 2
   m_AngularDrag: 0.05
   m_GravityScale: 0
   m_Material: {fileID: 0}
@@ -256,13 +256,20 @@ MonoBehaviour:
   explosionRangeObject: {fileID: 218736947973072814}
   enemyLayer:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 128
   playerLayer:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 64
   damageEnemies: 1
   damagePlayer: 1
-  explodeOnPlayerAttack: 1
+  canBeTriggeredByPlayer: 1
+  canBeTriggeredByEnemy: 1
+  canBeTriggeredByOthers: 1
+  otherTriggerLayers:
+  - serializedVersion: 2
+    m_Bits: 2048
+  - serializedVersion: 2
+    m_Bits: 4096
   anim: {fileID: 2745451881320471077}
   destroyDelay: 0.75
   audioSource: {fileID: 1369789839094667772}
