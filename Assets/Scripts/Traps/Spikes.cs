@@ -4,40 +4,40 @@ using UnityEngine;
 
 public class Spikes : MonoBehaviour
 {
-    [Header("ÉËº¦ÉèÖÃ")]
-    public int spikeDamage = 10;            // Ã¿´Î´Ì³öÔì³ÉµÄÉËº¦
+    [Header("ï¿½Ëºï¿½ï¿½ï¿½ï¿½ï¿½")]
+    public int spikeDamage = 10;            // Ã¿ï¿½Î´Ì³ï¿½ï¿½ï¿½Éµï¿½ï¿½Ëºï¿½
 
-    [Header("¼õËÙÉèÖÃ")]
+    [Header("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
     [Range(0f, 1f)]
-    public float slowMultiplier = 0.7f;     // ²Èµ½µØ´ÌÊ±µÄËÙ¶È±¶ÂÊ£¨0.7 = ½µÎªÔ­À´70%£©
-    public bool enableSlow = true;          // ÊÇ·ñÆôÓÃ¼õËÙÐ§¹û
+    public float slowMultiplier = 0.7f;     // ï¿½Èµï¿½ï¿½Ø´ï¿½Ê±ï¿½ï¿½ï¿½Ù¶È±ï¿½ï¿½Ê£ï¿½0.7 = ï¿½ï¿½ÎªÔ­ï¿½ï¿½70%ï¿½ï¿½
+    public bool enableSlow = true;          // ï¿½Ç·ï¿½ï¿½ï¿½ï¿½Ã¼ï¿½ï¿½ï¿½Ð§ï¿½ï¿½
 
-    [Header("¶¨Ê±´¥·¢ÉèÖÃ")]
-    public float idleTime = 1.5f;           // ÊÕÆð×´Ì¬³ÖÐøÊ±³¤
-    public float activeTime = 1.0f;         // ´Ì³ö×´Ì¬³ÖÐøÊ±³¤
-    public bool startActive = false;        // ÊÇ·ñÒ»¿ªÊ¼¾ÍÊÇ´Ì³ö×´Ì¬
+    [Header("ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
+    public float idleTime = 1.5f;           // ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
+    public float activeTime = 1.0f;         // ï¿½Ì³ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
+    public bool startActive = false;        // ï¿½Ç·ï¿½Ò»ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½Ç´Ì³ï¿½×´Ì¬
 
-    [Header("Ä¿±ê²ã¼¶")]
-    public LayerMask playerLayer;           // Player ËùÔÚµÄ Layer
-    public LayerMask enemyLayer;            // Enemy ËùÔÚµÄ Layer
+    [Header("Ä¿ï¿½ï¿½ã¼¶")]
+    public LayerMask playerLayer;           // Player ï¿½ï¿½ï¿½Úµï¿½ Layer
+    public LayerMask enemyLayer;            // Enemy ï¿½ï¿½ï¿½Úµï¿½ Layer
 
-    [Header("×é¼þÒýÓÃ")]
-    public Animator anim;                   // ¿ØÖÆµØ´Ì¶¯»­
-    public Collider2D damageCollider;       // ¸ºÔðÉËº¦¼ì²âµÄÅö×²Ìå(½¨Òé IsTrigger = true)
+    [Header("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
+    public Animator anim;                   // ï¿½ï¿½ï¿½ÆµØ´Ì¶ï¿½ï¿½ï¿½
+    public Collider2D damageCollider;       // ï¿½ï¿½ï¿½ï¿½ï¿½Ëºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×²ï¿½ï¿½(ï¿½ï¿½ï¿½ï¿½ IsTrigger = true)
 
-    [Header("µ÷ÊÔ")]
+    [Header("ï¿½ï¿½ï¿½ï¿½")]
     public bool enableDebug = true;
 
-    private bool isActive = false;          // µ±Ç°ÊÇ·ñ´¦ÓÚ"´Ì³ö"×´Ì¬
-    private bool canDamage = false;         // µ±Ç°ÕâÂÖ´Ì³öÊÇ·ñ»¹¿ÉÒÔ¶ÔÍæ¼Ò/µÐÈËÔì³ÉÉËº¦£¨·ÀÖ¹Ò»Ö¡¶à´Î£©
+    private bool isActive = false;          // ï¿½ï¿½Ç°ï¿½Ç·ï¿½ï¿½ï¿½"ï¿½Ì³ï¿½"×´Ì¬
+    private bool canDamage = false;         // ï¿½ï¿½Ç°ï¿½ï¿½ï¿½Ö´Ì³ï¿½ï¿½Ç·ñ»¹¿ï¿½ï¿½Ô¶ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ëºï¿½ï¿½ï¿½ï¿½ï¿½Ö¹Ò»Ö¡ï¿½ï¿½Î£ï¿½
 
-    // ¼ÇÂ¼±»¼õËÙµÄ¶ÔÏó¼°ÆäÔ­Ê¼ËÙ¶È
+    // ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ÙµÄ¶ï¿½ï¿½ï¿½ï¿½ï¿½Ô­Ê¼ï¿½Ù¶ï¿½
     private Dictionary<GameObject, float> slowedPlayers = new Dictionary<GameObject, float>();
     private Dictionary<GameObject, float> slowedEnemies = new Dictionary<GameObject, float>();
 
     private void Start()
     {
-        // ×Ô¶¯³¢ÊÔ»ñÈ¡ÒýÓÃ
+        // ï¿½Ô¶ï¿½ï¿½ï¿½ï¿½Ô»ï¿½È¡ï¿½ï¿½ï¿½ï¿½
         if (anim == null)
             anim = GetComponent<Animator>();
 
@@ -46,11 +46,11 @@ public class Spikes : MonoBehaviour
 
         ValidateComponents();
 
-        // ¸ù¾Ý startActive ¾ö¶¨³õÊ¼×´Ì¬
+        // ï¿½ï¿½ï¿½ï¿½ startActive ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¼×´Ì¬
         isActive = startActive;
         UpdateVisualState();
 
-        // ¿ªÆô¶¨Ê±Ñ­»·
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±Ñ­ï¿½ï¿½
         StartCoroutine(SpikeRoutine());
     }
 
@@ -59,20 +59,20 @@ public class Spikes : MonoBehaviour
         if (!enableDebug) return;
 
         if (damageCollider == null)
-            Debug.LogWarning("Spikes: Ã»ÕÒµ½ÉËº¦ÓÃµÄ Collider2D£¬ÇëÔÚ Inspector ÖÐ·ÖÅä¡£");
+            Debug.LogWarning("Spikes: Ã»ï¿½Òµï¿½ï¿½Ëºï¿½ï¿½Ãµï¿½ Collider2Dï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Inspector ï¿½Ð·ï¿½ï¿½ä¡£");
 
         if (anim == null)
-            Debug.LogWarning("Spikes: Ã»ÕÒµ½ Animator ×é¼þ£¬µØ´Ì½«²»»á²¥·Å¶¯»­¡£");
+            Debug.LogWarning("Spikes: Ã»ï¿½Òµï¿½ Animator ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø´Ì½ï¿½ï¿½ï¿½ï¿½á²¥ï¿½Å¶ï¿½ï¿½ï¿½ï¿½ï¿½");
 
         if (playerLayer == 0)
-            Debug.LogWarning("Spikes: Player Layer Î´ÉèÖÃ£¬ÎÞ·¨¿É¿¿¼ì²âÍæ¼Ò¡£");
+            Debug.LogWarning("Spikes: Player Layer Î´ï¿½ï¿½ï¿½Ã£ï¿½ï¿½Þ·ï¿½ï¿½É¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò¡ï¿½");
 
         if (enemyLayer == 0)
-            Debug.LogWarning("Spikes: Enemy Layer Î´ÉèÖÃ£¬ÎÞ·¨¿É¿¿¼ì²âµÐÈË¡£");
+            Debug.LogWarning("Spikes: Enemy Layer Î´ï¿½ï¿½ï¿½Ã£ï¿½ï¿½Þ·ï¿½ï¿½É¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë¡ï¿½");
     }
 
     /// <summary>
-    /// ¿ØÖÆµØ´ÌµÄÑ­»·×´Ì¬£ºÊÕÆð -> µ¯³ö -> ÊÕÆð -> ¡­
+    /// ï¿½ï¿½ï¿½ÆµØ´Ìµï¿½Ñ­ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ -> ï¿½ï¿½ï¿½ï¿½ -> ï¿½ï¿½ï¿½ï¿½ -> ï¿½ï¿½
     /// </summary>
     IEnumerator SpikeRoutine()
     {
@@ -80,35 +80,35 @@ public class Spikes : MonoBehaviour
         {
             if (!isActive)
             {
-                // ÊÕÆð½×¶Î
-                if (enableDebug) Debug.Log("Spikes: ½øÈëÊÕÆð×´Ì¬");
-                canDamage = false;                // ÊÕÆðÊ±²»Ôì³ÉÉËº¦
+                // ï¿½ï¿½ï¿½ï¿½×¶ï¿½
+                if (enableDebug) Debug.Log("Spikes: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬");
+                canDamage = false;                // ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ëºï¿½
                 if (damageCollider != null)
                     damageCollider.enabled = false;
 
                 yield return new WaitForSeconds(idleTime);
 
-                // ÇÐµ½´Ì³ö
+                // ï¿½Ðµï¿½ï¿½Ì³ï¿½
                 SetActive(true);
             }
             else
             {
-                // ´Ì³ö½×¶Î
-                if (enableDebug) Debug.Log("Spikes: ½øÈë´Ì³ö×´Ì¬");
-                canDamage = true;                 // ±¾ÂÖ´Ì³ö¿ÉÒÔÉËº¦
+                // ï¿½Ì³ï¿½ï¿½×¶ï¿½
+                if (enableDebug) Debug.Log("Spikes: ï¿½ï¿½ï¿½ï¿½Ì³ï¿½×´Ì¬");
+                canDamage = true;                 // ï¿½ï¿½ï¿½Ö´Ì³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ëºï¿½
                 if (damageCollider != null)
                     damageCollider.enabled = true;
 
                 yield return new WaitForSeconds(activeTime);
 
-                // ÇÐµ½ÊÕÆð
+                // ï¿½Ðµï¿½ï¿½ï¿½ï¿½ï¿½
                 SetActive(false);
             }
         }
     }
 
     /// <summary>
-    /// ÉèÖÃ´ÌµÄ"´Ì³ö / ÊÕÆð"×´Ì¬
+    /// ï¿½ï¿½ï¿½Ã´Ìµï¿½"ï¿½Ì³ï¿½ / ï¿½ï¿½ï¿½ï¿½"×´Ì¬
     /// </summary>
     void SetActive(bool active)
     {
@@ -117,98 +117,98 @@ public class Spikes : MonoBehaviour
     }
 
     /// <summary>
-    /// ¸üÐÂ¶¯»­£¨´¿±íÏÖ£©
+    /// ï¿½ï¿½ï¿½Â¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö£ï¿½
     /// </summary>
     void UpdateVisualState()
     {
         if (anim != null)
         {
-            // ÕâÀïµÄ "IsActive" Òª¸úÄã Animator Àï¶¨ÒåµÄ²ÎÊýÃûÒ»ÖÂ
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ "IsActive" Òªï¿½ï¿½ï¿½ï¿½ Animator ï¿½ï¶¨ï¿½ï¿½Ä²ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½
             anim.SetBool("IsActive", isActive);
         }
     }
 
     /// <summary>
-    /// Íæ¼Ò/µÐÈË½øÈëµØ´ÌÇøÓòÊ±´¥·¢£¨¼õËÙÁ¢¼´ÉúÐ§£©
+    /// ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½Ë½ï¿½ï¿½ï¿½Ø´ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð§ï¿½ï¿½
     /// </summary>
     private void OnTriggerEnter2D(Collider2D other)
     {
         int otherLayer = other.gameObject.layer;
 
-        // ¼ì²éÊÇ·ñÊÇÍæ¼Ò
+        // ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         if (IsInLayerMask(otherLayer, playerLayer))
         {
-            // Ó¦ÓÃ¼õËÙÐ§¹û£¨ÎÞÂÛµØ´ÌÊÇ·ñ´Ì³ö£©
+            // Ó¦ï¿½Ã¼ï¿½ï¿½ï¿½Ð§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÛµØ´ï¿½ï¿½Ç·ï¿½Ì³ï¿½ï¿½ï¿½
             if (enableSlow)
             {
                 ApplySlowToPlayer(other.gameObject);
             }
 
-            // Ö»ÔÚ´Ì³ö×´Ì¬Ôì³ÉÉËº¦
+            // Ö»ï¿½Ú´Ì³ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½Ëºï¿½
             if (isActive && canDamage)
             {
                 if (enableDebug)
-                    Debug.Log($"Spikes: ÓëÍæ¼Ò {other.gameObject.name} ·¢Éú´¥·¢Åö×²");
+                    Debug.Log($"Spikes: ï¿½ï¿½ï¿½ï¿½ï¿½ {other.gameObject.name} ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×²");
 
                 PlayerHealth playerHealth = other.GetComponent<PlayerHealth>();
                 if (playerHealth != null)
                 {
                     playerHealth.ChangeHealth(-spikeDamage);
                     if (enableDebug)
-                        Debug.Log($"Spikes: ¶ÔÍæ¼ÒÔì³É {spikeDamage} µãÉËº¦¡£");
+                        Debug.Log($"Spikes: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ {spikeDamage} ï¿½ï¿½ï¿½Ëºï¿½ï¿½ï¿½");
                 }
                 else if (enableDebug)
                 {
-                    Debug.LogError($"Spikes: Íæ¼Ò {other.gameObject.name} ÉíÉÏÃ»ÓÐ PlayerHealth ×é¼þ£¡");
+                    Debug.LogError($"Spikes: ï¿½ï¿½ï¿½ {other.gameObject.name} ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ PlayerHealth ï¿½ï¿½ï¿½ï¿½ï¿½");
                 }
             }
             return;
         }
 
-        // ¼ì²éÊÇ·ñÊÇµÐÈË
+        // ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½Çµï¿½ï¿½ï¿½
         if (IsInLayerMask(otherLayer, enemyLayer))
         {
-            // Ó¦ÓÃ¼õËÙÐ§¹û£¨ÎÞÂÛµØ´ÌÊÇ·ñ´Ì³ö£©
+            // Ó¦ï¿½Ã¼ï¿½ï¿½ï¿½Ð§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÛµØ´ï¿½ï¿½Ç·ï¿½Ì³ï¿½ï¿½ï¿½
             if (enableSlow)
             {
                 ApplySlowToEnemy(other.gameObject);
             }
 
-            // Ö»ÔÚ´Ì³ö×´Ì¬Ôì³ÉÉËº¦
+            // Ö»ï¿½Ú´Ì³ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½Ëºï¿½
             if (isActive && canDamage)
             {
                 if (enableDebug)
-                    Debug.Log($"Spikes: ÓëµÐÈË {other.gameObject.name} ·¢Éú´¥·¢Åö×²");
+                    Debug.Log($"Spikes: ï¿½ï¿½ï¿½ï¿½ï¿½ {other.gameObject.name} ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×²");
 
                 EnemyHealth enemyHealth = other.GetComponent<EnemyHealth>();
                 if (enemyHealth != null)
                 {
-                    enemyHealth.ChangeHealth(-spikeDamage);
+                    enemyHealth.TakeDamage(spikeDamage, 0);
                     if (enableDebug)
-                        Debug.Log($"Spikes: ¶ÔµÐÈËÔì³É {spikeDamage} µãÉËº¦¡£");
+                        Debug.Log($"Spikes: ï¿½Ôµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ {spikeDamage} ï¿½ï¿½ï¿½Ëºï¿½ï¿½ï¿½");
                 }
                 else if (enableDebug)
                 {
-                    Debug.LogError($"Spikes: µÐÈË {other.gameObject.name} ÉíÉÏÃ»ÓÐ EnemyHealth ×é¼þ£¡");
+                    Debug.LogError($"Spikes: ï¿½ï¿½ï¿½ï¿½ {other.gameObject.name} ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ EnemyHealth ï¿½ï¿½ï¿½ï¿½ï¿½");
                 }
             }
         }
     }
 
     /// <summary>
-    /// Íæ¼Ò/µÐÈËÀë¿ªµØ´ÌÇøÓòÊ±´¥·¢£¨»Ö¸´ËÙ¶È£©
+    /// ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½ï¿½ë¿ªï¿½Ø´ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½Ù¶È£ï¿½
     /// </summary>
     private void OnTriggerExit2D(Collider2D other)
     {
         int otherLayer = other.gameObject.layer;
 
-        // Íæ¼ÒÀë¿ª
+        // ï¿½ï¿½ï¿½ï¿½ë¿ª
         if (IsInLayerMask(otherLayer, playerLayer))
         {
             RestorePlayerSpeed(other.gameObject);
         }
 
-        // µÐÈËÀë¿ª
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ë¿ª
         if (IsInLayerMask(otherLayer, enemyLayer))
         {
             RestoreEnemySpeed(other.gameObject);
@@ -216,7 +216,7 @@ public class Spikes : MonoBehaviour
     }
 
     /// <summary>
-    /// ¶ÔÍæ¼ÒÓ¦ÓÃ¼õËÙÐ§¹û
+    /// ï¿½ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½Ã¼ï¿½ï¿½ï¿½Ð§ï¿½ï¿½
     /// </summary>
     void ApplySlowToPlayer(GameObject obj)
     {
@@ -224,22 +224,22 @@ public class Spikes : MonoBehaviour
         if (playerMovement == null)
         {
             if (enableDebug)
-                Debug.LogWarning($"Spikes: {obj.name} Ã»ÓÐÕÒµ½ PlayerMovement ×é¼þ£¬ÎÞ·¨¼õËÙ¡£");
+                Debug.LogWarning($"Spikes: {obj.name} Ã»ï¿½ï¿½ï¿½Òµï¿½ PlayerMovement ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Þ·ï¿½ï¿½ï¿½ï¿½Ù¡ï¿½");
             return;
         }
 
         if (StatsManager.Instance == null)
         {
             if (enableDebug)
-                Debug.LogError("Spikes: StatsManager.Instance Îª¿Õ£¬ÎÞ·¨ÐÞ¸ÄÍæ¼ÒËÙ¶È£¡");
+                Debug.LogError("Spikes: StatsManager.Instance Îªï¿½Õ£ï¿½ï¿½Þ·ï¿½ï¿½Þ¸ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶È£ï¿½");
             return;
         }
 
-        // Èç¹ûÒÑ¾­ÔÚ¼õËÙÖÐ£¬²»ÖØ¸´Ó¦ÓÃ
+        // ï¿½ï¿½ï¿½ï¿½Ñ¾ï¿½ï¿½Ú¼ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ø¸ï¿½Ó¦ï¿½ï¿½
         if (slowedPlayers.ContainsKey(obj))
             return;
 
-        // ¼ÇÂ¼Ô­Ê¼ËÙ¶È²¢Ó¦ÓÃ¼õËÙ
+        // ï¿½ï¿½Â¼Ô­Ê¼ï¿½Ù¶È²ï¿½Ó¦ï¿½Ã¼ï¿½ï¿½ï¿½
         int originalSpeed = StatsManager.Instance.speed;
         slowedPlayers.Add(obj, originalSpeed);
 
@@ -247,11 +247,11 @@ public class Spikes : MonoBehaviour
         StatsManager.Instance.speed = slowedSpeed;
 
         if (enableDebug)
-            Debug.Log($"Spikes: Íæ¼Ò {obj.name} ½øÈëµØ´Ì£¬ËÙ¶È {originalSpeed} -> {slowedSpeed}");
+            Debug.Log($"Spikes: ï¿½ï¿½ï¿½ {obj.name} ï¿½ï¿½ï¿½ï¿½Ø´Ì£ï¿½ï¿½Ù¶ï¿½ {originalSpeed} -> {slowedSpeed}");
     }
 
     /// <summary>
-    /// ¶ÔµÐÈËÓ¦ÓÃ¼õËÙÐ§¹û
+    /// ï¿½Ôµï¿½ï¿½ï¿½Ó¦ï¿½Ã¼ï¿½ï¿½ï¿½Ð§ï¿½ï¿½
     /// </summary>
     void ApplySlowToEnemy(GameObject obj)
     {
@@ -259,15 +259,15 @@ public class Spikes : MonoBehaviour
         if (enemyMovement == null)
         {
             if (enableDebug)
-                Debug.LogWarning($"Spikes: {obj.name} Ã»ÓÐÕÒµ½ EnemyMovement ×é¼þ£¬ÎÞ·¨¼õËÙ¡£");
+                Debug.LogWarning($"Spikes: {obj.name} Ã»ï¿½ï¿½ï¿½Òµï¿½ EnemyMovement ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Þ·ï¿½ï¿½ï¿½ï¿½Ù¡ï¿½");
             return;
         }
 
-        // Èç¹ûÒÑ¾­ÔÚ¼õËÙÖÐ£¬²»ÖØ¸´Ó¦ÓÃ
+        // ï¿½ï¿½ï¿½ï¿½Ñ¾ï¿½ï¿½Ú¼ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ø¸ï¿½Ó¦ï¿½ï¿½
         if (slowedEnemies.ContainsKey(obj))
             return;
 
-        // ¼ÇÂ¼Ô­Ê¼ËÙ¶È²¢Ó¦ÓÃ¼õËÙ
+        // ï¿½ï¿½Â¼Ô­Ê¼ï¿½Ù¶È²ï¿½Ó¦ï¿½Ã¼ï¿½ï¿½ï¿½
         float originalSpeed = enemyMovement.speed;
         slowedEnemies.Add(obj, originalSpeed);
 
@@ -275,11 +275,11 @@ public class Spikes : MonoBehaviour
         enemyMovement.speed = slowedSpeed;
 
         if (enableDebug)
-            Debug.Log($"Spikes: µÐÈË {obj.name} ½øÈëµØ´Ì£¬ËÙ¶È {originalSpeed} -> {slowedSpeed}");
+            Debug.Log($"Spikes: ï¿½ï¿½ï¿½ï¿½ {obj.name} ï¿½ï¿½ï¿½ï¿½Ø´Ì£ï¿½ï¿½Ù¶ï¿½ {originalSpeed} -> {slowedSpeed}");
     }
 
     /// <summary>
-    /// »Ö¸´Íæ¼ÒËÙ¶È
+    /// ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶ï¿½
     /// </summary>
     void RestorePlayerSpeed(GameObject obj)
     {
@@ -289,16 +289,16 @@ public class Spikes : MonoBehaviour
         if (StatsManager.Instance != null)
         {
             StatsManager.Instance.speed = Mathf.RoundToInt(originalSpeed);
-            
+
             if (enableDebug)
-                Debug.Log($"Spikes: Íæ¼Ò {obj.name} Àë¿ªµØ´Ì£¬ËÙ¶È»Ö¸´Îª {originalSpeed}");
+                Debug.Log($"Spikes: ï¿½ï¿½ï¿½ {obj.name} ï¿½ë¿ªï¿½Ø´Ì£ï¿½ï¿½Ù¶È»Ö¸ï¿½Îª {originalSpeed}");
         }
 
         slowedPlayers.Remove(obj);
     }
 
     /// <summary>
-    /// »Ö¸´µÐÈËËÙ¶È
+    /// ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶ï¿½
     /// </summary>
     void RestoreEnemySpeed(GameObject obj)
     {
@@ -309,9 +309,9 @@ public class Spikes : MonoBehaviour
         if (enemyMovement != null)
         {
             enemyMovement.speed = originalSpeed;
-            
+
             if (enableDebug)
-                Debug.Log($"Spikes: µÐÈË {obj.name} Àë¿ªµØ´Ì£¬ËÙ¶È»Ö¸´Îª {originalSpeed}");
+                Debug.Log($"Spikes: ï¿½ï¿½ï¿½ï¿½ {obj.name} ï¿½ë¿ªï¿½Ø´Ì£ï¿½ï¿½Ù¶È»Ö¸ï¿½Îª {originalSpeed}");
         }
 
         slowedEnemies.Remove(obj);

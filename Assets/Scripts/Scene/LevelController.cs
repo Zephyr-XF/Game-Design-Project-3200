@@ -149,7 +149,7 @@ public class LevelController2D : MonoBehaviour
         if (allSpawnPoints == null || allSpawnPoints.Length == 0)
         {
             allSpawnPoints = FindObjectsOfType<SpawnPoint2D>(true);
-            Debug.Log($"[LevelController2D] (传送时) 自动查找 SpawnPoint2D，共找到 {allSpawnPoints.Length} 个");
+            Debug.Log($"[LevelController2D] (传送时) 自动搜索 SpawnPoint2D，找到 {allSpawnPoints.Length} 个");
             if (allSpawnPoints.Length == 0)
             {
                 Debug.LogError("[LevelController2D] 场景中没有任何 SpawnPoint2D，无法传送玩家");
@@ -158,18 +158,32 @@ public class LevelController2D : MonoBehaviour
             Debug.Log("[LevelController2D] SpawnPoint 列表: " + string.Join(", ", allSpawnPoints.Select(s => s.spawnId + ":" + s.name)));
         }
 
-        SpawnPoint2D sp = allSpawnPoints.FirstOrDefault(p => p.spawnId == spawnId);
-        if (sp == null)
+        // 查找所有匹配的 SpawnPoint
+        SpawnPoint2D[] matchingSpawnPoints = allSpawnPoints.Where(p => p.spawnId == spawnId).ToArray();
+        
+        if (matchingSpawnPoints.Length == 0)
         {
-            Debug.LogError($"[LevelController2D] 找不到 spawnId = {spawnId} 的 SpawnPoint2D。可用: {string.Join(", ", allSpawnPoints.Select(p => p.spawnId))}");
+            Debug.LogError($"[LevelController2D] 找不到 spawnId = {spawnId} 的 SpawnPoint2D，可用的: {string.Join(", ", allSpawnPoints.Select(p => p.spawnId))}");
             return;
         }
 
-        Debug.Log($"[LevelController2D] 匹配到重生点对象 {sp.name} (spawnId={sp.spawnId}) useTransformPosition={sp.useTransformPosition}");
+        // 如果有多个相同 ID 的 SpawnPoint，随机选择一个
+        SpawnPoint2D sp;
+        if (matchingSpawnPoints.Length > 1)
+        {
+            int randomIndex = Random.Range(0, matchingSpawnPoints.Length);
+            sp = matchingSpawnPoints[randomIndex];
+            Debug.Log($"[LevelController2D] 找到 {matchingSpawnPoints.Length} 个 spawnId={spawnId} 的生成点，随机选择第 {randomIndex} 个: {sp.name}");
+        }
+        else
+        {
+            sp = matchingSpawnPoints[0];
+            Debug.Log($"[LevelController2D] 匹配到了唯一生成点：{sp.name} (spawnId={sp.spawnId}) useTransformPosition={sp.useTransformPosition}");
+        }
 
         if (sp.resetPlayerState)
         {
-            Debug.Log("[LevelController2D] 重生点要求清理玩家状态");
+            Debug.Log("[LevelController2D] 检测到需要重置玩家状态");
             ClearPlayerState(player);
         }
 
@@ -180,11 +194,11 @@ public class LevelController2D : MonoBehaviour
 
         if (sp.snapCameraToPlayer && snapCameraOnLevelLoad)
         {
-            Debug.Log("[LevelController2D] 重生点要求相机对齐");
+            Debug.Log("[LevelController2D] 检测到需要快照相机");
             SnapCinemachine2DToPlayer();
         }
 
-        Debug.Log($"[LevelController2D] TeleportPlayerToSpawnId() 完成，spawnId: {spawnId}");
+        Debug.Log($"[LevelController2D] TeleportPlayerToSpawnId() 完成，spawnId: {spawnId}，选择的生成点: {sp.name}");
     }
 
     private void SnapCinemachine2DToPlayer()

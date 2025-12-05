@@ -4,364 +4,410 @@ using UnityEngine;
 
 public class TNT : MonoBehaviour
 {
-    [Header("±¬Õ¨ÉèÖÃ")]
+    [Header("ï¿½ï¿½Õ¨ï¿½ï¿½ï¿½ï¿½")]
     public int explosionDamage = 20;
-    
-    [Header("±¬Õ¨·¶Î§ÉèÖÃ")]
-    public GameObject explosionRangeObject; // ÐèÒªÓÐCircleCollider2DµÄ×ÓÎïÌå
-    
-    [Header("Ä¿±ê²ã¼¶")]
+
+    [Header("ï¿½ï¿½Õ¨ï¿½ï¿½Î§ï¿½ï¿½ï¿½ï¿½")]
+    public GameObject explosionRangeObject; // ï¿½ï¿½Òªï¿½ï¿½CircleCollider2Dï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+
+    [Header("Ä¿ï¿½ï¿½ã¼¶")]
     public LayerMask enemyLayer;
     public LayerMask playerLayer;
 
     public bool damageEnemies = true;
     public bool damagePlayer = true;
-    
-    [Header("´¥·¢ÉèÖÃ")]
-    public bool explodeOnPlayerAttack = true;
-    
-    [Header("¶¯»­ÉèÖÃ")]
+
+    [Header("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
+    [Tooltip("ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½Ô´ï¿½ï¿½ï¿½TNTï¿½ï¿½Õ¨")]
+    public bool canBeTriggeredByPlayer = true;
+
+    [Tooltip("ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½Ô´ï¿½ï¿½ï¿½TNTï¿½ï¿½Õ¨")]
+    public bool canBeTriggeredByEnemy = false;
+
+    [Header("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
+    [Tooltip("ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½å´¥ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½å¡¢Í¶ï¿½ï¿½ï¿½ï¿½È£ï¿½")]
+    public bool canBeTriggeredByOthers = true;
+
+    [Tooltip("ï¿½ï¿½ï¿½Ô´ï¿½ï¿½ï¿½TNTï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ã¼¶ï¿½Ð±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ã¡¢Í¶ï¿½ï¿½ï¿½ï¿½ã¡¢ï¿½ï¿½ï¿½ï¿½TNTï¿½È£ï¿½")]
+    public List<LayerMask> otherTriggerLayers = new List<LayerMask>();
+
+    [Header("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
     public Animator anim;
-    
-    [Header("Ïú»ÙÑÓ³Ù")]
+
+    [Header("ï¿½ï¿½ï¿½ï¿½ï¿½Ó³ï¿½")]
     public float destroyDelay = 0.01f;
-    
-    [Header("ÒôÐ§ÉèÖÃ")]
+
+    [Header("ï¿½ï¿½Ð§ï¿½ï¿½ï¿½ï¿½")]
     public AudioSource audioSource;
-    public AudioClip igniteSound;      // Òý±¬ÒôÐ§£¨¶¯»­¿ªÊ¼Ê±²¥·Å£©
-    public AudioClip explosionSound;   // ±¬Õ¨ÒôÐ§£¨±¬Õ¨Ë²¼ä²¥·Å£©
-    
-    [Header("µ÷ÊÔ")]
+    public AudioClip igniteSound;      // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¼Ê±ï¿½ï¿½ï¿½Å£ï¿½
+    public AudioClip explosionSound;   // ï¿½ï¿½Õ¨ï¿½ï¿½Ð§ï¿½ï¿½ï¿½ï¿½Õ¨Ë²ï¿½ä²¥ï¿½Å£ï¿½
+
+    [Header("ï¿½ï¿½ï¿½ï¿½")]
     public bool enableDebug = true;
-    
+
     private bool hasTriggered = false;
     private bool isInitialized = false;
     private Collider2D explosionRangeCollider;
-    private Collider2D tntCollider; // TNT×ÔÉíµÄÅö×²Ìå
+    private Collider2D tntCollider; // TNTï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×²ï¿½ï¿½
 
     void Start()
     {
         if (enableDebug)
-            Debug.Log($"[TNT] Start ±»µ÷ÓÃ - Time.time: {Time.time}");
-        
-        // Ç¿ÖÆ½ûÓÃ AudioSource µÄ PlayOnAwake£¬·ÀÖ¹×Ô¶¯²¥·Å
+            Debug.Log($"[TNT] Start ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - Time.time: {Time.time}");
+
+        // Ç¿ï¿½Æ½ï¿½ï¿½ï¿½ AudioSource ï¿½ï¿½ PlayOnAwakeï¿½ï¿½ï¿½ï¿½Ö¹ï¿½Ô¶ï¿½ï¿½ï¿½ï¿½ï¿½
         if (audioSource != null)
         {
             audioSource.playOnAwake = false;
             audioSource.Stop();
-            
+
             if (enableDebug)
-                Debug.Log($"[TNT] AudioSource.playOnAwake ÒÑÉèÖÃÎª false");
+                Debug.Log($"[TNT] AudioSource.playOnAwake ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îª false");
         }
-        
-        // ´Ó×ÓÎïÌå»ñÈ¡CircleCollider2D
+
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¡CircleCollider2D
         if (explosionRangeObject != null)
         {
             explosionRangeCollider = explosionRangeObject.GetComponent<Collider2D>();
-            
+
             if (explosionRangeCollider != null && enableDebug)
             {
-                Debug.Log($"TNT: ´Ó {explosionRangeObject.name} »ñÈ¡µ½ {explosionRangeCollider.GetType().Name} ×÷Îª±¬Õ¨·¶Î§");
+                Debug.Log($"TNT: ï¿½ï¿½ {explosionRangeObject.name} ï¿½ï¿½È¡ï¿½ï¿½ {explosionRangeCollider.GetType().Name} ï¿½ï¿½Îªï¿½ï¿½Õ¨ï¿½ï¿½Î§");
             }
             else if (enableDebug)
             {
-                Debug.LogError($"TNT: {explosionRangeObject.name} ÉÏÃ»ÓÐÕÒµ½CircleCollider2D×é¼þ!");
+                Debug.LogError($"TNT: {explosionRangeObject.name} ï¿½ï¿½Ã»ï¿½ï¿½ï¿½Òµï¿½CircleCollider2Dï¿½ï¿½ï¿½!");
             }
         }
         else if (enableDebug)
         {
-            Debug.LogWarning("TNT: Î´ÉèÖÃ±¬Õ¨·¶Î§ÎïÌå!");
+            Debug.LogWarning("TNT: Î´ï¿½ï¿½ï¿½Ã±ï¿½Õ¨ï¿½ï¿½Î§ï¿½ï¿½ï¿½ï¿½!");
         }
-        
-        // »ñÈ¡TNT×ÔÉíµÄÅö×²Ìå
+
+        // ï¿½ï¿½È¡TNTï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×²ï¿½ï¿½
         tntCollider = GetComponent<Collider2D>();
-        
+
         ValidateComponents();
-        
-        // ÑÓ³Ù³õÊ¼»¯
+
+        // ï¿½Ó³Ù³ï¿½Ê¼ï¿½ï¿½
         StartCoroutine(InitializeAfterDelay());
     }
-    
+
     IEnumerator InitializeAfterDelay()
     {
         yield return new WaitForSeconds(0.2f);
         isInitialized = true;
-        
+
         if (enableDebug)
-            Debug.Log($"[TNT] ? ³õÊ¼»¯Íê³É£¬ÒôÐ§ÏµÍ³ÒÑÆôÓÃ - Time.time: {Time.time}");
+            Debug.Log($"[TNT] ? ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½É£ï¿½ï¿½ï¿½Ð§ÏµÍ³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - Time.time: {Time.time}");
     }
-    
+
     void ValidateComponents()
     {
         if (enableDebug)
         {
             if (explosionRangeObject == null)
-                Debug.LogError("TNT: Î´ÉèÖÃ±¬Õ¨·¶Î§ÎïÌå£¡ÇëÔÚInspectorÖÐ·ÖÅä°üº¬CircleCollider2DµÄGameObject");
+                Debug.LogError("TNT: Î´ï¿½ï¿½ï¿½Ã±ï¿½Õ¨ï¿½ï¿½Î§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Inspectorï¿½Ð·ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½CircleCollider2Dï¿½ï¿½GameObject");
             else if (explosionRangeCollider == null)
-                Debug.LogError("TNT: ±¬Õ¨·¶Î§ÎïÌåÉÏÃ»ÓÐCircleCollider2D×é¼þ£¡");
-            
+                Debug.LogError("TNT: ï¿½ï¿½Õ¨ï¿½ï¿½Î§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½CircleCollider2Dï¿½ï¿½ï¿½ï¿½ï¿½");
+
             if (anim == null)
-                Debug.LogWarning("TNT: Animator×é¼þÎ´·ÖÅä");
-            
+                Debug.LogWarning("TNT: Animatorï¿½ï¿½ï¿½Î´ï¿½ï¿½ï¿½ï¿½");
+
             if (enemyLayer == 0)
-                Debug.LogWarning("TNT: Enemy LayerÎ´ÉèÖÃ");
-            
+                Debug.LogWarning("TNT: Enemy LayerÎ´ï¿½ï¿½ï¿½ï¿½");
+
             if (damagePlayer && playerLayer == 0)
-                Debug.LogWarning("TNT: Player LayerÎ´ÉèÖÃ");
-                
-            
+                Debug.LogWarning("TNT: Player LayerÎ´ï¿½ï¿½ï¿½ï¿½");
+
+
             if (tntCollider == null)
-                Debug.LogWarning("TNT: TNT GameObjectÉÏÃ»ÓÐCollider2D×é¼þ£¬ÎÞ·¨¼ì²âÅö×²");
+                Debug.LogWarning("TNT: TNT GameObjectï¿½ï¿½Ã»ï¿½ï¿½Collider2Dï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Þ·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×²");
+
+            if (canBeTriggeredByOthers && (otherTriggerLayers == null || otherTriggerLayers.Count == 0))
+                Debug.LogWarning("TNT: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð±ï¿½Îªï¿½ï¿½");
+            else if (canBeTriggeredByOthers && otherTriggerLayers != null)
+            {
+                int enabledCount = 0;
+                int unsetCount = 0;
+                foreach (var layerMask in otherTriggerLayers)
+                {
+                    if (layerMask != 0)
+                    {
+                        enabledCount++;
+                    }
+                }
+
+                if (enabledCount == 0)
+                    Debug.LogWarning("TNT: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð´ï¿½ï¿½ï¿½ï¿½ã¶¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
+                else if (enableDebug)
+                    Debug.Log($"TNT: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ {enabledCount} ï¿½ï¿½ï¿½ï¿½ï¿½ÃµÄ´ï¿½ï¿½ï¿½ï¿½ã£¨{unsetCount} ï¿½ï¿½Î´ï¿½ï¿½ï¿½ï¿½Layer Maskï¿½ï¿½");
+            }
         }
     }
 
     /// <summary>
-    /// ´¥·¢±¬Õ¨¶¯»­£¨Íæ¼Ò¹¥»÷Ê±µ÷ÓÃ£©
+    /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ¨ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò¹ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½Ã£ï¿½
     /// </summary>
     void TriggerExplosion()
     {
         if (hasTriggered)
         {
-            if (enableDebug) Debug.LogWarning("TNTÒÑ¾­±»´¥·¢£¬²»¿ÉÖØ¸´´¥·¢");
+            if (enableDebug) Debug.LogWarning("TNTï¿½Ñ¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø¸ï¿½ï¿½ï¿½ï¿½ï¿½");
             return;
         }
-        
+
         hasTriggered = true;
-        
+
         if (enableDebug)
-            Debug.Log($"[TNT] TriggerExplosion ±»µ÷ÓÃ - isInitialized: {isInitialized}, Time.time: {Time.time}");
-        
-        // ²¥·ÅÒý±¬ÒôÐ§£¨Ö»ÓÐÔÚ³õÊ¼»¯Íê³Éºó²Å²¥·Å£©
+            Debug.Log($"[TNT] TriggerExplosion ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - isInitialized: {isInitialized}, Time.time: {Time.time}");
+
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð§ï¿½ï¿½Ö»ï¿½ï¿½ï¿½Ú³ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½Éºï¿½Å²ï¿½ï¿½Å£ï¿½
         if (isInitialized && audioSource != null && igniteSound != null)
         {
             audioSource.PlayOneShot(igniteSound);
             if (enableDebug)
-                Debug.Log($"[TNT] ? Òý±¬ÒôÐ§ÒÑ²¥·Å - AudioClip: {igniteSound.name}");
+                Debug.Log($"[TNT] ? ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð§ï¿½Ñ²ï¿½ï¿½ï¿½ - AudioClip: {igniteSound.name}");
         }
         else if (!isInitialized && enableDebug)
         {
-            Debug.Log($"[TNT] ? ³õÊ¼»¯Î´Íê³É£¬Ìø¹ý²¥·ÅÒý±¬ÒôÐ§");
+            Debug.Log($"[TNT] ? ï¿½ï¿½Ê¼ï¿½ï¿½Î´ï¿½ï¿½É£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð§");
         }
-        
-        // Ö»ÉèÖÃ¶¯»­²ÎÊýÎªTRUE¼´¿ÉÖ´ÐÐ±¬Õ¨Âß¼­
+
+        // Ö»ï¿½ï¿½ï¿½Ã¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÎªTRUEï¿½ï¿½ï¿½ï¿½Ö´ï¿½Ð±ï¿½Õ¨ï¿½ß¼ï¿½
         if (anim != null)
         {
             anim.SetBool("IsExploded", true);
-            if (enableDebug) Debug.Log("TNT£ºÉèÖÃ¶¯»­£¬µÈ´ýÊÂ¼þµ÷ÓÃExplode()");
+            if (enableDebug) Debug.Log("TNTï¿½ï¿½ï¿½ï¿½ï¿½Ã¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È´ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½Explode()");
         }
         else if (enableDebug)
         {
-            Debug.LogWarning("TNT: Ã»ÓÐAnimator×é¼þ");
+            Debug.LogWarning("TNT: Ã»ï¿½ï¿½Animatorï¿½ï¿½ï¿½");
         }
     }
 
     /// <summary>
-    /// Ö´ÐÐ±¬Õ¨£¨´Ó¶¯»­ÊÂ¼þµ÷ÓÃ£©
+    /// Ö´ï¿½Ð±ï¿½Õ¨ï¿½ï¿½ï¿½Ó¶ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½Ã£ï¿½
     /// </summary>
     public void Explode()
     {
         if (enableDebug)
         {
-            Debug.Log($"[TNT] Explode ±»µ÷ÓÃ£¬Î»ÖÃ: {transform.position}, Time.time: {Time.time}");
+            Debug.Log($"[TNT] Explode ï¿½ï¿½ï¿½ï¿½ï¿½Ã£ï¿½Î»ï¿½ï¿½: {transform.position}, Time.time: {Time.time}");
         }
-        
-        // ²¥·Å±¬Õ¨ÒôÐ§£¨±¬Õ¨Ë²¼ä£©
+
+        // ï¿½ï¿½ï¿½Å±ï¿½Õ¨ï¿½ï¿½Ð§ï¿½ï¿½ï¿½ï¿½Õ¨Ë²ï¿½ä£©
         if (audioSource != null && explosionSound != null)
         {
             audioSource.PlayOneShot(explosionSound);
             if (enableDebug)
-                Debug.Log($"[TNT] ? ±¬Õ¨ÒôÐ§ÒÑ²¥·Å - AudioClip: {explosionSound.name}");
+                Debug.Log($"[TNT] ? ï¿½ï¿½Õ¨ï¿½ï¿½Ð§ï¿½Ñ²ï¿½ï¿½ï¿½ - AudioClip: {explosionSound.name}");
         }
         else if (enableDebug)
         {
             if (audioSource == null)
-                Debug.LogWarning($"[TNT] ? AudioSource Îª¿Õ");
+                Debug.LogWarning($"[TNT] ? AudioSource Îªï¿½ï¿½");
             if (explosionSound == null)
-                Debug.LogWarning($"[TNT] ? explosionSound Îª¿Õ");
+                Debug.LogWarning($"[TNT] ? explosionSound Îªï¿½ï¿½");
         }
-        
-        // Ö´ÐÐÉËº¦ÅÐ¶¨
+
+        // Ö´ï¿½ï¿½ï¿½Ëºï¿½ï¿½Ð¶ï¿½
         DealExplosionDamage();
-        
-        // ÑÓ³ÙÏú»ÙTNT¶ÔÏó
+
+        // ï¿½Ó³ï¿½ï¿½ï¿½ï¿½ï¿½TNTï¿½ï¿½ï¿½ï¿½
         Destroy(gameObject, destroyDelay);
     }
 
     /// <summary>
-    /// ´¦Àí±¬Õ¨ÉËº¦
+    /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ¨ï¿½Ëºï¿½
     /// </summary>
     void DealExplosionDamage()
     {
         if (explosionRangeCollider == null)
         {
-            Debug.LogError("TNT Error: ±¬Õ¨·¶Î§Åö×²Ïä(explosionRangeCollider)Î´ÉèÖÃ£¬ÎÞ·¨Ôì³ÉÉËº¦");
+            Debug.LogError("TNT Error: ï¿½ï¿½Õ¨ï¿½ï¿½Î§ï¿½ï¿½×²ï¿½ï¿½(explosionRangeCollider)Î´ï¿½ï¿½ï¿½Ã£ï¿½ï¿½Þ·ï¿½ï¿½ï¿½ï¿½ï¿½Ëºï¿½");
             return;
         }
-        
+
         if (damageEnemies)
         {
             DamageEnemies();
         }
-        
-        // ÐÂÔö£ºÔÚ±¬Õ¨µÄË²¼ä´òÓ¡ damagePlayer µÄÕæÊµÖµ
-        if (enableDebug) Debug.Log($"[ÔËÐÐÊ±¼ì²é] ±¬Õ¨Ë²¼ä, damagePlayer µÄÖµÊÇ: {damagePlayer}");
 
-        // ¼ì²é damagePlayer ²¼¶ûÖµ
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú±ï¿½Õ¨ï¿½ï¿½Ë²ï¿½ï¿½ï¿½Ó¡ damagePlayer ï¿½ï¿½ï¿½ï¿½ÊµÖµ
+        if (enableDebug) Debug.Log($"[ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½] ï¿½ï¿½Õ¨Ë²ï¿½ï¿½, damagePlayer ï¿½ï¿½Öµï¿½ï¿½: {damagePlayer}");
+
+        // ï¿½ï¿½ï¿½ damagePlayer ï¿½ï¿½ï¿½ï¿½Öµ
         if (damagePlayer)
         {
-            if (enableDebug) Debug.Log("DamagePlayer ¼ì²éÍ¨¹ý£¬×¼±¸¶ÔÍæ¼ÒÔì³ÉÉËº¦...");
+            if (enableDebug) Debug.Log("DamagePlayer ï¿½ï¿½ï¿½Í¨ï¿½ï¿½ï¿½ï¿½×¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ëºï¿½...");
             DamagePlayer();
         }
         else
         {
-            if (enableDebug) Debug.LogWarning("DamagePlayer Îª false£¬Ìø¹ý¶ÔÍæ¼ÒµÄÉËº¦¡£ÇëÔÚInspectorÖÐ¼ì²é¡£");
+            if (enableDebug) Debug.LogWarning("DamagePlayer Îª falseï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òµï¿½ï¿½Ëºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Inspectorï¿½Ð¼ï¿½é¡£");
         }
     }
-    
+
     void DamageEnemies()
     {
         if (enemyLayer == 0)
         {
-            Debug.LogError("TNT: Enemy LayerÎ´ÉèÖÃ£¬ÎÞ·¨¼ì²âµÐÈË");
+            Debug.LogError("TNT: Enemy LayerÎ´ï¿½ï¿½ï¿½Ã£ï¿½ï¿½Þ·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
             return;
         }
-        
-        // Ê¹ÓÃOverlapCollider¼ì²â·¶Î§ÄÚµÄµÐÈË
+
+        // Ê¹ï¿½ï¿½OverlapColliderï¿½ï¿½â·¶Î§ï¿½ÚµÄµï¿½ï¿½ï¿½
         ContactFilter2D filter = new ContactFilter2D();
         filter.SetLayerMask(enemyLayer);
         filter.useTriggers = true;
-        
+
         List<Collider2D> enemies = new List<Collider2D>();
         int hitCount = explosionRangeCollider.OverlapCollider(filter, enemies);
-        
+
         if (enableDebug)
         {
-            Debug.Log($"TNT±¬Õ¨¼ì²âµ½ {hitCount} ¸öµÐÈË");
+            Debug.Log($"TNTï¿½ï¿½Õ¨ï¿½ï¿½âµ½ {hitCount} ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
         }
-        
+
         foreach (Collider2D enemy in enemies)
         {
             EnemyHealth enemyHealth = enemy.GetComponent<EnemyHealth>();
             if (enemyHealth != null)
             {
-                enemyHealth.ChangeHealth(-explosionDamage);
-                
-                if (enableDebug) 
-                    Debug.Log($"¶Ô {enemy.gameObject.name} Ôì³É {explosionDamage} µãÉËº¦");
+                enemyHealth.TakeDamage(explosionDamage, 0);
+
+                if (enableDebug)
+                    Debug.Log($"ï¿½ï¿½ {enemy.gameObject.name} ï¿½ï¿½ï¿½ {explosionDamage} ï¿½ï¿½ï¿½Ëºï¿½");
             }
         }
     }
-    
+
     void DamagePlayer()
     {
         if (playerLayer == 0)
         {
-            Debug.LogError("TNT Error: Player Layer Î´ÔÚInspectorÖÐÉèÖÃ£¬ÎÞ·¨¼ì²âÍæ¼Ò¡£");
+            Debug.LogError("TNT Error: Player Layer Î´ï¿½ï¿½Inspectorï¿½ï¿½ï¿½ï¿½ï¿½Ã£ï¿½ï¿½Þ·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò¡ï¿½");
             return;
         }
-        
-        // Ê¹ÓÃOverlapCollider¼ì²â·¶Î§ÄÚµÄÍæ¼Ò
+
+        // Ê¹ï¿½ï¿½OverlapColliderï¿½ï¿½â·¶Î§ï¿½Úµï¿½ï¿½ï¿½ï¿½
         ContactFilter2D filter = new ContactFilter2D();
         filter.SetLayerMask(playerLayer);
         filter.useTriggers = true;
-        
+
         List<Collider2D> players = new List<Collider2D>();
         int hitCount = explosionRangeCollider.OverlapCollider(filter, players);
-        
-        if (enableDebug) Debug.Log($"TNT±¬Õ¨¼ì²âµ½ {hitCount} ¸öÍæ¼Ò¡£");
-        
+
+        if (enableDebug) Debug.Log($"TNTï¿½ï¿½Õ¨ï¿½ï¿½âµ½ {hitCount} ï¿½ï¿½ï¿½ï¿½Ò¡ï¿½");
+
         if (hitCount == 0)
         {
-            if(enableDebug) Debug.LogWarning("Î´¼ì²âµ½Íæ¼Ò¡£Çë¼ì²é: \n1. Íæ¼ÒÊÇ·ñÔÚ±¬Õ¨·¶Î§ÄÚ£¿\n2. Íæ¼ÒµÄLayerÊÇ·ñÉèÖÃÎª'Player'£¿\n3. TNTµÄPlayer Layer MaskÊÇ·ñÒÑ¹´Ñ¡'Player'£¿");
+            if (enableDebug) Debug.LogWarning("Î´ï¿½ï¿½âµ½ï¿½ï¿½Ò¡ï¿½ï¿½ï¿½ï¿½ï¿½: \n1. ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½Ú±ï¿½Õ¨ï¿½ï¿½Î§ï¿½Ú£ï¿½\n2. ï¿½ï¿½Òµï¿½Layerï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½Îª'Player'ï¿½ï¿½\n3. TNTï¿½ï¿½Player Layer Maskï¿½Ç·ï¿½ï¿½Ñ¹ï¿½Ñ¡'Player'ï¿½ï¿½");
         }
-        
+
         foreach (Collider2D player in players)
         {
-            if (enableDebug) Debug.Log($"ÕÒµ½Íæ¼Ò: {player.gameObject.name}");
+            if (enableDebug) Debug.Log($"ï¿½Òµï¿½ï¿½ï¿½ï¿½: {player.gameObject.name}");
             PlayerHealth playerHealth = player.GetComponent<PlayerHealth>();
             if (playerHealth != null)
             {
                 playerHealth.ChangeHealth(-explosionDamage);
-                
-                if (enableDebug) 
-                    Debug.Log($"³É¹¦¶ÔÍæ¼ÒÔì³É {explosionDamage} µãÉËº¦¡£");
+
+                if (enableDebug)
+                    Debug.Log($"ï¿½É¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ {explosionDamage} ï¿½ï¿½ï¿½Ëºï¿½ï¿½ï¿½");
             }
             else
             {
-                if (enableDebug) Debug.LogError($"´íÎó£ºÍæ¼Ò {player.gameObject.name} ÉíÉÏÃ»ÓÐÕÒµ½ PlayerHealth ½Å±¾£¡");
+                if (enableDebug) Debug.LogError($"ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ {player.gameObject.name} ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½Òµï¿½ PlayerHealth ï¿½Å±ï¿½ï¿½ï¿½");
             }
         }
     }
 
     /// <summary>
-    /// Ö»Ê¹ÓÃOnTriggerEnter2DÀ´¼ì²âÅö×²
-    /// ×¢ÊÍµôOnCollisionEnter2DÒÔ±ÜÃâÖØ¸´´¥·¢
+    /// Ö»Ê¹ï¿½ï¿½OnTriggerEnter2Dï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×²
+    /// ×¢ï¿½Íµï¿½OnCollisionEnter2Dï¿½Ô±ï¿½ï¿½ï¿½ï¿½Ø¸ï¿½ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // Ìø¹ý×Ô¼ººÍ±¬Õ¨·¶Î§ÎïÌå
+        // ï¿½ï¿½ï¿½ï¿½ï¿½Ô¼ï¿½ï¿½Í±ï¿½Õ¨ï¿½ï¿½Î§ï¿½ï¿½ï¿½ï¿½
         if (other.gameObject == gameObject || other.gameObject == explosionRangeObject)
         {
             return;
         }
-        
+
         int otherLayer = other.gameObject.layer;
-        
-        if (enableDebug) 
-            Debug.Log($"TNT±» {other.gameObject.name} ´¥·¢ (Layer: {LayerMask.LayerToName(otherLayer)})");
-        
-        // ¼ì²âµ½Íæ¼ÒÊ±£¬Ö»´¥·¢¶¯»­
-        if (IsInLayerMask(otherLayer, playerLayer))
+
+        if (enableDebug)
+            Debug.Log($"TNTï¿½ï¿½ {other.gameObject.name} ï¿½ï¿½ï¿½ï¿½ (Layer: {LayerMask.LayerToName(otherLayer)})");
+
+        // ï¿½ï¿½âµ½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ¨
+        if (canBeTriggeredByPlayer && IsInLayerMask(otherLayer, playerLayer))
         {
-            if (enableDebug) Debug.Log("TNT±»Íæ¼Ò¹¥»÷´¥·¢£¬´¥·¢±¬Õ¨¶¯»­");
+            if (enableDebug) Debug.Log("TNTï¿½ï¿½ï¿½ï¿½Ò´ï¿½ï¿½ï¿½ï¿½ï¿½×¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ¨ï¿½ï¿½");
             TriggerExplosion();
+            return;
+        }
+
+        // ï¿½ï¿½âµ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+        if (canBeTriggeredByOthers)
+        {
+            foreach (var layerMask in otherTriggerLayers)
+            {
+                if (IsInLayerMask(otherLayer, layerMask))
+                {
+                    if (enableDebug) Debug.Log($"TNTï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½å´¥ï¿½ï¿½ï¿½ï¿½×¼ï¿½ï¿½ï¿½ï¿½Õ¨ï¿½ï¿½");
+                    TriggerExplosion();
+                    return;
+                }
+            }
         }
     }
-    
+
     private bool IsInLayerMask(int layer, LayerMask layerMask)
     {
         return layerMask == (layerMask | (1 << layer));
     }
 
-    
+
 
     private void OnDrawGizmosSelected()
     {
-        // ÔÚSceneÊÓÍ¼ÖÐ¿ÉÊÓ»¯±¬Õ¨·¶Î§
+        // ï¿½ï¿½Sceneï¿½ï¿½Í¼ï¿½Ð¿ï¿½ï¿½Ó»ï¿½ï¿½ï¿½Õ¨ï¿½ï¿½Î§
         Collider2D rangeCollider = explosionRangeCollider;
-        
-        // Èç¹ûÓÎÏ·Î´ÔËÐÐ£¬³¢ÊÔ´ÓexplosionRangeObject»ñÈ¡
+
+        // ï¿½ï¿½ï¿½ï¿½ï¿½Ï·Î´ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ô´ï¿½explosionRangeObjectï¿½ï¿½È¡
         if (rangeCollider == null && explosionRangeObject != null)
         {
             rangeCollider = explosionRangeObject.GetComponent<Collider2D>();
         }
-        
+
         if (rangeCollider != null && rangeCollider is CircleCollider2D)
         {
             CircleCollider2D circle = rangeCollider as CircleCollider2D;
             Vector3 colliderPosition = rangeCollider.transform.position;
             Vector3 center = colliderPosition + (Vector3)circle.offset;
             float worldRadius = circle.radius * rangeCollider.transform.lossyScale.x;
-            
-            // »æÖÆ°ëÍ¸Ã÷Ìî³äÔ²
+
+            // ï¿½ï¿½ï¿½Æ°ï¿½Í¸ï¿½ï¿½ï¿½ï¿½ï¿½Ô²
             Gizmos.color = new Color(1f, 0f, 0f, 0.3f);
             Gizmos.DrawSphere(center, worldRadius);
-            
-            // »æÖÆºìÉ«Ïß¿òÔ²
+
+            // ï¿½ï¿½ï¿½Æºï¿½É«ï¿½ß¿ï¿½Ô²
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(center, worldRadius);
-            
-            // »æÖÆTNTÖÐÐÄµã
+
+            // ï¿½ï¿½ï¿½ï¿½TNTï¿½ï¿½ï¿½Äµï¿½
             Gizmos.color = Color.yellow;
             Gizmos.DrawSphere(transform.position, 0.15f);
-            
-            // »æÖÆÁ¬ÏßÏÔÊ¾TNTºÍ±¬Õ¨·¶Î§µÄ¹ØÏµ
+
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾TNTï¿½Í±ï¿½Õ¨ï¿½ï¿½Î§ï¿½Ä¹ï¿½Ïµ
             Gizmos.color = Color.cyan;
             Gizmos.DrawLine(transform.position, center);
         }
         else
         {
-            // Èç¹ûÃ»ÓÐÕÒµ½CircleCollider2D£¬»æÖÆ¾¯¸æ
+            // ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½Òµï¿½CircleCollider2Dï¿½ï¿½ï¿½ï¿½ï¿½Æ¾ï¿½ï¿½ï¿½
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(transform.position, 0.5f);
         }
