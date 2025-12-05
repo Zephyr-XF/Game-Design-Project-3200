@@ -11,7 +11,10 @@ public class GodAnimation : MonoBehaviour
     public float scaleAmount = 0.05f; // Percentage to scale up/down
 
     private Vector3 startPos;
-    private Vector3 startScale;
+    [Header("Base Settings")]
+    public Vector3 baseScale = Vector3.one; // Explicitly set the desired scale in Inspector
+
+    // private Vector3 startScale; // Removed, use baseScale instead
 
     private void OnEnable()
     {
@@ -19,21 +22,38 @@ public class GodAnimation : MonoBehaviour
         StartCoroutine(InitializePosition());
     }
 
+    private bool isHovered = false;
+
+    public void SetHover(bool hovered)
+    {
+        isHovered = hovered;
+        if (hovered)
+        {
+            // Reset scale to original when hovering starts so external script can control it
+            transform.localScale = baseScale;
+        }
+    }
+
     private System.Collections.IEnumerator InitializePosition()
     {
         yield return new WaitForEndOfFrame();
         startPos = transform.localPosition;
-        startScale = transform.localScale;
+        
+        // Force the scale to the base scale immediately
+        transform.localScale = baseScale;
     }
 
     private void Update()
     {
-        // Floating (Up and Down)
+        // Floating (Up and Down) - Always active
         float newY = startPos.y + Mathf.Sin(Time.unscaledTime * floatSpeed) * floatAmount;
         transform.localPosition = new Vector3(startPos.x, newY, startPos.z);
 
-        // Breathing (Scaling)
-        float scaleOffset = Mathf.Sin(Time.unscaledTime * scaleSpeed) * scaleAmount;
-        transform.localScale = startScale + Vector3.one * scaleOffset;
+        // Breathing (Scaling) - Only active if NOT hovered
+        if (!isHovered)
+        {
+            float scaleOffset = Mathf.Sin(Time.unscaledTime * scaleSpeed) * scaleAmount;
+            transform.localScale = baseScale + Vector3.one * scaleOffset;
+        }
     }
 }

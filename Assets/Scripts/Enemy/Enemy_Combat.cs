@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Enemy_Combat : MonoBehaviour
 {
-    public int atk = 20;
+    public int atk = 1;
     public Transform attackPoint;
     public float attackRange = 1.5f;
     public float knockbackForce;

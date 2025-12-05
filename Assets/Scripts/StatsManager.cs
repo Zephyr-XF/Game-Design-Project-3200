@@ -1,13 +1,14 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
+// using TMPro; // ❌ 不需要了，因为不再处理 UI 文字
 
 public class StatsManager : MonoBehaviour
 {
     public static StatsManager Instance;
     public StatsUI statsUI;
-    public TMP_Text healthText;
+
+    // ❌ 删除：public TMP_Text healthText;  <-- 这个现在归 PlayerHealth 管
 
     [Header("Combat Stats")]
     public int damage;
@@ -34,19 +35,24 @@ public class StatsManager : MonoBehaviour
     public void UpdateMaxHealth(int amount)
     {
         maxHealth += amount;
-        healthText.text = "HP: " + currentHealth + " / " + maxHealth;
+        // ❌ 删除：healthText.text = ... 
+        // 这里的 UI 更新现在由 PlayerHealth 自动处理
     }
+
     public void UpdateHealth(int amount)
     {
         currentHealth += amount;
         if (currentHealth >= maxHealth)
             currentHealth = maxHealth;
-        healthText.text = "HP: " + currentHealth + " / " + maxHealth;
+
+        // ❌ 删除：healthText.text = ...
+        // 这里的 UI 更新现在由 PlayerHealth 自动处理
     }
+
     public void UpdateSpeed(int amount)
     {
         speed += amount;
-        statsUI.UpdateAllStats();
+        // 这个可以保留，用于实时刷新属性面板的数值
+        if (statsUI != null) statsUI.UpdateAllStats();
     }
 }
-
