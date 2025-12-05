@@ -175,7 +175,7 @@ public class Player_Combat : MonoBehaviour
                         break;
                 }
 
-                health.ChangeHealth(-(int)damageToDeal);
+                health.TakeDamage((int)damageToDeal, 0);
             }
 
             if (knockback != null)
