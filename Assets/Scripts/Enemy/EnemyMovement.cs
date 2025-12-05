@@ -146,6 +146,35 @@ public class EnemyMovement : MonoBehaviour
         ChangeState(EnemyState.idle);
     }
 
+    /// <summary>
+    /// 对敌人施加朝向某个点的力
+    /// </summary>
+    /// <param name="targetPoint">目标点位置</param>
+    /// <param name="force">施加的力大小</param>
+    public void ApplyForceToPoint(Vector2 targetPoint, float force)
+    {
+        if (rb == null) return;
+
+        // 计算方向
+        Vector2 direction = (targetPoint - (Vector2)transform.position).normalized;
+
+        // 施加力
+        rb.AddForce(direction * force, ForceMode2D.Force);
+    }
+
+    /// <summary>
+    /// 对敌人施加朝向某个Transform的力
+    /// </summary>
+    /// <param name="target">目标Transform</param>
+    /// <param name="force">施加的力大小</param>
+    public void ApplyForceToPoint(Transform target, float force)
+    {
+        if (target != null)
+        {
+            ApplyForceToPoint(target.position, force);
+        }
+    }
+
     private void OnDrawGizmosSelected()
     {
         if (dectectionPoint == null) return;

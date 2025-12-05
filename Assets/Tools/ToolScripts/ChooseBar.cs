@@ -11,11 +11,21 @@ public class ChooseBar : MonoBehaviour
     
     [Header("按键设置")]
     public KeyCode switchKey = KeyCode.Q; // 切换工具键
-    public KeyCode throwKey = KeyCode.F;  // 投掷工具键
     
     [Header("移动设置")]
     public float moveSpeed = 10f;
     public bool smoothMove = true;
+    
+    [Header("音效设置")]
+    [Tooltip("音频源组件（可选，留空则自动添加）")]
+    public AudioSource audioSource;
+    
+    [Tooltip("切换槽位的音效")]
+    public AudioClip switchSound;
+    
+    [Tooltip("音效音量（0-1）")]
+    [Range(0f, 1f)]
+    public float soundVolume = 1f;
     
     [Header("调试")]
     public bool enableDebug = false;
@@ -24,8 +34,6 @@ public class ChooseBar : MonoBehaviour
     private Vector3 targetPosition;
     private float inputCooldown = 0.2f;
     private float lastInputTime = 0f;
-    private float throwCooldown = 0.3f;
-    private float lastThrowTime = 0f;
 
     void Start()
     {
@@ -44,6 +52,23 @@ public class ChooseBar : MonoBehaviour
         {
             Debug.LogWarning("[ChooseBar] 未设置选择指示器！");
         }
+        
+        // 获取或添加 AudioSource 组件
+        if (audioSource == null)
+        {
+            audioSource = GetComponent<AudioSource>();
+            if (audioSource == null)
+            {
+                audioSource = gameObject.AddComponent<AudioSource>();
+                if (enableDebug)
+                    Debug.Log("[ChooseBar] 自动添加了 AudioSource 组件");
+            }
+        }
+        
+        // 配置 AudioSource
+        audioSource.playOnAwake = false;
+        audioSource.loop = false;
+        audioSource.volume = soundVolume;
         
         // 延迟初始化位置，等待 ToolManager 完成位置记录
         StartCoroutine(DelayedInitialize());
@@ -90,12 +115,7 @@ public class ChooseBar : MonoBehaviour
             lastInputTime = Time.time;
         }
         
-        // F键 - 投掷当前工具（带冷却）
-        if (Time.time - lastThrowTime >= throwCooldown && Input.GetKeyDown(throwKey))
-        {
-            ThrowCurrentTool();
-            lastThrowTime = Time.time;
-        }
+        // 注意：F键投掷功能已移至 ToolThrow 组件
     }
 
     private void SwitchToNextSlot()
@@ -112,42 +132,26 @@ public class ChooseBar : MonoBehaviour
         
         UpdateChooseBarPosition(false);
         
+        // 播放切换音效
+        PlaySwitchSound();
+        
         if (enableDebug)
             Debug.Log($"[ChooseBar] Q键切换到槽位: {currentSelectedIndex}");
     }
     
     /// <summary>
-    /// 投掷当前选中的工具
+    /// 播放切换音效（只播放一小段）
     /// </summary>
-    private void ThrowCurrentTool()
+    private void PlaySwitchSound()
     {
-        if (toolManager == null)
-        {
-            if (enableDebug)
-                Debug.LogWarning("[ChooseBar] ToolManager 未设置，无法投掷");
+        if (switchSound == null || audioSource == null)
             return;
-        }
         
-        ToolSlot currentSlot = GetCurrentSelectedSlot();
-        if (currentSlot == null)
-        {
-            if (enableDebug)
-                Debug.LogWarning("[ChooseBar] 当前槽位为空");
-            return;
-        }
-        
-        if (currentSlot.toolSO == null || currentSlot.quantity <= 0)
-        {
-            if (enableDebug)
-                Debug.LogWarning("[ChooseBar] 当前槽位没有工具或数量为0");
-            return;
-        }
+        // 播放音效
+        audioSource.PlayOneShot(switchSound, soundVolume);
         
         if (enableDebug)
-            Debug.Log($"[ChooseBar] F键投掷工具: {currentSlot.toolSO.toolName} (槽位 {currentSelectedIndex})");
-        
-        // 调用 ToolManager 的 UseTool 方法
-        toolManager.UseTool(currentSlot);
+            Debug.Log($"[ChooseBar] 播放切换音效");
     }
 
     private void UpdateChooseBarPosition(bool immediate)
@@ -207,5 +211,8 @@ public class ChooseBar : MonoBehaviour
         
         currentSelectedIndex = index;
         UpdateChooseBarPosition(false);
+        
+        // 播放切换音效
+        PlaySwitchSound();
     }
 }
