@@ -45,30 +45,26 @@ public class ToolSlot : MonoBehaviour, IPointerClickHandler
             {
                 if (activeShop != null)
                 {
+                    // 在商店中，出售工具
                     activeShop.SellTool(toolSO);
                     quantity--;
                     UpdateUI();
                 }
                 else
                 {
-                    // 左键使用工具（类似 InventorySlot 中的 UseItem）
-                    if (toolManager != null)
-                    {
-                        toolManager.UseTool(this);
-                        
-                        if (enableDebug)
-                            Debug.Log($"[ToolSlot] 使用工具: {toolSO?.toolName ?? "null"}");
-                    }
-                    else
-                    {
-                        if (enableDebug)
-                            Debug.LogWarning("[ToolSlot] ToolManager 未设置，无法使用工具");
-                    }
+                    // 不在商店中，准备投掷工具
+                    // 注意：实际投掷由玩家按F键触发
+                    if (enableDebug)
+                        Debug.Log($"[ToolSlot] 左键点击工具槽: {toolSO?.toolName ?? "null"}（投掷请按F键）");
                 }
             }
             else if (eventData.button == PointerEventData.InputButton.Right)
             {
-                toolManager.DropTool(this);
+                // 右键丢弃工具
+                if (toolManager != null)
+                {
+                    toolManager.DropTool(this);
+                }
             }
         }
     }
