@@ -23,27 +23,41 @@ public class ShopKeeper : MonoBehaviour
             {
                 if (!isShopOpen)
                 {         
-                    Time.timeScale = 0;
-                    currentShopKeeper = this;
-                    isShopOpen = true;
-                    OnShopStateChanged?.Invoke(shopManager, true);
-                    shopCanvasGroup.alpha = 1;
-                    shopCanvasGroup.blocksRaycasts = true;
-                    shopCanvasGroup.interactable = true;
-                    OpenItemShop();
+                    OpenShopUI();
                 }
                 else
                 {
-                    Time.timeScale = 1;
-                    currentShopKeeper = null;
-                    isShopOpen = false;
-                    OnShopStateChanged?.Invoke(shopManager, false);
-                    shopCanvasGroup.alpha = 0;
-                    shopCanvasGroup.blocksRaycasts = false;
-                    shopCanvasGroup.interactable = false;
+                    CloseShopUI();
                 }
             }
         }
+    }
+
+    public void OpenShopUI()
+    {
+        if (isShopOpen) return;
+
+        Time.timeScale = 0;
+        currentShopKeeper = this;
+        isShopOpen = true;
+        OnShopStateChanged?.Invoke(shopManager, true);
+        shopCanvasGroup.alpha = 1;
+        shopCanvasGroup.blocksRaycasts = true;
+        shopCanvasGroup.interactable = true;
+        OpenItemShop();
+    }
+
+    public void CloseShopUI()
+    {
+        if (!isShopOpen) return;
+
+        Time.timeScale = 1;
+        currentShopKeeper = null;
+        isShopOpen = false;
+        OnShopStateChanged?.Invoke(shopManager, false);
+        shopCanvasGroup.alpha = 0;
+        shopCanvasGroup.blocksRaycasts = false;
+        shopCanvasGroup.interactable = false;
     }
     public void OpenItemShop()
     {

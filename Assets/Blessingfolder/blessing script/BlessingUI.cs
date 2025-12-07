@@ -7,6 +7,8 @@ public class BlessingUI : MonoBehaviour
 {
     public GameObject blessingPanel;
     public BlessingCard[] cards; // Assign 3 card slots in Inspector
+    public TMP_Text quoteText; // 拖拽一个 Text 进来显示台词
+
     [Header("Animation Settings")]
     public float animationHoldDuration = 1.5f; // Time to hold the chosen card on screen
 
@@ -15,6 +17,35 @@ public class BlessingUI : MonoBehaviour
         // Ensure the panel is hidden instantly when the game starts
         if (blessingPanel != null)
             blessingPanel.SetActive(false);
+        
+        if (quoteText != null) quoteText.text = ""; // 一开始清空
+    }
+
+    public void UpdateQuote(string text, Vector3 cardPosition)
+    {
+        if (quoteText != null)
+        {
+            quoteText.text = text;
+            if (!string.IsNullOrEmpty(text))
+            {
+                // Offset Y to appear above the card. Adjust 150f as needed based on your UI scale.
+                quoteText.transform.position = cardPosition + new Vector3(0, 350f, 0); 
+                quoteText.gameObject.SetActive(true);
+            }
+            else
+            {
+                quoteText.gameObject.SetActive(false);
+            }
+        }
+    }
+
+    public void ClearQuote()
+    {
+        if (quoteText != null)
+        {
+            quoteText.text = "";
+            quoteText.gameObject.SetActive(false);
+        }
     }
 
     private Coroutine currentAnimation;
