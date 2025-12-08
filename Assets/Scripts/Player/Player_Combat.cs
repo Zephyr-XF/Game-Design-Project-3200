@@ -156,7 +156,10 @@ public class Player_Combat : MonoBehaviour
 
             if (health != null)
             {
+                bool wasResilientBeforeAttack = health.currentResilience > 0;
+
                 float damageToDeal = StatsManager.Instance.damage;
+                float impactToDeal = StatsManager.Instance.impact;
 
                 // --- 修改 ---: 在switch中加入Skill3的伤害计算
                 switch (currentAttackType)
@@ -175,7 +178,21 @@ public class Player_Combat : MonoBehaviour
                         break;
                 }
 
-                health.TakeDamage((int)damageToDeal, 0);
+                health.TakeDamage((int)damageToDeal, impactToDeal);
+
+                if (wasResilientBeforeAttack && health.currentResilience <= 0)
+                {
+                    // 就是这一击打破了韧性！触发特写！
+                    if (PlayerBreakEffectManager.Instance != null)
+                    {
+                        // 使用 this.transform (即玩家自己) 作为聚焦目标
+                        PlayerBreakEffectManager.Instance.TriggerCinematicFreeze(transform);
+
+                        // 【重要优化】因为特写已经触发，我们可以立即跳出循环，
+                        // 避免一击打破多个敌人时重复触发特写，同时也更高效。
+                        break;
+                    }
+                }
             }
 
             if (knockback != null)
@@ -187,20 +204,11 @@ public class Player_Combat : MonoBehaviour
         }
     }
 
-    // --- 新增 ---: 用于锁定移动的公共方法
-    /// <summary>
-    /// 检查玩家当前是否正在进行攻击或施法动作。
-    /// 在玩家移动脚本中调用此方法，如果返回 true，则阻止移动。
-    /// </summary>
-    /// <returns>如果正在攻击或施法，返回 true。</returns>
     public bool IsCurrentlyAttacking()
     {
         // 只要当前攻击类型不是None，就意味着玩家正处于一个动作中，不能移动
         return currentAttackType != AttackType.None;
     }
-
-    // 这个方法不再需要，因为我们有了更通用的 IsCurrentlyAttacking()
-    // private bool IsCastingSkill() { ... }
 
     /// <summary>
     /// 【重要】这个方法需要绑定到【所有攻击和技能动画】的【最后一帧】
@@ -223,12 +231,12 @@ public class Player_Combat : MonoBehaviour
         anim.SetInteger("AttackComboStep", 0);
     }
 
-    private void OnDrawGizmosSelected()
-    {
-        if (attackPoint == null) return;
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(attackPoint.position, StatsManager.Instance.weaponRange);
-    }
+    // private void OnDrawGizmosSelected()
+    // {
+    //     if (attackPoint == null) return;
+    //     Gizmos.color = Color.red;
+    //     Gizmos.DrawWireSphere(attackPoint.position, StatsManager.Instance.weaponRange);
+    // }
 
     #region Cinematic Break Effect
     public void TriggerCinematicEffect()

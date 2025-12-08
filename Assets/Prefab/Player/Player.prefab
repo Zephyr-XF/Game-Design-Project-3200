@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 8761840841766314572}
   - component: {fileID: 8327941493963339352}
   - component: {fileID: 7076989447894705568}
+  - component: {fileID: 7222978582827807543}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -117,8 +118,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rb: {fileID: 5935475383397168874}
   anim: {fileID: 2414698175712082225}
-  isWalking: 0
   player_Combat: {fileID: 7076989447894705568}
+  runMultiplier: 1.5
+  dashSpeed: 10
+  dashDuration: 0.2
+  dashCooldown: 1
   showDirectionRay: 1
   rayLength: 2
   rayColor: {r: 1, g: 0, b: 0, a: 1}
@@ -241,6 +245,25 @@ MonoBehaviour:
   skill2Cooldown: 8
   skill2DamageMult: 3
   skill2AnimTrigger: Skill2Trigger
+  skill3Cooldown: 12
+  skill3DamageMult: 4
+  skill3AnimTrigger: Skill3Trigger
+--- !u!114 &7222978582827807543
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1312683216006825196}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dbac98ae378e4a34db683dd13a38ed2e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sanityText: {fileID: 0}
+  sanityTextAnim: {fileID: 0}
+  sanityChangeAnimationName: UI_Sanity_Pulse
+  enableDebug: 1
 --- !u!1 &1799668996689682275
 GameObject:
   m_ObjectHideFlags: 0

@@ -66,12 +66,21 @@ public class PlayerMovement : MonoBehaviour
         {
             return; // 冲刺由协程控制，这里直接返回，或者在这里赋予刚体速度
         }
+
+        if (player_Combat.IsCurrentlyAttacking())
+        {
+            rb.velocity = Vector2.zero;
+            // 确保移动动画也被关闭
+            anim.SetBool("isWalking", false);
+            anim.SetBool("isRunning", false);
+            return;
+        }
         // ---------------------------------------
 
         if (isKnockBack == false)
         {
-            float horizontal = Input.GetAxis("Horizontal");
-            float vertical = Input.GetAxis("Vertical");
+            float horizontal = Input.GetAxisRaw("Horizontal");
+            float vertical = Input.GetAxisRaw("Vertical");
             Vector2 movement = new Vector2(horizontal, vertical).normalized;
 
             if (movement != Vector2.zero)

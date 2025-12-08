@@ -236,8 +236,9 @@ GameObject:
   - component: {fileID: 8974902892306802055}
   - component: {fileID: 3169596355234946492}
   - component: {fileID: 1560531575419317916}
+  - component: {fileID: -3789490186338773622}
   - component: {fileID: 7731727476320265924}
-  m_Layer: 7
+  m_Layer: 6
   m_Name: PlayerRed
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -338,8 +339,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rb: {fileID: 5247599972462752951}
   anim: {fileID: 8974902892306802055}
-  isWalking: 0
   player_Combat: {fileID: 7731727476320265924}
+  runMultiplier: 1.5
+  dashSpeed: 10
+  dashDuration: 0.2
+  dashCooldown: 1
   showDirectionRay: 0
   rayLength: 2
   rayColor: {r: 1, g: 0, b: 0, a: 1}
@@ -429,11 +433,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 370478030684cc84eaef9921c4e46a12, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentHealth: 100
-  maxHealth: 100
-  healthText: {fileID: 0}
-  enableDebug: 1
-  healthTextAnim: {fileID: 0}
+  healthBarFill: {fileID: 0}
+  enableDebug: 0
+--- !u!114 &-3789490186338773622
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3716206984241666664}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dbac98ae378e4a34db683dd13a38ed2e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sanityBarFill: {fileID: 0}
+  enableDebug: 0
 --- !u!114 &7731727476320265924
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -462,3 +477,6 @@ MonoBehaviour:
   skill2Cooldown: 1
   skill2DamageMult: 3
   skill2AnimTrigger: Skill2Trigger
+  skill3Cooldown: 12
+  skill3DamageMult: 4
+  skill3AnimTrigger: Skill3Trigger
