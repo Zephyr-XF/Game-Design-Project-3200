@@ -105,15 +105,41 @@ public class DialogueManager : MonoBehaviour
         DisplayNextSentence();
     }
 
+    private bool isTyping = false; // 是否正在打字
+
     public void DisplayNextSentence()
     {
-        // 如果还在排队，就不要打断（除非我们要强制切）
+        // 1. 如果正在打字，玩家按F是为了"快进"
+        if (isTyping)
+        {
+            if (typingCoroutine != null) StopCoroutine(typingCoroutine);
+            
+            // 直接显示完整文本
+            if (dialogueText != null) dialogueText.text = currentLine.text;
+            
+            isTyping = false;
+
+            // 如果快进的这句话有选项，现在立刻显示出来
+            if (currentLine.choices != null && currentLine.choices.Count > 0)
+            {
+                DisplayChoices(currentLine.choices);
+            }
+            return; // 结束，不要这时候跳到下一句
+        }
+
+        // 2. 如果没在打字，说明上一句已经完全结束等待中了
+        
+        // 如果当前句子有选项，并且已经显示出来了，那么按F应该无效（isWaitingForChoice会拦截，但多加一层保险）
+        if (isWaitingForChoice) return;
+
+        // 如果没有下一句了
         if (sentences.Count == 0)
         {
             EndDialogue();
             return;
         }
 
+        // 3. 正常流程：显示下一句
         currentLine = sentences.Dequeue();
 
         // 设置UI
@@ -139,6 +165,7 @@ public class DialogueManager : MonoBehaviour
 
     IEnumerator TypeSentence(DialogueLine line)
     {
+        isTyping = true;
         string sentence = line.text;
         
         if (dialogueText != null)
@@ -151,6 +178,8 @@ public class DialogueManager : MonoBehaviour
                 yield return new WaitForSecondsRealtime(typingSpeed); 
             }
         }
+
+        isTyping = false;
 
         // 打字结束后，检查有没有选项
         if (line.choices != null && line.choices.Count > 0)

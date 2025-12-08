@@ -17,18 +17,22 @@ public class ShopKeeper : MonoBehaviour
     private bool isShopOpen;
     void Update()
     {
+        // 优先处理关闭：只要商店开着，按互动键就应该能关闭 (不管是否在范围内)
+        if (isShopOpen)
+        {
+            if (Input.GetButtonDown("Interact") || Input.GetKeyDown(KeyCode.Escape))
+            {
+                CloseShopUI();
+            }
+            return; 
+        }
+
+        // 只有在没开店且人在范围内时，才允许打开
         if (playerInRange)
         {
             if (Input.GetButtonDown("Interact"))
             {
-                if (!isShopOpen)
-                {         
-                    OpenShopUI();
-                }
-                else
-                {
-                    CloseShopUI();
-                }
+                 OpenShopUI();
             }
         }
     }
