@@ -26,7 +26,7 @@ BlessingManager.Instance.TriggerBlessing();
 4.BlessingManager.Instance.CloseBlessingUI(); 强制关闭页面
 5.测试按钮B
 
-
+---
 
 ## 待办事项（共同编辑）
 ### 场景：
