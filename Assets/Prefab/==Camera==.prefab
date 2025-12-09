@@ -263,14 +263,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   filterShader: {fileID: 4800000, guid: bf6d3206084446c488d6af4f256a4f6e, type: 3}
-  intensity: 1
-  pinkBrightness: 1.2
-  pinkSaturation: 1.2
-  blurSize: 1
-  hazeIntensity: 0.5
-  pinkBlueIntensity: 0
-  pinkColor: {r: 1, g: 0.7, b: 0.8, a: 1}
-  blueColor: {r: 0.2, g: 0.3, b: 0.9, a: 1}
+  breakEffectIntensity: 0
+  baseRedIntensity: 1
+  baseGreenIntensity: 0.62
+  baseBlueIntensity: 1.69
+  baseRedSat: 1
+  baseGreenSat: 0.172
+  baseBlueSat: 1
+  baseBlurSize: 0
+  baseHazeIntensity: 0
+  breakTargetSaturation: 0.5
+  breakTargetBlur: 3
+  breakTargetHaze: 0.5
+  breakTargetIntensity: 1
 --- !u!1 &3938693788693331601
 GameObject:
   m_ObjectHideFlags: 0
@@ -298,7 +303,7 @@ Transform:
   m_GameObject: {fileID: 3938693788693331601}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 11.809445, y: 6.5517263, z: -9.889373}
+  m_LocalPosition: {x: 11.533272, y: 7.4012876, z: -9.889373}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
