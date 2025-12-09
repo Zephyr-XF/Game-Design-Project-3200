@@ -134,6 +134,7 @@ GameObject:
   - component: {fileID: 1312829832367751188}
   - component: {fileID: 4019194065720960049}
   - component: {fileID: 1734766052080194558}
+  - component: {fileID: 574425995729415529}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -249,6 +250,27 @@ MonoBehaviour:
   m_CameraActivatedEvent:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &574425995729415529
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3076242508624454598}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 530fd9f95d1bbd944abfc884c7aec983, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  filterShader: {fileID: 4800000, guid: bf6d3206084446c488d6af4f256a4f6e, type: 3}
+  intensity: 1
+  pinkBrightness: 1.2
+  pinkSaturation: 1.2
+  blurSize: 1
+  hazeIntensity: 0.5
+  pinkBlueIntensity: 0
+  pinkColor: {r: 1, g: 0.7, b: 0.8, a: 1}
+  blueColor: {r: 0.2, g: 0.3, b: 0.9, a: 1}
 --- !u!1 &3938693788693331601
 GameObject:
   m_ObjectHideFlags: 0

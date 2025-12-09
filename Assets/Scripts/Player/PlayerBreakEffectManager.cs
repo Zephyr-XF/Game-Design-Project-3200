@@ -2,6 +2,7 @@ using UnityEngine;
 using Cinemachine;
 
 // 这个脚本现在变成了一个简单的状态切换器
+[RequireComponent(typeof(AudioSource))]
 public class PlayerBreakEffectManager : MonoBehaviour
 {
     public static PlayerBreakEffectManager Instance { get; private set; }
@@ -11,6 +12,11 @@ public class PlayerBreakEffectManager : MonoBehaviour
     public CinemachineVirtualCamera mainGameplayCamera;
     // 在Inspector中，把刚才创建的“VCam_BreakEffect”拖到这里
     public GameObject breakEffectCameraObject; // 改成GameObject，因为我们要SetActive
+
+    [Header("Audio Settings")]
+    [Tooltip("时停触发时的音效列表 (随机播放一个)")]
+    public AudioClip[] timeFreezeClips;
+    public AudioSource managerAudioSource; // 专门用来播放时停音效，不受暂停影响
 
     // 状态标记
     public bool IsTimeFrozen { get; private set; } = false;
@@ -39,6 +45,14 @@ public class PlayerBreakEffectManager : MonoBehaviour
 
         IsTimeFrozen = true;
         Time.timeScale = 0f;
+
+        var playerAudio = focusTarget.GetComponent<PlayerAudio>();
+        if (playerAudio != null)
+        {
+            playerAudio.StopAllAudio();
+        }
+
+        PlayRandomFreezeSound(); // 播放时停音效
 
         // 【核心改动】只需激活特写相机即可！
         // Cinemachine会因为它的优先级更高而自动开始平滑过渡。
@@ -85,6 +99,25 @@ public class PlayerBreakEffectManager : MonoBehaviour
         if (breakEffectCameraObject != null)
         {
             breakEffectCameraObject.SetActive(false);
+        }
+    }
+
+    private void PlayRandomFreezeSound()
+    {
+        if (timeFreezeClips != null && timeFreezeClips.Length > 0 && managerAudioSource != null)
+        {
+            int index = Random.Range(0, timeFreezeClips.Length);
+            AudioClip clipToPlay = timeFreezeClips[index];
+
+            // 添加这句Debug.Log来确认
+            Debug.Log("Attempting to play time freeze sound: " + clipToPlay.name);
+
+            managerAudioSource.PlayOneShot(clipToPlay);
+        }
+        else
+        {
+            // 如果if判断失败，这个日志会告诉你原因
+            Debug.LogWarning("Could not play time freeze sound. Check if clips are assigned or if AudioSource is missing.");
         }
     }
 }

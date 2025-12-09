@@ -8455,6 +8455,10 @@ PrefabInstance:
       value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 2345075146515054389, guid: b57bc64207d6fc24099160915bdb988f, type: 3}
+      propertyPath: weaponRange
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2345075146515054389, guid: b57bc64207d6fc24099160915bdb988f, type: 3}
       propertyPath: currentHealth
       value: 100
       objectReference: {fileID: 0}
@@ -12832,6 +12836,58 @@ PrefabInstance:
       propertyPath: m_Name
       value: ==Camera==
       objectReference: {fileID: 0}
+    - target: {fileID: 574425995729415529, guid: 599dea7d5e8639747aef3a9b05d0ca20, type: 3}
+      propertyPath: blurSize
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 574425995729415529, guid: 599dea7d5e8639747aef3a9b05d0ca20, type: 3}
+      propertyPath: intensity
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 574425995729415529, guid: 599dea7d5e8639747aef3a9b05d0ca20, type: 3}
+      propertyPath: brightness
+      value: -0.047
+      objectReference: {fileID: 0}
+    - target: {fileID: 574425995729415529, guid: 599dea7d5e8639747aef3a9b05d0ca20, type: 3}
+      propertyPath: filterShader
+      value: 
+      objectReference: {fileID: 4800000, guid: bf6d3206084446c488d6af4f256a4f6e, type: 3}
+    - target: {fileID: 574425995729415529, guid: 599dea7d5e8639747aef3a9b05d0ca20, type: 3}
+      propertyPath: redIntensity
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 574425995729415529, guid: 599dea7d5e8639747aef3a9b05d0ca20, type: 3}
+      propertyPath: blueIntensity
+      value: 1.27
+      objectReference: {fileID: 0}
+    - target: {fileID: 574425995729415529, guid: 599dea7d5e8639747aef3a9b05d0ca20, type: 3}
+      propertyPath: hazeIntensity
+      value: 0.182
+      objectReference: {fileID: 0}
+    - target: {fileID: 574425995729415529, guid: 599dea7d5e8639747aef3a9b05d0ca20, type: 3}
+      propertyPath: redSaturation
+      value: 0.988
+      objectReference: {fileID: 0}
+    - target: {fileID: 574425995729415529, guid: 599dea7d5e8639747aef3a9b05d0ca20, type: 3}
+      propertyPath: greenIntensity
+      value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 574425995729415529, guid: 599dea7d5e8639747aef3a9b05d0ca20, type: 3}
+      propertyPath: pinkBrightness
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 574425995729415529, guid: 599dea7d5e8639747aef3a9b05d0ca20, type: 3}
+      propertyPath: pinkSaturation
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 574425995729415529, guid: 599dea7d5e8639747aef3a9b05d0ca20, type: 3}
+      propertyPath: greenSaturation
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 574425995729415529, guid: 599dea7d5e8639747aef3a9b05d0ca20, type: 3}
+      propertyPath: pinkBlueIntensity
+      value: 0.229
+      objectReference: {fileID: 0}
     - target: {fileID: 2580625938274815450, guid: 599dea7d5e8639747aef3a9b05d0ca20, type: 3}
       propertyPath: m_Follow
       value: 
@@ -13402,14 +13458,6 @@ PrefabInstance:
     - target: {fileID: 2662686736359418471, guid: 12c5220adb32d0641976430b6dca8619, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8716551396896936519, guid: 12c5220adb32d0641976430b6dca8619, type: 3}
-      propertyPath: zoomDuration
-      value: 0.05
-      objectReference: {fileID: 0}
-    - target: {fileID: 8716551396896936519, guid: 12c5220adb32d0641976430b6dca8619, type: 3}
-      propertyPath: cinemachineCamera
-      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 8716551396896936519, guid: 12c5220adb32d0641976430b6dca8619, type: 3}
       propertyPath: mainGameplayCamera

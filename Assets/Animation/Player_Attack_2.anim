@@ -22,15 +22,15 @@ AnimationClip:
     curve:
     - time: 0
       value: {fileID: -663965965, guid: 45a4dc53b9a12f744a5c9844d782029e, type: 3}
-    - time: 0.11666667
+    - time: 0.083333336
       value: {fileID: -494000967, guid: 45a4dc53b9a12f744a5c9844d782029e, type: 3}
-    - time: 0.21666667
+    - time: 0.18333334
       value: {fileID: -1724623677, guid: 45a4dc53b9a12f744a5c9844d782029e, type: 3}
-    - time: 0.31666666
+    - time: 0.28333333
       value: {fileID: 2022449849, guid: 45a4dc53b9a12f744a5c9844d782029e, type: 3}
-    - time: 0.4
+    - time: 0.36666667
       value: {fileID: 533953600, guid: 45a4dc53b9a12f744a5c9844d782029e, type: 3}
-    - time: 0.48333332
+    - time: 0.45
       value: {fileID: 533953600, guid: 45a4dc53b9a12f744a5c9844d782029e, type: 3}
     attribute: m_Sprite
     path: 
@@ -65,7 +65,7 @@ AnimationClip:
     m_AdditiveReferencePoseClip: {fileID: 0}
     m_AdditiveReferencePoseTime: 0
     m_StartTime: 0
-    m_StopTime: 0.5
+    m_StopTime: 0.46666667
     m_OrientationOffsetY: 0
     m_Level: 0
     m_CycleOffset: 0
@@ -86,13 +86,20 @@ AnimationClip:
   m_HasMotionFloatCurves: 0
   m_Events:
   - time: 0.18333334
+    functionName: PlayAttackSound
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 0.2
     functionName: DealDamage
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
-  - time: 0.4
+  - time: 0.25
     functionName: FinishAttacking
     data: 
     objectReferenceParameter: {fileID: 0}
