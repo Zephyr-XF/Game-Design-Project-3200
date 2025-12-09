@@ -86,7 +86,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!114 &7901498147915455275
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -119,8 +119,6 @@ MonoBehaviour:
   healthFill: {fileID: 629018718997798494}
   resilienceFill: {fileID: 8413648384531119600}
   canvasGameObject: {fileID: 733678503942230913}
-  targetEnemy: {fileID: 0}
-  offset: {x: 0, y: 1.5, z: 0}
 --- !u!1 &2053569466804224921
 GameObject:
   m_ObjectHideFlags: 0

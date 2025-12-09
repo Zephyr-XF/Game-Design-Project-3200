@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
+    private PlayerAudio playerAudio;
     public Rigidbody2D rb;
     public Animator anim;
     private bool isKnockBack;
@@ -35,6 +36,7 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         player_Combat = GetComponent<Player_Combat>();
+        playerAudio = GetComponent<PlayerAudio>();
     }
 
     private void Update()
@@ -64,17 +66,32 @@ public class PlayerMovement : MonoBehaviour
         // --- 如果正在冲刺，跳过普通移动逻辑 ---
         if (isDashing)
         {
+            playerAudio.ManageFootsteps(false, false);
             return; // 冲刺由协程控制，这里直接返回，或者在这里赋予刚体速度
+        }
+
+        if (player_Combat.IsCurrentlyAttacking())
+        {
+            rb.velocity = Vector2.zero;
+            // 确保移动动画也被关闭
+            anim.SetBool("isWalking", false);
+            anim.SetBool("isRunning", false);
+            playerAudio.ManageFootsteps(false, false);
+            return;
         }
         // ---------------------------------------
 
         if (isKnockBack == false)
         {
-            float horizontal = Input.GetAxis("Horizontal");
-            float vertical = Input.GetAxis("Vertical");
+            float horizontal = Input.GetAxisRaw("Horizontal");
+            float vertical = Input.GetAxisRaw("Vertical");
             Vector2 movement = new Vector2(horizontal, vertical).normalized;
 
-            if (movement != Vector2.zero)
+            bool isMoving = movement != Vector2.zero;
+            playerAudio.ManageFootsteps(isMoving, isRunning);
+
+
+            if (isMoving)
             {
                 anim.SetBool("isWalking", true);
                 anim.SetBool("isRunning", isRunning);
@@ -98,6 +115,11 @@ public class PlayerMovement : MonoBehaviour
 
             rb.velocity = movement * currentSpeed;
         }
+        else
+        {
+            // 被击退时停止脚步声
+            playerAudio.ManageFootsteps(false, false);
+        }
     }
 
     // --- 冲刺协程逻辑 ---
@@ -105,6 +127,8 @@ public class PlayerMovement : MonoBehaviour
     {
         canDash = false; // 进入冷却
         isDashing = true; // 标记为正在冲刺
+
+        playerAudio.PlayDash();
 
         // 确定冲刺方向：如果有输入则按输入方向，没有输入则按最后移动方向或面朝方向
         float horizontal = Input.GetAxisRaw("Horizontal");
