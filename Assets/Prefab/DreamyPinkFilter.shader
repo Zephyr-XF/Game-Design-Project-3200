@@ -4,18 +4,18 @@ Shader "Custom/DreamyFilterModified"
     {
         _MainTex ("Texture", 2D) = "white" {}
 
-        // RGB 强度 (原有功能)
-        _RedIntensity ("Red Intensity", Range(0.0, 5.0)) = 1.0
-        _GreenIntensity ("Green Intensity", Range(0.0, 5.0)) = 1.0
-        _BlueIntensity ("Blue Intensity", Range(0.0, 5.0)) = 1.0
+        // RGB 强度
+        _RedIntensity ("Red Intensity", Float) = 1.0
+        _GreenIntensity ("Green Intensity", Float) = 1.0
+        _BlueIntensity ("Blue Intensity", Float) = 1.0
 
-        // RGB 饱和度 (新增功能)
-        _RedSat ("Red Saturation", Range(0.0, 2.0)) = 1.0
-        _GreenSat ("Green Saturation", Range(0.0, 2.0)) = 1.0
-        _BlueSat ("Blue Saturation", Range(0.0, 2.0)) = 1.0
+        // RGB 饱和度
+        _RedSat ("Red Saturation", Float) = 1.0
+        _GreenSat ("Green Saturation", Float) = 1.0
+        _BlueSat ("Blue Saturation", Float) = 1.0
 
-        // 模糊设置
-        _BlurSize ("Blur Radius", Range(0, 10)) = 1
+        // 模糊与发光
+        _BlurSize ("Blur Radius", Int) = 1
         _HazeIntensity("Haze Intensity", Range(0.0, 1.0)) = 0.3
     }
     SubShader
@@ -53,6 +53,7 @@ Shader "Custom/DreamyFilterModified"
             sampler2D _MainTex;
             float4 _MainTex_TexelSize;
             
+            // 变量由 C# 脚本每帧传入
             float _RedIntensity;
             float _GreenIntensity;
             float _BlueIntensity;
@@ -64,7 +65,7 @@ Shader "Custom/DreamyFilterModified"
             int   _BlurSize;
             float _HazeIntensity;
 
-            // ================= 辅助函数：RGB 与 HSV 转换 =================
+            // RGB 转 HSV 辅助函数
             float3 RGBtoHSV(float3 c)
             {
                 float4 K = float4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
@@ -76,6 +77,7 @@ Shader "Custom/DreamyFilterModified"
                 return float3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
             }
 
+            // HSV 转 RGB 辅助函数
             float3 HSVtoRGB(float3 c)
             {
                 float4 K = float4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
@@ -83,25 +85,23 @@ Shader "Custom/DreamyFilterModified"
                 return c.z * lerp(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
             }
 
-            // ================= 核心逻辑：调整特定颜色的饱和度 =================
+            // 调整特定色相的饱和度
             float3 AdjustSpecificSaturation(float3 color)
             {
                 float3 hsv = RGBtoHSV(color);
                 float hue = hsv.x;
 
-                // 定义颜色的色相范围 (0-1)
-                // 绿色范围: 约 0.25 - 0.5 (90度到180度之间)
+                // 根据色相范围应用不同的饱和度倍率
+                // 注意：如果 C# 传入的 _RedSat 等全部趋近于 0，这里输出的就是黑白
                 if (hue > 0.2 && hue < 0.5) 
                 {
                     hsv.y *= _GreenSat;
                 }
-                // 蓝色范围: 约 0.5 - 0.85 (180度到300度之间)
                 else if (hue >= 0.5 && hue < 0.85) 
                 {
                     hsv.y *= _BlueSat;
                 }
-                // 红色范围: 跨越 0 和 1 (300度到60度之间)
-                else if (hue >= 0.85 || hue <= 0.2) 
+                else 
                 {
                     hsv.y *= _RedSat;
                 }
@@ -111,38 +111,41 @@ Shader "Custom/DreamyFilterModified"
 
             fixed4 frag (v2f i) : SV_Target
             {
-                // ----- 第1步: 获取原始颜色 -----
+                // 1. 采样原始颜色
                 fixed4 originalColor = tex2D(_MainTex, i.uv);
 
-                // ----- 第2步: 计算模糊颜色 -----
-                float3 blurredSum = float3(0.0, 0.0, 0.0);
-                int sampleCount = 0;
+                // 2. 采样并计算模糊颜色 (简单的 Box Blur)
+                // 优化：如果 BlurSize 为 0，直接使用原始颜色，省去循环
+                float3 blurredColor = originalColor.rgb;
                 
-                // 简单的盒式模糊
-                for (int y = -_BlurSize; y <= _BlurSize; y++)
+                if (_BlurSize > 0)
                 {
-                    for (int x = -_BlurSize; x <= _BlurSize; x++)
+                    float3 blurredSum = float3(0.0, 0.0, 0.0);
+                    int sampleCount = 0;
+                    for (int y = -_BlurSize; y <= _BlurSize; y++)
                     {
-                        float2 offset = float2(x, y) * _MainTex_TexelSize.xy;
-                        blurredSum += tex2D(_MainTex, i.uv + offset).rgb;
-                        sampleCount++;
+                        for (int x = -_BlurSize; x <= _BlurSize; x++)
+                        {
+                            float2 offset = float2(x, y) * _MainTex_TexelSize.xy;
+                            blurredSum += tex2D(_MainTex, i.uv + offset).rgb;
+                            sampleCount++;
+                        }
                     }
+                    blurredColor = blurredSum / sampleCount;
                 }
-                float3 blurredColor = blurredSum / sampleCount;
 
-                // ----- 第3步: 应用特定颜色的饱和度调整 -----
-                // 我们对清晰图和模糊图分别做颜色调整
-                // 这样如果把绿色变灰，那么绿色的物体发出的光（Blur）也会变灰
+                // 3. 应用饱和度调整 (保持色调的关键步骤)
                 float3 satAdjustedClear = AdjustSpecificSaturation(originalColor.rgb);
                 float3 satAdjustedBlur = AdjustSpecificSaturation(blurredColor);
 
-                // ----- 第4步: 应用 RGB Intensity 强度调整 (原有功能) -----
+                // 4. 应用 RGB 强度 (亮度)
+                // C# 已经根据 Base * Multiplier 计算好了具体的值，这里直接乘即可
                 float3 rgbMultiplier = float3(_RedIntensity, _GreenIntensity, _BlueIntensity);
                 
                 float3 finalClear = satAdjustedClear * rgbMultiplier;
                 float3 finalBlur = satAdjustedBlur * rgbMultiplier;
 
-                // ----- 第5步: 混合清晰与模糊 (朦胧效果) -----
+                // 5. 混合清晰层和模糊层 (Haze 效果)
                 float3 finalColor = lerp(finalClear, finalBlur, _HazeIntensity);
 
                 return fixed4(finalColor, originalColor.a);
