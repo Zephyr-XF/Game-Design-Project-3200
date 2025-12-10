@@ -37,7 +37,6 @@ BlessingManager.Instance.TriggerBlessing();
 
 
 ### 怪物：
-- 怪物击破状态头顶出现Awake字样（）
 - 受击音效
 - 更多种类的boss与技能
 
