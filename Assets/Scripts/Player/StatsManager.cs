@@ -8,13 +8,30 @@ public class StatsManager : MonoBehaviour
     public static StatsManager Instance;
     public StatsUI statsUI;
 
-    [Header("Combat Stats")]
+    [Header("Core Combat Stats")]
     public int damage; // To kill the enemy
     public int impact; // To break the enemy
     public float weaponRange;
     public float knockbackForce;
     public float knockbackTime;
     public float stunTime;
+
+    // --- 新增区域: 连击与技能数值 ---
+    [Header("Combo & Skill Stats")]
+    public int maxCombo = 4;
+
+    [Space(10)]
+    public float skill1Cooldown = 5f;
+    public float skill1DamageMult = 2.0f;
+
+    [Space(10)]
+    public float skill2Cooldown = 8f;
+    public float skill2DamageMult = 2.0f;
+
+    [Space(10)]
+    public float skill3Cooldown = 12f;
+    public float skill3DamageMult = 8.0f;
+    // --- 新增区域结束 ---
 
     [Header("Movement Stats")]
     public int speed;

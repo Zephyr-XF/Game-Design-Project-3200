@@ -12,26 +12,17 @@ public class Player_Combat : MonoBehaviour
     public StatsUI statsUI;
     public Animator anim;
 
-    [Header("Combo Settings")]
-    public int maxCombo = 3;
+    // --- 技能和连击的数值设置已移至 StatsManager ---
+    [Header("Combat Timing Settings")]
     public float comboResetTimer = 1f;
     public float minAttackInterval = 0.2f;
+
+    [Header("Animation Triggers")]
     public string attackAnmiTrigger = "AttackTrigger";
-
-    [Header("Skill 1 Settings")]
-    public float skill1Cooldown = 5f;
-    public float skill1DamageMult = 2.0f;
     public string skill1AnimTrigger = "Skill1Trigger";
-
-    [Header("Skill 2 Settings")]
-    public float skill2Cooldown = 8f;
-    public float skill2DamageMult = 3.0f;
     public string skill2AnimTrigger = "Skill2Trigger";
-
-    [Header("Skill 3 Settings")]
-    public float skill3Cooldown = 12f;
-    public float skill3DamageMult = 4.0f;
     public string skill3AnimTrigger = "Skill3Trigger";
+
 
     private PlayerAudio playerAudio;
     private int currentComboStep = 0;
@@ -55,23 +46,48 @@ public class Player_Combat : MonoBehaviour
 
     private void Update()
     {
+        // 检查是否处于电影化破防的时间冻结状态
         if (PlayerBreakEffectManager.Instance != null && PlayerBreakEffectManager.Instance.IsTimeFrozen)
         {
             if (Input.GetKeyDown(KeyCode.K)) ExecuteBreakSkill(AttackType.Skill1);
             else if (Input.GetKeyDown(KeyCode.L)) ExecuteBreakSkill(AttackType.Skill2);
             else if (Input.GetKeyDown(KeyCode.U)) ExecuteBreakSkill(AttackType.Skill3);
-            return;
+            return; // 在时间冻结时，不执行后续逻辑
         }
 
+        // 连击重置逻辑
         if (currentComboStep > 0 && Time.time - lastAttackTime > comboResetTimer)
         {
             ResetCombo();
         }
 
+        // 技能冷却计时
         if (skill1Timer > 0) skill1Timer -= Time.deltaTime;
         if (skill2Timer > 0) skill2Timer -= Time.deltaTime;
         if (skill3Timer > 0) skill3Timer -= Time.deltaTime;
 
+        if (SkillsCooldownUIManager.Instance != null)
+        {
+            // 计算并更新技能1的UI
+            float skill1Ratio = (StatsManager.Instance.skill1Cooldown > 0)
+                ? skill1Timer / StatsManager.Instance.skill1Cooldown
+                : 0;
+            SkillsCooldownUIManager.Instance.UpdateSkillDisplay(0, skill1Ratio);
+
+            // 计算并更新技能2的UI
+            float skill2Ratio = (StatsManager.Instance.skill2Cooldown > 0)
+                ? skill2Timer / StatsManager.Instance.skill2Cooldown
+                : 0;
+            SkillsCooldownUIManager.Instance.UpdateSkillDisplay(1, skill2Ratio);
+
+            // 计算并更新技能3的UI
+            float skill3Ratio = (StatsManager.Instance.skill3Cooldown > 0)
+                ? skill3Timer / StatsManager.Instance.skill3Cooldown
+                : 0;
+            SkillsCooldownUIManager.Instance.UpdateSkillDisplay(2, skill3Ratio);
+        }
+
+        // 玩家输入检测
         if (Input.GetKeyDown(KeyCode.J)) Attack();
         if (Input.GetKeyDown(KeyCode.K)) CastSkill1();
         if (Input.GetKeyDown(KeyCode.L)) CastSkill2();
@@ -85,10 +101,11 @@ public class Player_Combat : MonoBehaviour
         currentAttackType = AttackType.BasicCombo;
 
         currentComboStep++;
-        if (currentComboStep > maxCombo) currentComboStep = 1;
-
-        // --- 音频播放已从此移除，将由动画事件调用 ---
-        // playerAudio.PlayBasicAttack(currentComboStep); 
+        // 从 StatsManager 获取最大连击数
+        if (currentComboStep > StatsManager.Instance.maxCombo)
+        {
+            currentComboStep = 1;
+        }
 
         anim.SetInteger("AttackComboStep", currentComboStep);
         anim.SetTrigger(attackAnmiTrigger);
@@ -106,10 +123,9 @@ public class Player_Combat : MonoBehaviour
 
     private void PerformSkill1()
     {
-        // --- 音频播放已从此移除，将由动画事件调用 ---
-        // playerAudio.PlaySkill1();
         currentAttackType = AttackType.Skill1;
-        skill1Timer = skill1Cooldown;
+        // 从 StatsManager 获取技能冷却时间
+        skill1Timer = StatsManager.Instance.skill1Cooldown;
         ResetCombo();
         anim.SetTrigger(skill1AnimTrigger);
     }
@@ -122,10 +138,9 @@ public class Player_Combat : MonoBehaviour
 
     private void PerformSkill2()
     {
-        // --- 音频播放已从此移除，将由动画事件调用 ---
-        // playerAudio.PlaySkill2();
         currentAttackType = AttackType.Skill2;
-        skill2Timer = skill2Cooldown;
+        // 从 StatsManager 获取技能冷却时间
+        skill2Timer = StatsManager.Instance.skill2Cooldown;
         ResetCombo();
         anim.SetTrigger(skill2AnimTrigger);
     }
@@ -138,10 +153,9 @@ public class Player_Combat : MonoBehaviour
 
     private void PerformSkill3()
     {
-        // --- 音频播放已从此移除，将由动画事件调用 ---
-        // playerAudio.PlaySkill3();
         currentAttackType = AttackType.Skill3;
-        skill3Timer = skill3Cooldown;
+        // 从 StatsManager 获取技能冷却时间
+        skill3Timer = StatsManager.Instance.skill3Cooldown;
         ResetCombo();
         anim.SetTrigger(skill3AnimTrigger);
     }
@@ -157,6 +171,46 @@ public class Player_Combat : MonoBehaviour
 
         Collider2D[] enemies = Physics2D.OverlapCircleAll(attackPoint.position, StatsManager.Instance.weaponRange, enemyLayer);
 
+        float finalKnockbackForce = StatsManager.Instance.knockbackForce;
+        float finalKnockbackTime = StatsManager.Instance.knockbackTime;
+        float finalStunTime = StatsManager.Instance.stunTime;
+
+        // 2. 根据当前的攻击类型，定制化修改这些参数
+        switch (currentAttackType)
+        {
+            case AttackType.BasicCombo:
+                // 普攻的击退效果可以弱一些
+                finalKnockbackForce *= 0f;
+                // 如果是连招的最后一下，给予更强的击退效果！ (从 StatsManager 获取最大连击数)
+                if (currentComboStep == StatsManager.Instance.maxCombo)
+                {
+                    finalKnockbackForce = StatsManager.Instance.knockbackForce * 0f; // 击退力更强
+                    finalKnockbackTime = StatsManager.Instance.knockbackTime * 0f;  // 击退时间更长
+                    finalStunTime = StatsManager.Instance.stunTime * 0f;       // 眩晕时间也更长
+                }
+                break;
+
+            case AttackType.Skill1:
+                // 技能1：中等击退
+                finalKnockbackForce = StatsManager.Instance.knockbackForce * 0f;
+                finalStunTime = StatsManager.Instance.stunTime * 0f;
+                break;
+
+            case AttackType.Skill2:
+                // 技能2：强力击飞，击退时间很长但眩晕时间短
+                finalKnockbackForce = StatsManager.Instance.knockbackForce * 0f;
+                finalKnockbackTime = StatsManager.Instance.knockbackTime * 0f;
+                finalStunTime = StatsManager.Instance.stunTime * 0f; // 敌人飞出去很远，但落地后很快恢复
+                break;
+
+            case AttackType.Skill3:
+                // 技能3：终极技能，超强击退和长眩晕
+                finalKnockbackForce = StatsManager.Instance.knockbackForce * 3.0f;
+                finalKnockbackTime = StatsManager.Instance.knockbackTime * 2.0f;
+                finalStunTime = StatsManager.Instance.stunTime * 3.0f;
+                break;
+        }
+
         foreach (Collider2D enemy in enemies)
         {
             EnemyHealth health = enemy.GetComponent<EnemyHealth>();
@@ -171,16 +225,20 @@ public class Player_Combat : MonoBehaviour
                 switch (currentAttackType)
                 {
                     case AttackType.BasicCombo:
-                        if (currentComboStep == maxCombo) damageToDeal *= 1.5f;
+                        // 从 StatsManager 获取最大连击数
+                        if (currentComboStep == StatsManager.Instance.maxCombo) damageToDeal *= 1.5f;
                         break;
                     case AttackType.Skill1:
-                        damageToDeal *= skill1DamageMult;
+                        // 从 StatsManager 获取技能伤害倍率
+                        damageToDeal *= StatsManager.Instance.skill1DamageMult;
                         break;
                     case AttackType.Skill2:
-                        damageToDeal *= skill2DamageMult;
+                        // 从 StatsManager 获取技能伤害倍率
+                        damageToDeal *= StatsManager.Instance.skill2DamageMult;
                         break;
                     case AttackType.Skill3:
-                        damageToDeal *= skill3DamageMult;
+                        // 从 StatsManager 获取技能伤害倍率
+                        damageToDeal *= StatsManager.Instance.skill3DamageMult;
                         break;
                 }
 
@@ -191,15 +249,14 @@ public class Player_Combat : MonoBehaviour
                     if (PlayerBreakEffectManager.Instance != null)
                     {
                         PlayerBreakEffectManager.Instance.TriggerCinematicFreeze(transform);
-                        break;
+                        break; // 找到一个破防的敌人就触发效果并跳出循环
                     }
                 }
             }
 
             if (knockback != null)
             {
-                float forceMult = (currentAttackType != AttackType.None && currentAttackType != AttackType.BasicCombo) ? 1.5f : 1f;
-                knockback.Knockback(transform, StatsManager.Instance.knockbackForce * forceMult, StatsManager.Instance.knockbackTime, StatsManager.Instance.stunTime);
+                knockback.Knockback(transform, finalKnockbackForce, finalKnockbackTime, finalStunTime);
             }
         }
     }
@@ -209,6 +266,9 @@ public class Player_Combat : MonoBehaviour
         return currentAttackType != AttackType.None;
     }
 
+    /// <summary>
+    /// 在动画结束时由动画事件调用，表示攻击动作完成
+    /// </summary>
     public void FinishAttacking()
     {
         currentAttackType = AttackType.None;
@@ -221,9 +281,10 @@ public class Player_Combat : MonoBehaviour
     }
 
     #region Cooldown UI
-    public float GetSkill1CooldownRatio() => Mathf.Clamp01(skill1Timer / skill1Cooldown);
-    public float GetSkill2CooldownRatio() => Mathf.Clamp01(skill2Timer / skill2Cooldown);
-    public float GetSkill3CooldownRatio() => Mathf.Clamp01(skill3Timer / skill3Cooldown);
+    // 从 StatsManager 获取技能冷却时间用于UI计算
+    public float GetSkill1CooldownRatio() => Mathf.Clamp01(skill1Timer / StatsManager.Instance.skill1Cooldown);
+    public float GetSkill2CooldownRatio() => Mathf.Clamp01(skill2Timer / StatsManager.Instance.skill2Cooldown);
+    public float GetSkill3CooldownRatio() => Mathf.Clamp01(skill3Timer / StatsManager.Instance.skill3Cooldown);
     #endregion
 
     #region Cinematic Break Effect
@@ -253,6 +314,9 @@ public class Player_Combat : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 在电影化技能动画结束时由动画事件调用
+    /// </summary>
     public void OnCinematicSkillFinished()
     {
         if (PlayerBreakEffectManager.Instance != null)
@@ -314,6 +378,7 @@ public class Player_Combat : MonoBehaviour
 
     #endregion
 }
+
 
 
 
