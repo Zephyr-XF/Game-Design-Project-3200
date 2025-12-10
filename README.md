@@ -38,6 +38,8 @@ BlessingManager.Instance.TriggerBlessing();
 
 ### 怪物：
 怪物击破状态头顶出现Awake字样（）
+受击音效
+更多种类的boss与技能
 
 
 ### 角色：
@@ -49,6 +51,7 @@ BlessingManager.Instance.TriggerBlessing();
 
 ### 祝福：
 房间偶尔散布的记忆碎片
+神秘商人
 
 
 ### 其他：
