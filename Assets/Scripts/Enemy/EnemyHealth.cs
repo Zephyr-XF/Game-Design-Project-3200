@@ -9,11 +9,16 @@ public class EnemyHealth : MonoBehaviour
     public int currentHealth;
     public int expReward = 3;
 
+    // ★★★ 新增：音效设置 ★★★
+    [Header("音效设置")]
+    public AudioClip hitSound;       // 请在 Inspector 里把受伤音效拖到这里
+    private AudioSource audioSource; // 用来播放声音的组件
+
     [Header("UI 设置")]
     public GameObject hudPrefab; // 拖入 EnemyHUD Prefab
     private EnemyHUD myHUD;
 
-    // ★★★ 新增：血条挂载点 ★★★
+    // ★★★ 血条挂载点 ★★★
     [Tooltip("在怪物子物体里创建一个空物体放在头顶，并拖到这里")]
     public Transform healthBarPoint;
 
@@ -38,10 +43,19 @@ public class EnemyHealth : MonoBehaviour
         enemyMovement = GetComponent<EnemyMovement>();
         spriteRenderer = GetComponent<SpriteRenderer>();
 
+        // ★★★ 新增：初始化 AudioSource ★★★
+        audioSource = GetComponent<AudioSource>();
+        // 如果怪物身上没有 AudioSource，自动加一个，防止报错
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+            audioSource.playOnAwake = false; // 确保不会一出生就乱叫
+        }
+
         // 生成血条
         if (hudPrefab != null)
         {
-            // 1. 查找场景里的 WorldCanvas (确保你的Canvas叫这个名字)
+            // 1. 查找场景里的 WorldCanvas
             GameObject canvasObj = GameObject.Find("WorldCanvas");
 
             if (canvasObj != null)
@@ -52,11 +66,10 @@ public class EnemyHealth : MonoBehaviour
                 // 获取 HUD 脚本
                 myHUD = hudObj.GetComponent<EnemyHUD>();
 
-                // ★★★ 关键修改：把 healthBarPoint 传过去 ★★★
-                // 如果你忘了拖 healthBarPoint，这里传 null 进去，HUD脚本里会自动处理
+                // ★★★ 把 healthBarPoint 传过去 ★★★
                 myHUD.Setup(this, healthBarPoint);
 
-                // 重要：修正缩放 (防止生成后缩放变乱)
+                // 重要：修正缩放
                 hudObj.transform.localScale = Vector3.one;
             }
             else
@@ -79,6 +92,12 @@ public class EnemyHealth : MonoBehaviour
             visuals.PlayHitEffect();
         }
 
+        // ★★★ 新增：播放受伤音效 ★★★
+        if (audioSource != null && hitSound != null)
+        {
+            audioSource.PlayOneShot(hitSound);
+        }
+
         // 1. 判断是否处于清醒(破防)状态
         bool isShattered = (enemyMovement.enemyState == EnemyState.dreamshatter);
 
@@ -86,7 +105,6 @@ public class EnemyHealth : MonoBehaviour
         int finalDamage = isShattered ? Mathf.RoundToInt(damage * shatterDamageMultiplier) : damage;
 
         currentHealth -= finalDamage;
-        // Debug.Log($"敌人受到伤害: {finalDamage} (倍率: {(isShattered ? shatterDamageMultiplier : 1)})");
 
         // 3. 死亡检测
         if (currentHealth <= 0)
