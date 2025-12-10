@@ -87,15 +87,15 @@ public class LevelController2D : MonoBehaviour
 
     private IEnumerator LoadLevelSequence(int index )
     {
-        yield return TransitionTimer(); // 显示 Loading 动效
+        yield return TransitionTimer(); // 显示 Loading 特效
 
         LevelConfig2D config = levelConfigs[index];
-        Debug.Log($"[LevelController2D] 加载关卡: {config.levelName}, levelID: {config.levelID}");
+        Debug.Log($"[LevelController2D] 加载关卡: {config.levelName}, levelID: {config.levelID}, playerSpawnId: {config.playerSpawnId}");
 
         if (allSpawnPoints == null || allSpawnPoints.Length == 0)
         {
             allSpawnPoints = FindObjectsOfType<SpawnPoint2D>(true);
-            Debug.Log($"[LevelController2D] 自动查找 SpawnPoint2D，共找到 {allSpawnPoints.Length} 个");
+            Debug.Log($"[LevelController2D] 自动查找 SpawnPoint2D，找到 {allSpawnPoints.Length} 个");
             if (allSpawnPoints.Length > 0)
             {
                 Debug.Log("[LevelController2D] SpawnPoint 列表: " + string.Join(", ", allSpawnPoints.Select(s => s.spawnId + ":" + s.name)));
@@ -104,11 +104,12 @@ public class LevelController2D : MonoBehaviour
 
         if (allSpawnPoints.Length > 0)
         {
-            TeleportPlayer2D(config, config.levelID);
+            // 修复：使用 playerSpawnId 而不是 levelID
+            TeleportPlayer2D(config, config.playerSpawnId);
         }
         else
         {
-            Debug.LogWarning("[LevelController2D] 场景中没有 SpawnPoint2D，跳过玩家传送。请添加一个 SpawnPoint2D。");
+            Debug.LogWarning("[LevelController2D] 场景中没有 SpawnPoint2D！请给玩家创建至少一个 SpawnPoint2D。");
         }
 
         if (snapCameraOnLevelLoad && player != null)
@@ -117,9 +118,6 @@ public class LevelController2D : MonoBehaviour
         }
 
         BlessingManager.Instance.TriggerBlessing();
-
-
-
 
         Debug.Log($"[LevelController2D] 加载关卡完成: {config.levelName}");
     }
@@ -146,24 +144,31 @@ public class LevelController2D : MonoBehaviour
             return;
         }
 
-        if (allSpawnPoints == null || allSpawnPoints.Length == 0)
+        // 强制重新搜索所有 SpawnPoint（避免缓存问题）
+        allSpawnPoints = FindObjectsOfType<SpawnPoint2D>(true);
+        Debug.Log($"[LevelController2D] 重新搜索 SpawnPoint2D，找到 {allSpawnPoints.Length} 个");
+        
+        if (allSpawnPoints.Length == 0)
         {
-            allSpawnPoints = FindObjectsOfType<SpawnPoint2D>(true);
-            Debug.Log($"[LevelController2D] (传送时) 自动搜索 SpawnPoint2D，找到 {allSpawnPoints.Length} 个");
-            if (allSpawnPoints.Length == 0)
-            {
-                Debug.LogError("[LevelController2D] 场景中没有任何 SpawnPoint2D，无法传送玩家");
-                return;
-            }
-            Debug.Log("[LevelController2D] SpawnPoint 列表: " + string.Join(", ", allSpawnPoints.Select(s => s.spawnId + ":" + s.name)));
+            Debug.LogError("[LevelController2D] 场景中没有任何 SpawnPoint2D，无法传送玩家");
+            return;
         }
+        
+        // 打印所有 SpawnPoint 的详细信息
+        Debug.Log("[LevelController2D] === 所有 SpawnPoint 列表 ===");
+        foreach (var point in allSpawnPoints)
+        {
+            Debug.Log($"  - {point.name}: spawnId = {point.spawnId}, 位置 = {point.transform.position}");
+        }
+        Debug.Log("[LevelController2D] ========================");
 
         // 查找所有匹配的 SpawnPoint
         SpawnPoint2D[] matchingSpawnPoints = allSpawnPoints.Where(p => p.spawnId == spawnId).ToArray();
         
         if (matchingSpawnPoints.Length == 0)
         {
-            Debug.LogError($"[LevelController2D] 找不到 spawnId = {spawnId} 的 SpawnPoint2D，可用的: {string.Join(", ", allSpawnPoints.Select(p => p.spawnId))}");
+            Debug.LogError($"[LevelController2D] ? 找不到 spawnId = {spawnId} 的 SpawnPoint2D");
+            Debug.LogError($"[LevelController2D] 可用的 spawnId: {string.Join(", ", allSpawnPoints.Select(p => p.spawnId))}");
             return;
         }
 
@@ -178,7 +183,7 @@ public class LevelController2D : MonoBehaviour
         else
         {
             sp = matchingSpawnPoints[0];
-            Debug.Log($"[LevelController2D] 匹配到了唯一生成点：{sp.name} (spawnId={sp.spawnId}) useTransformPosition={sp.useTransformPosition}");
+            Debug.Log($"[LevelController2D] ? 匹配到唯一生成点：{sp.name} (spawnId={sp.spawnId})");
         }
 
         if (sp.resetPlayerState)

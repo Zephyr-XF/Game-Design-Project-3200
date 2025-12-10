@@ -9,12 +9,15 @@ public class ShopKeeper : MonoBehaviour
     public Animator anim;
     public CanvasGroup shopCanvasGroup;
     public ShopManager shopManager;
+    
+    [Header("商店物品列表")]
     [SerializeField] private List<ShopItems> shopItems;
-    [SerializeField] private List<ShopItems> shopWeapons;
-    [SerializeField] private List<ShopItems> shopArmor;
+    [SerializeField] private List<ShopTools> shopTools;
+    
     public static event Action<ShopManager, bool> OnShopStateChanged;
     private bool playerInRange;
     private bool isShopOpen;
+    
     void Update()
     {
         if (playerInRange)
@@ -45,22 +48,18 @@ public class ShopKeeper : MonoBehaviour
             }
         }
     }
+    
     public void OpenItemShop()
     {
         shopManager.PopulateShopItems(shopItems);
     }
-    public void OpenWeaponShop()
+    
+    public void OpenToolShop()
     {
-        
-        shopManager.PopulateShopItems(shopWeapons);
-    }
-    public void OpenArmorShop()
-    {
-        
-        shopManager.PopulateShopItems(shopArmor);
+        shopManager.PopulateShopTools(shopTools);
     }
     
-     private void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
         {
@@ -68,6 +67,7 @@ public class ShopKeeper : MonoBehaviour
             playerInRange = true;
         }
     }
+    
     private void OnTriggerExit2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
@@ -76,4 +76,11 @@ public class ShopKeeper : MonoBehaviour
             playerInRange = false;
         }
     }
+}
+
+[System.Serializable]
+public class ShopTools
+{
+    public ToolSO toolSO;
+    public int price;
 }

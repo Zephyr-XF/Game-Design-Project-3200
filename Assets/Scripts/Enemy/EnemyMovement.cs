@@ -20,7 +20,7 @@ public class EnemyMovement : MonoBehaviour
     public int attackrange = 2;
 
     public EnemyState enemyState;
-
+    
     private Rigidbody2D rb;
     private Transform player;
     private Animator anim;
@@ -39,7 +39,7 @@ public class EnemyMovement : MonoBehaviour
         // 只有非击退、非清醒状态才执行逻辑
         if (enemyState != EnemyState.knockback && enemyState != EnemyState.dreamshatter)
         {
-            CheckForPlayer();
+                CheckForPlayer();
 
             if (attackCoolDownTimer > 0)
             {
@@ -172,6 +172,35 @@ public class EnemyMovement : MonoBehaviour
         if (target != null)
         {
             ApplyForceToPoint(target.position, force);
+        }
+    }
+    
+    /// <summary>
+    /// 对敌人施加远离某个点的力（推开）
+    /// </summary>
+    /// <param name="sourcePoint">源点位置</param>
+    /// <param name="force">施加的力大小</param>
+    public void ApplyForceAwayFromPoint(Vector2 sourcePoint, float force)
+    {
+        if (rb == null) return;
+
+        // 计算远离方向（从源点指向敌人）
+        Vector2 direction = ((Vector2)transform.position - sourcePoint).normalized;
+
+        // 施加推力
+        rb.AddForce(direction * force, ForceMode2D.Force);
+    }
+
+    /// <summary>
+    /// 对敌人施加远离某个Transform的力（推开）
+    /// </summary>
+    /// <param name="source">源Transform</param>
+    /// <param name="force">施加的力大小</param>
+    public void ApplyForceAwayFromPoint(Transform source, float force)
+    {
+        if (source != null)
+        {
+            ApplyForceAwayFromPoint(source.position, force);
         }
     }
 
