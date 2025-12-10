@@ -4,75 +4,78 @@ using UnityEngine.UI;
 public class EnemyHUD : MonoBehaviour
 {
     [Header("UI 组件")]
-    public Image healthFill;     // 拖入红色的血条 Image (必须是 Filled 类型)
-    public Image resilienceFill; // 拖入黄色的韧性条 Image (必须是 Filled 类型)
-    public GameObject canvasGameObject; // 可选：用于隐藏整个血条
+    public Image healthFill;      // 红色血条
+    public Image resilienceFill;  // 黄色韧性条
+
+    // ★★★ 新增：Awake 提示文字对象 ★★★
+    [Tooltip("拖入显示 'Awake!' 文字的那个 GameObject")]
+    public GameObject awakeTipObject;
+
+    public GameObject canvasGameObject;
 
     // 缓存数据
     private EnemyHealth enemyHealth;
     private Camera mainCam;
-    private Transform targetPoint; // ★ 新增：实际跟随的目标点
+    private Transform targetPoint;
 
-    // ★ 修改 Setup：接收目标点
     public void Setup(EnemyHealth healthScript, Transform pointToFollow)
     {
         enemyHealth = healthScript;
-        mainCam = Camera.main; // 获取主摄像机
+        mainCam = Camera.main;
 
-        // 设定跟随逻辑
         if (pointToFollow != null)
         {
             targetPoint = pointToFollow;
         }
         else
         {
-            // 如果你在 Inspector 里忘了拖拽挂载点，这里做一个保底：跟随怪物脚底
             targetPoint = healthScript.transform;
-            Debug.LogWarning($"怪物 {healthScript.name} 没有设置 HealthBarPoint，血条将显示在脚底。");
+        }
+
+        // ★ 初始化时先隐藏提示文字
+        if (awakeTipObject != null)
+        {
+            awakeTipObject.SetActive(false);
         }
     }
 
     void LateUpdate()
     {
-        // 如果怪物本体没了，立刻销毁血条
         if (enemyHealth == null)
         {
             Destroy(gameObject);
             return;
         }
 
-        // 1. UI跟随目标点 (Position)
-        // 这里的 targetPoint 就是你在怪物头顶放置的那个子物体
-        if (targetPoint != null)
-        {
-            transform.position = targetPoint.position;
-        }
+        // 1. UI跟随
+        if (targetPoint != null) transform.position = targetPoint.position;
 
-        // 2. UI始终面向摄像机 (Rotation - 广告牌效果)
-        // 这样可以防止怪物转身时，血条变薄或者翻转
-        if (mainCam != null)
-        {
-            transform.rotation = mainCam.transform.rotation;
-        }
+        // 2. UI面向摄像机
+        if (mainCam != null) transform.rotation = mainCam.transform.rotation;
 
-        // 3. 更新血条 (使用 fillAmount 0~1)
-        if (healthFill != null)
+        // 3. 更新血条
+        if (healthFill != null && enemyHealth.maxHealth > 0)
         {
-            // 防止除以0错误
-            if (enemyHealth.maxHealth > 0)
-            {
-                float hpRatio = (float)enemyHealth.currentHealth / enemyHealth.maxHealth;
-                healthFill.fillAmount = hpRatio;
-            }
+            healthFill.fillAmount = (float)enemyHealth.currentHealth / enemyHealth.maxHealth;
         }
 
         // 4. 更新韧性条
-        if (resilienceFill != null)
+        if (resilienceFill != null && enemyHealth.maxResilience > 0)
         {
-            if (enemyHealth.maxResilience > 0)
+            float resRatio = enemyHealth.currentResilience / enemyHealth.maxResilience;
+            resilienceFill.fillAmount = resRatio;
+        }
+
+        // ★★★ 5. 新增：控制 Awake 提示显示 ★★★
+        if (awakeTipObject != null)
+        {
+            // 如果韧性归零 (处于清醒状态)，显示文字；否则隐藏
+            bool isAwake = enemyHealth.currentResilience <= 0;
+
+            // 只有状态改变时才调用 SetActive (优化性能)
+            if (awakeTipObject.activeSelf != isAwake)
             {
-                float resRatio = enemyHealth.currentResilience / enemyHealth.maxResilience;
-                resilienceFill.fillAmount = resRatio;
+                awakeTipObject.SetActive(isAwake);
             }
         }
     }
