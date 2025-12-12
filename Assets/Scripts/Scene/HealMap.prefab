@@ -32,7 +32,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.59, y: 0.55, z: 0.59}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -95,7 +95,7 @@ CapsuleCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9208044786480315973}
-  m_Enabled: 0
+  m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -156,18 +156,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83869f948b9441849bba05a77bef6262, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  selectionUIPanel: {fileID: 0}
+  specialFeatureUI: {fileID: 0}
   healAmount: 10
   healInterval: 1
-  affectPlayer: 1
+  clarityAmount: 5
+  clarityInterval: 1
   playerLayer:
     serializedVersion: 2
     m_Bits: 64
-  healAreaCollider: {fileID: 0}
+  affectPlayer: 1
   enableDebug: 1
   anim: {fileID: 2493130531190672757}
-  audioSource: {fileID: 0}
-  healSound: {fileID: 0}
-  enterHealZoneSound: {fileID: 0}
+  audioSource: {fileID: 2331579910955737897}
+  enterHealZoneSound: {fileID: 8300000, guid: e5910903cc2106a4b82c48015766b1ae, type: 3}
+  healSound: {fileID: 8300000, guid: f9baeff64df91a14abdf17f2f9e61edc, type: 3}
 --- !u!82 &2331579910955737897
 AudioSource:
   m_ObjectHideFlags: 0
@@ -179,7 +182,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
