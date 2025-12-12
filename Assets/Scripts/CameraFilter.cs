@@ -60,25 +60,20 @@ public class CameraFilterModified : MonoBehaviour
             // ===========================================================
 
             // 1. 计算当前的 亮度倍率 (从 1.0 过渡到 设置的倍率)
-            // 比如：平时亮度是1倍，时停时变成 1.5倍
             float currentIntensityMult = Mathf.Lerp(1.0f, breakIntensityMultiplier, breakEffectIntensity);
 
-            // 应用倍率到基础 RGB 上。
-            // 这样如果你平时由 baseRed=1.5 (偏红)，时停变亮时，它依然是 1.5 * Mult，保持了偏红的特征。
             float currRedInt = baseRedIntensity * currentIntensityMult;
             float currGreenInt = baseGreenIntensity * currentIntensityMult;
             float currBlueInt = baseBlueIntensity * currentIntensityMult;
 
             // 2. 计算当前的 饱和度系数 (从 1.0 过渡到 设置的系数)
-            // 比如：平时饱和度是1倍，时停时变成 0倍(黑白)
             float currentSatMult = Mathf.Lerp(1.0f, breakSaturationMultiplier, breakEffectIntensity);
 
-            // 应用系数到基础饱和度上
             float currRedSat = baseRedSat * currentSatMult;
             float currGreenSat = baseGreenSat * currentSatMult;
             float currBlueSat = baseBlueSat * currentSatMult;
 
-            // 3. 模糊和朦胧依然是线性过渡，因为它们是独立的效果
+            // 3. 模糊和朦胧依然是线性过渡
             int currBlur = (int)Mathf.Lerp(baseBlurSize, breakTargetBlur, breakEffectIntensity);
             float currHaze = Mathf.Lerp(baseHazeIntensity, breakTargetHaze, breakEffectIntensity);
 
@@ -112,6 +107,52 @@ public class CameraFilterModified : MonoBehaviour
     void OnDisable()
     {
         if (material != null) DestroyImmediate(material);
+    }
+
+    // ========================================================================
+    // 新增的函数接口
+    // ========================================================================
+
+    /// <summary>
+    /// 应用预设A: 一个高对比度、偏品红色的清晰风格。
+    /// </summary>
+    [ContextMenu("应用预设A (品红/清晰)")]
+    public void ApplyPresetA()
+    {
+        // 设置 RGB 强度
+        baseRedIntensity = 1f;
+        baseGreenIntensity = 0.62f;
+        baseBlueIntensity = 1.69f;
+
+        // 设置 RGB 饱和度
+        baseRedSat = 1f;
+        baseGreenSat = 0.172f;
+        baseBlueSat = 1f;
+
+        // 设置模糊与朦胧
+        baseBlurSize = 0;
+        baseHazeIntensity = 0f;
+    }
+
+    /// <summary>
+    /// 应用预设B: 一个低亮度、偏冷蓝色、带有模糊和朦胧感的风格。
+    /// </summary>
+    [ContextMenu("应用预设B (冷蓝/模糊)")]
+    public void ApplyPresetB()
+    {
+        // 设置 RGB 强度
+        baseRedIntensity = 0.38f;
+        baseGreenIntensity = 0.12f;
+        baseBlueIntensity = 1.41f;
+
+        // 设置 RGB 饱和度
+        baseRedSat = 0.8f;
+        baseGreenSat = 0.172f;
+        baseBlueSat = 0.82f;
+
+        // 设置模糊与朦胧
+        baseBlurSize = 3;
+        baseHazeIntensity = 0.465f;
     }
 }
 
