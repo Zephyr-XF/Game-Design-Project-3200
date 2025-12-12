@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class Player_Combat : MonoBehaviour
 {
-    public enum AttackType { None, BasicCombo, Skill1, Skill2, Skill3 }
+    // ... (大部分变量保持不变) ...
+    public enum AttackType { None, BasicCombo, Skill1, Skill2, Skill3, Toss }
 
     [Header("Combat References")]
     public Transform attackPoint;
@@ -12,16 +13,15 @@ public class Player_Combat : MonoBehaviour
     public StatsUI statsUI;
     public Animator anim;
 
-    // --- 技能和连击的数值设置已移至 StatsManager ---
     [Header("Combat Timing Settings")]
     public float comboResetTimer = 1f;
-    public float minAttackInterval = 0.2f;
 
     [Header("Animation Triggers")]
     public string attackAnmiTrigger = "AttackTrigger";
     public string skill1AnimTrigger = "Skill1Trigger";
     public string skill2AnimTrigger = "Skill2Trigger";
     public string skill3AnimTrigger = "Skill3Trigger";
+    public string tossAnimTrigger = "TossTrigger";
 
 
     private PlayerAudio playerAudio;
@@ -35,6 +35,10 @@ public class Player_Combat : MonoBehaviour
 
     private AttackType currentAttackType = AttackType.None;
 
+    // --- 新增 --- 状态标志，用于判断是否刚由破韧触发了第一次特写
+    private bool isWaitingForAnimEventCinematic = false;
+
+    // ... (Awake, Update, Attack, Toss, Skill Casting 等函数保持不变) ...
     private void Awake()
     {
         playerAudio = GetComponent<PlayerAudio>();
@@ -92,6 +96,7 @@ public class Player_Combat : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.K)) CastSkill1();
         if (Input.GetKeyDown(KeyCode.L)) CastSkill2();
         if (Input.GetKeyDown(KeyCode.U)) CastSkill3();
+        if (Input.GetKeyDown(KeyCode.F)) Toss(); // --- 新增 --- 检测 F 键输入
     }
 
     public void Attack()
@@ -111,9 +116,20 @@ public class Player_Combat : MonoBehaviour
         anim.SetTrigger(attackAnmiTrigger);
 
         lastAttackTime = Time.time;
-        nextAttackAllowedTime = Time.time + minAttackInterval;
+        // --- 修改 --- 从 StatsManager 获取最小攻击间隔
+        nextAttackAllowedTime = Time.time + StatsManager.Instance.minAttackInterval;
     }
 
+    public void Toss()
+    {
+        if (IsCurrentlyAttacking()) return;
+
+        currentAttackType = AttackType.Toss;
+        ResetCombo();
+        anim.SetTrigger(tossAnimTrigger);
+    }
+
+    // Skill Casting 区域保持不变...
     #region Skill Casting
     public void CastSkill1()
     {
@@ -167,6 +183,7 @@ public class Player_Combat : MonoBehaviour
     /// </summary>
     public void DealDamage()
     {
+        // ... (方法前半部分保持不变) ...
         statsUI.UpdateDamage();
 
         Collider2D[] enemies = Physics2D.OverlapCircleAll(attackPoint.position, StatsManager.Instance.weaponRange, enemyLayer);
@@ -175,13 +192,12 @@ public class Player_Combat : MonoBehaviour
         float finalKnockbackTime = StatsManager.Instance.knockbackTime;
         float finalStunTime = StatsManager.Instance.stunTime;
 
-        // 2. 根据当前的攻击类型，定制化修改这些参数
+        // 此处 switch 块保持不变...
         switch (currentAttackType)
         {
             case AttackType.BasicCombo:
                 // 普攻的击退效果可以弱一些
                 finalKnockbackForce *= 0f;
-                // 如果是连招的最后一下，给予更强的击退效果！ (从 StatsManager 获取最大连击数)
                 if (currentComboStep == StatsManager.Instance.maxCombo)
                 {
                     finalKnockbackForce = StatsManager.Instance.knockbackForce * 0f; // 击退力更强
@@ -189,25 +205,21 @@ public class Player_Combat : MonoBehaviour
                     finalStunTime = StatsManager.Instance.stunTime * 0f;       // 眩晕时间也更长
                 }
                 break;
-
             case AttackType.Skill1:
-                // 技能1：中等击退
                 finalKnockbackForce = StatsManager.Instance.knockbackForce * 0f;
                 finalStunTime = StatsManager.Instance.stunTime * 0f;
                 break;
-
             case AttackType.Skill2:
-                // 技能2：强力击飞，击退时间很长但眩晕时间短
                 finalKnockbackForce = StatsManager.Instance.knockbackForce * 0f;
                 finalKnockbackTime = StatsManager.Instance.knockbackTime * 0f;
-                finalStunTime = StatsManager.Instance.stunTime * 0f; // 敌人飞出去很远，但落地后很快恢复
+                finalStunTime = StatsManager.Instance.stunTime * 0f;
                 break;
-
             case AttackType.Skill3:
-                // 技能3：终极技能，超强击退和长眩晕
                 finalKnockbackForce = StatsManager.Instance.knockbackForce * 3.0f;
                 finalKnockbackTime = StatsManager.Instance.knockbackTime * 2.0f;
                 finalStunTime = StatsManager.Instance.stunTime * 3.0f;
+                break;
+            case AttackType.Toss:
                 break;
         }
 
@@ -222,33 +234,40 @@ public class Player_Combat : MonoBehaviour
                 float damageToDeal = StatsManager.Instance.damage;
                 float impactToDeal = StatsManager.Instance.impact;
 
+                // 此处 switch 块保持不变...
                 switch (currentAttackType)
                 {
                     case AttackType.BasicCombo:
-                        // 从 StatsManager 获取最大连击数
                         if (currentComboStep == StatsManager.Instance.maxCombo) damageToDeal *= 1.5f;
                         break;
                     case AttackType.Skill1:
-                        // 从 StatsManager 获取技能伤害倍率
                         damageToDeal *= StatsManager.Instance.skill1DamageMult;
                         break;
                     case AttackType.Skill2:
-                        // 从 StatsManager 获取技能伤害倍率
                         damageToDeal *= StatsManager.Instance.skill2DamageMult;
                         break;
                     case AttackType.Skill3:
-                        // 从 StatsManager 获取技能伤害倍率
                         damageToDeal *= StatsManager.Instance.skill3DamageMult;
+                        break;
+                    case AttackType.Toss:
+                        damageToDeal = 0;
+                        impactToDeal = 0;
                         break;
                 }
 
                 health.TakeDamage((int)damageToDeal, impactToDeal);
 
+                // --- 修改 --- 这里是核心逻辑改动点
                 if (wasResilientBeforeAttack && health.currentResilience <= 0)
                 {
                     if (PlayerBreakEffectManager.Instance != null)
                     {
+                        // 阶段1：破韧，必定触发特写
                         PlayerBreakEffectManager.Instance.TriggerCinematicFreeze(transform);
+
+                        // 阶段2 的准备：设置状态标志，表示我们现在处于“等待动画事件触发额外特写”的状态
+                        isWaitingForAnimEventCinematic = true;
+
                         break; // 找到一个破防的敌人就触发效果并跳出循环
                     }
                 }
@@ -266,12 +285,11 @@ public class Player_Combat : MonoBehaviour
         return currentAttackType != AttackType.None;
     }
 
-    /// <summary>
-    /// 在动画结束时由动画事件调用，表示攻击动作完成
-    /// </summary>
     public void FinishAttacking()
     {
         currentAttackType = AttackType.None;
+        // --- 新增 --- 攻击动作结束时，重置特写等待状态，以防万一
+        isWaitingForAnimEventCinematic = false;
     }
 
     private void ResetCombo()
@@ -280,19 +298,35 @@ public class Player_Combat : MonoBehaviour
         anim.SetInteger("AttackComboStep", 0);
     }
 
+    // Cooldown UI 区域保持不变...
     #region Cooldown UI
-    // 从 StatsManager 获取技能冷却时间用于UI计算
     public float GetSkill1CooldownRatio() => Mathf.Clamp01(skill1Timer / StatsManager.Instance.skill1Cooldown);
     public float GetSkill2CooldownRatio() => Mathf.Clamp01(skill2Timer / StatsManager.Instance.skill2Cooldown);
     public float GetSkill3CooldownRatio() => Mathf.Clamp01(skill3Timer / StatsManager.Instance.skill3Cooldown);
     #endregion
 
+    // --- 修改 --- Cinematic Break Effect 区域
     #region Cinematic Break Effect
+
+    /// <summary>
+    /// 这个方法被绑定在动画事件上。
+    /// 现在它会检查触发条件，而不是总是执行。
+    /// </summary>
     public void TriggerCinematicEffect()
     {
-        if (PlayerBreakEffectManager.Instance != null)
+        // 条件检查：
+        // 1. 必须处于 "等待动画事件触发特写" 的状态 (即刚刚破韧)
+        // 2. 必须 StatsManager 中的全局开关为 true
+        if (isWaitingForAnimEventCinematic && StatsManager.Instance.canTriggerAnimEventCinematic)
         {
-            PlayerBreakEffectManager.Instance.TriggerCinematicFreeze(transform);
+            if (PlayerBreakEffectManager.Instance != null)
+            {
+                // 阶段2：条件触发特写
+                PlayerBreakEffectManager.Instance.TriggerCinematicFreeze(transform);
+
+                // 重要：触发后立即重置状态，防止在同一次攻击中被意外地多次触发
+                isWaitingForAnimEventCinematic = false;
+            }
         }
     }
 
@@ -314,27 +348,19 @@ public class Player_Combat : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 在电影化技能动画结束时由动画事件调用
-    /// </summary>
     public void OnCinematicSkillFinished()
     {
         if (PlayerBreakEffectManager.Instance != null)
         {
             PlayerBreakEffectManager.Instance.RestoreCameraView();
         }
+        // 当电影化技能结束时，也确保重置了等待状态
+        isWaitingForAnimEventCinematic = false;
     }
     #endregion
 
-    // =====================================================================
-    // --- 新增区域: 用于动画事件调用的方法 ---
-    // 在Unity的Animation窗口中，将这些方法绑定到动画片段的关键帧上。
-    // =====================================================================
+    // ... (Animation Event Handlers 区域保持不变) ...
     #region Animation Event Handlers
-
-    /// <summary>
-    /// 在普通攻击动画的有效帧上调用此方法来播放声音
-    /// </summary>
     public void PlayAttackSound()
     {
         if (playerAudio != null)
@@ -342,10 +368,6 @@ public class Player_Combat : MonoBehaviour
             playerAudio.PlayBasicAttack(currentComboStep);
         }
     }
-
-    /// <summary>
-    /// 在技能1动画的有效帧上调用此方法来播放声音
-    /// </summary>
     public void PlaySkill1Sound()
     {
         if (playerAudio != null)
@@ -353,10 +375,6 @@ public class Player_Combat : MonoBehaviour
             playerAudio.PlaySkill1();
         }
     }
-
-    /// <summary>
-    /// 在技能2动画的有效帧上调用此方法来播放声音
-    /// </summary>
     public void PlaySkill2Sound()
     {
         if (playerAudio != null)
@@ -364,10 +382,6 @@ public class Player_Combat : MonoBehaviour
             playerAudio.PlaySkill2();
         }
     }
-
-    /// <summary>
-    /// 在技能3动画的有效帧上调用此方法来播放声音
-    /// </summary>
     public void PlaySkill3Sound()
     {
         if (playerAudio != null)
@@ -375,10 +389,8 @@ public class Player_Combat : MonoBehaviour
             playerAudio.PlaySkill3();
         }
     }
-
     #endregion
 }
-
 
 
 
