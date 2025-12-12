@@ -10,7 +10,7 @@ public class ShopKeeper : MonoBehaviour
     public CanvasGroup shopCanvasGroup;
     public ShopManager shopManager;
     
-    [Header("�̵���Ʒ�б�")]
+    [Header("ÉÌµêÎïÆ·ÁÐ±í")]
     [SerializeField] private List<ShopItems> shopItems;
     [SerializeField] private List<ShopTools> shopTools;
     
@@ -20,35 +20,52 @@ public class ShopKeeper : MonoBehaviour
     
     void Update()
     {
+        // ä¼åå¤çå³é­ï¼åªè¦ååºå¼çï¼æäºå¨é®å°±åºè¯¥è½å³é­ (ä¸ç®¡æ¯å¦å¨èå´å)
+        if (isShopOpen)
+        {
+            if (Input.GetButtonDown("Interact") || Input.GetKeyDown(KeyCode.Escape))
+            {
+                CloseShopUI();
+            }
+            return; 
+        }
+
+        // åªæå¨æ²¡å¼åºä¸äººå¨èå´åæ¶ï¼æåè®¸æå¼
         if (playerInRange)
         {
             if (Input.GetButtonDown("Interact"))
             {
-                if (!isShopOpen)
-                {         
-                    Time.timeScale = 0;
-                    currentShopKeeper = this;
-                    isShopOpen = true;
-                    OnShopStateChanged?.Invoke(shopManager, true);
-                    shopCanvasGroup.alpha = 1;
-                    shopCanvasGroup.blocksRaycasts = true;
-                    shopCanvasGroup.interactable = true;
-                    OpenItemShop();
-                }
-                else
-                {
-                    Time.timeScale = 1;
-                    currentShopKeeper = null;
-                    isShopOpen = false;
-                    OnShopStateChanged?.Invoke(shopManager, false);
-                    shopCanvasGroup.alpha = 0;
-                    shopCanvasGroup.blocksRaycasts = false;
-                    shopCanvasGroup.interactable = false;
-                }
+                 OpenShopUI();
             }
         }
     }
-    
+
+    public void OpenShopUI()
+    {
+        if (isShopOpen) return;
+
+        Time.timeScale = 0;
+        currentShopKeeper = this;
+        isShopOpen = true;
+        OnShopStateChanged?.Invoke(shopManager, true);
+        shopCanvasGroup.alpha = 1;
+        shopCanvasGroup.blocksRaycasts = true;
+        shopCanvasGroup.interactable = true;
+        OpenItemShop();
+    }
+
+    public void CloseShopUI()
+    {
+        if (!isShopOpen) return;
+
+        Time.timeScale = 1;
+        currentShopKeeper = null;
+        isShopOpen = false;
+        OnShopStateChanged?.Invoke(shopManager, false);
+        shopCanvasGroup.alpha = 0;
+        shopCanvasGroup.blocksRaycasts = false;
+        shopCanvasGroup.interactable = false;
+    }
     public void OpenItemShop()
     {
         shopManager.PopulateShopItems(shopItems);

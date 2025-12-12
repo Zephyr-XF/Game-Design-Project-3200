@@ -63,6 +63,12 @@ public class BlessingCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
             scaleTarget.localScale = originalScale * 1.1f;
         }
+
+        // Show Quote
+        if (Data != null)
+        {
+            BlessingManager.Instance.blessingUI.UpdateQuote(Data.quote, transform.position);
+        }
     }
 
     // Mouse Exit: Scale Back
@@ -76,6 +82,9 @@ public class BlessingCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
             var anim = scaleTarget.GetComponent<GodAnimation>();
             if (anim != null) anim.SetHover(false);
         }
+        
+        // Hide Quote
+        BlessingManager.Instance.blessingUI.ClearQuote();
     }
 
     public void ResetScale()
