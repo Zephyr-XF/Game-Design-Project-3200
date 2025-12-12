@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class MiniBlackHole : MonoBehaviour
 {
-    [Header("组件引用")]
-    [Tooltip("动画组件")]
+    [Header("动画控制")]
+    [Tooltip("动画控制器")]
     public Animator animator;
     
     [Header("音效设置")]
@@ -26,7 +26,7 @@ public class MiniBlackHole : MonoBehaviour
     public float soundVolume = 1f;
     
     [Header("吸引设置")]
-    [Tooltip("可被吸引的图层数组")]
+    [Tooltip("可被吸引的目标图层名称")]
     public string[] targetLayerNames = new string[] { "Enemy" };
     
     [Tooltip("吸引力强度")]
@@ -60,6 +60,14 @@ public class MiniBlackHole : MonoBehaviour
     [Tooltip("每秒造成的伤害")]
     [Range(0f, 50f)]
     public float damagePerSecond = 5f;
+    
+    [Header("韧性伤害设置")]
+    [Tooltip("是否对敌人造成韧性伤害")]
+    public bool dealResilienceDamage = true;
+    
+    [Tooltip("每秒造成的韧性伤害")]
+    [Range(0f, 50f)]
+    public float resilienceDamagePerSecond = 10f;
     
     [Header("调试")]
     public bool enableDebug = false;
@@ -107,7 +115,7 @@ public class MiniBlackHole : MonoBehaviour
             Debug.LogWarning("[MiniBlackHole] 黑洞没有Rigidbody2D组件");
         }
         
-        // 如果设置了延迟，启动延迟协程
+        // 延迟吸引或直接开始
         if (delayBeforePull > 0)
         {
             StartCoroutine(DelayedStartPulling());
@@ -118,14 +126,14 @@ public class MiniBlackHole : MonoBehaviour
             StartPulling();
         }
         
-        // 如果设置了生命周期，启动销毁计时
+        // 如果设置了生命周期，设置定时销毁
         if (lifetime > 0)
         {
             Destroy(gameObject, lifetime);
         }
         
         if (enableDebug)
-            Debug.Log($"[MiniBlackHole] 黑洞生成，延迟: {delayBeforePull}s，吸引范围: {pullRadius}m，持续时间: {pullDuration}s");
+            Debug.Log($"[MiniBlackHole] 黑洞生成，延迟: {delayBeforePull}s，吸引范围: {pullRadius}m，吸引时长: {pullDuration}s");
     }
     
     void FixedUpdate()
@@ -242,34 +250,42 @@ public class MiniBlackHole : MonoBehaviour
     }
     
     /// <summary>
-    /// 对敌人持续造成伤害
+    /// 对敌人持续造成伤害和韧性伤害
     /// </summary>
     private IEnumerator DealDamageOverTime(GameObject enemy)
     {
-        if (!dealDamage || enemy == null) yield break;
+        if (enemy == null) yield break;
         
         EnemyHealth enemyHealth = enemy.GetComponent<EnemyHealth>();
         if (enemyHealth == null) yield break;
         
         float damageInterval = 0.5f; // 每0.5秒造成一次伤害
-        float damagePerTick = damagePerSecond * damageInterval;
+        float damagePerTick = dealDamage ? damagePerSecond * damageInterval : 0f;
+        float resilienceDamagePerTick = dealResilienceDamage ? resilienceDamagePerSecond * damageInterval : 0f;
         
         while (isPulling && enemy != null)
         {
-            // 检查敌人是否仍在范围内
+            // 检查敌人是否还在范围内
             float distance = Vector2.Distance(transform.position, enemy.transform.position);
             if (distance > pullRadius)
             {
                 if (enableDebug)
-                    Debug.Log($"[MiniBlackHole] {enemy.name} 超出伤害范围");
+                    Debug.Log($"[MiniBlackHole] {enemy.name} 离开伤害范围");
                 break;
             }
             
-            // 调用TakeDamage，第二个参数为0（不造成韧性伤害）
-            enemyHealth.TakeDamage((int)damagePerTick, 0f);
+            // 调用TakeDamage方法，传入伤害和韧性伤害
+            enemyHealth.TakeDamage((int)damagePerTick, resilienceDamagePerTick);
             
             if (enableDebug)
-                Debug.Log($"[MiniBlackHole] 对 {enemy.name} 造成 {damagePerTick} 伤害");
+            {
+                if (dealDamage && dealResilienceDamage)
+                    Debug.Log($"[MiniBlackHole] 对 {enemy.name} 造成 {damagePerTick} 伤害 和 {resilienceDamagePerTick} 韧性伤害");
+                else if (dealDamage)
+                    Debug.Log($"[MiniBlackHole] 对 {enemy.name} 造成 {damagePerTick} 伤害");
+                else if (dealResilienceDamage)
+                    Debug.Log($"[MiniBlackHole] 对 {enemy.name} 造成 {resilienceDamagePerTick} 韧性伤害");
+            }
             
             yield return new WaitForSeconds(damageInterval);
         }

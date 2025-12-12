@@ -9,15 +9,18 @@ public class ShopKeeper : MonoBehaviour
     public Animator anim;
     public CanvasGroup shopCanvasGroup;
     public ShopManager shopManager;
+    
+    [Header("ÉÌµêÎïÆ·ÁÐ±í")]
     [SerializeField] private List<ShopItems> shopItems;
-    [SerializeField] private List<ShopItems> shopWeapons;
-    [SerializeField] private List<ShopItems> shopArmor;
+    [SerializeField] private List<ShopTools> shopTools;
+    
     public static event Action<ShopManager, bool> OnShopStateChanged;
     private bool playerInRange;
     private bool isShopOpen;
+    
     void Update()
     {
-        // 优先处理关闭：只要商店开着，按互动键就应该能关闭 (不管是否在范围内)
+        // ä¼åå¤çå³é­ï¼åªè¦ååºå¼çï¼æäºå¨é®å°±åºè¯¥è½å³é­ (ä¸ç®¡æ¯å¦å¨èå´å)
         if (isShopOpen)
         {
             if (Input.GetButtonDown("Interact") || Input.GetKeyDown(KeyCode.Escape))
@@ -27,7 +30,7 @@ public class ShopKeeper : MonoBehaviour
             return; 
         }
 
-        // 只有在没开店且人在范围内时，才允许打开
+        // åªæå¨æ²¡å¼åºä¸äººå¨èå´åæ¶ï¼æåè®¸æå¼
         if (playerInRange)
         {
             if (Input.GetButtonDown("Interact"))
@@ -67,18 +70,13 @@ public class ShopKeeper : MonoBehaviour
     {
         shopManager.PopulateShopItems(shopItems);
     }
-    public void OpenWeaponShop()
+    
+    public void OpenToolShop()
     {
-        
-        shopManager.PopulateShopItems(shopWeapons);
-    }
-    public void OpenArmorShop()
-    {
-        
-        shopManager.PopulateShopItems(shopArmor);
+        shopManager.PopulateShopTools(shopTools);
     }
     
-     private void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
         {
@@ -86,6 +84,7 @@ public class ShopKeeper : MonoBehaviour
             playerInRange = true;
         }
     }
+    
     private void OnTriggerExit2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
@@ -94,4 +93,11 @@ public class ShopKeeper : MonoBehaviour
             playerInRange = false;
         }
     }
+}
+
+[System.Serializable]
+public class ShopTools
+{
+    public ToolSO toolSO;
+    public int price;
 }

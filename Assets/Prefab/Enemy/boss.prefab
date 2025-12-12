@@ -264,13 +264,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   attacCoolDown: 1
   attackCoolDownTimer: 1
-  playerRange: 6
+  attackrange: 2
+  hasSkill2: 1
+  skill2CoolDown: 5
+  skill2Timer: 0
+  skill2Range: 8
+  playerRange: 10
   dectectionPoint: {fileID: 8124791743057738249}
   playerLayer:
     serializedVersion: 2
     m_Bits: 64
   speed: 10
-  attackrange: 2
   enemyState: 0
 --- !u!114 &373249853109503456
 MonoBehaviour:
@@ -287,6 +291,7 @@ MonoBehaviour:
   maxHealth: 100
   currentHealth: 0
   expReward: 3
+  hitSound: {fileID: 8300000, guid: fd25a15f9797641458336cccfb445343, type: 3}
   hudPrefab: {fileID: 733678503942230913, guid: c3aecc5f9991c32408443f1ff9b78b58, type: 3}
   healthBarPoint: {fileID: 4173076975570456980}
   maxResilience: 50
@@ -313,6 +318,10 @@ MonoBehaviour:
   playerLayers:
     serializedVersion: 2
     m_Bits: 64
+  skill2Prefab: {fileID: 6881190740127541632, guid: ec82f937f4615a64ca3ca98ba62a1fb9, type: 3}
+  skill2Damage: 30
+  skill2Radius: 2
+  skill2HeightOffset: 0
 --- !u!114 &1307668791378244215
 MonoBehaviour:
   m_ObjectHideFlags: 0

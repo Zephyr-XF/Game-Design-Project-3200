@@ -11,18 +11,12 @@ public class ShopButtonToggles : MonoBehaviour
             ShopKeeper.currentShopKeeper.OpenItemShop();
         }
     }
-    public void OpenWeaponShop()
+    
+    public void OpenToolShop()
     {
         if (ShopKeeper.currentShopKeeper != null)
         {
-            ShopKeeper.currentShopKeeper.OpenWeaponShop();
-        }
-    }
-    public void OpenArmorShop()
-    {
-        if (ShopKeeper.currentShopKeeper != null)
-        {
-            ShopKeeper.currentShopKeeper.OpenArmorShop();
+            ShopKeeper.currentShopKeeper.OpenToolShop();
         }
     }
 }

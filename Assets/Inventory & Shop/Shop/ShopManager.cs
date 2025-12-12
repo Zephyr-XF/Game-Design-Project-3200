@@ -5,16 +5,16 @@ using UnityEngine.Video;
 
 public class ShopManager : MonoBehaviour
 {
-
     [SerializeField] private ShopSlot[] shopSlots;
     [SerializeField] private InventoryManager inventoryManager;
+    [SerializeField] private ToolManager toolManager;
 
     public void PopulateShopItems(List<ShopItems> shopItems)
     {
         for (int i = 0; i < shopItems.Count && i < shopSlots.Length; i++)
         {
             ShopItems shopItem = shopItems[i];
-            shopSlots[i].Initialize(shopItem.itemSO, shopItem.price);
+            shopSlots[i].InitializeItem(shopItem.itemSO, shopItem.price);
             shopSlots[i].gameObject.SetActive(true);
         }
         for (int i = shopItems.Count; i < shopSlots.Length; i++)
@@ -22,6 +22,21 @@ public class ShopManager : MonoBehaviour
             shopSlots[i].gameObject.SetActive(false);
         }
     }
+    
+    public void PopulateShopTools(List<ShopTools> shopTools)
+    {
+        for (int i = 0; i < shopTools.Count && i < shopSlots.Length; i++)
+        {
+            ShopTools shopTool = shopTools[i];
+            shopSlots[i].InitializeTool(shopTool.toolSO, shopTool.price);
+            shopSlots[i].gameObject.SetActive(true);
+        }
+        for (int i = shopTools.Count; i < shopSlots.Length; i++)
+        {
+            shopSlots[i].gameObject.SetActive(false);
+        }
+    }
+    
     public void TryBuyItem(ItemSO itemSO, int price)
     {
         if (itemSO != null && inventoryManager.gold >= price)
@@ -34,9 +49,23 @@ public class ShopManager : MonoBehaviour
             }
         }
     }
+    
+    public void TryBuyTool(ToolSO toolSO, int price)
+    {
+        if (toolSO != null && inventoryManager.gold >= price)
+        {
+            if (HasSpaceForTool(toolSO))
+            {
+                inventoryManager.gold -= price;
+                inventoryManager.goldText.text = inventoryManager.gold.ToString();
+                toolManager.AddTool(toolSO, 1);
+            }
+        }
+    }
+    
     private bool HasSpaceForItem(ItemSO itemSO)
     {
-       foreach (var slot in inventoryManager.itemSlots)
+        foreach (var slot in inventoryManager.itemSlots)
         {
             if (slot.itemSO == itemSO && slot.quantity < itemSO.stackSize)
             {
@@ -49,15 +78,32 @@ public class ShopManager : MonoBehaviour
         }
         return false;
     }
+    
+    private bool HasSpaceForTool(ToolSO toolSO)
+    {
+        foreach (var slot in toolManager.toolSlots)
+        {
+            if (slot.toolSO == toolSO && slot.quantity < toolSO.maxStackSize)
+            {
+                return true;
+            }
+            else if (slot.toolSO == null)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     public void SellItem(ItemSO itemSO)
     {
-       if (itemSO == null)
+        if (itemSO == null)
             return;
         foreach (var slot in shopSlots)
         {
             if (slot.itemSO == itemSO)
             {
-                inventoryManager.gold += slot.price;//you can change the selling price logic here
+                inventoryManager.gold += slot.price;
                 inventoryManager.goldText.text = inventoryManager.gold.ToString();
                 return;
             }
@@ -69,11 +115,11 @@ public class ShopManager : MonoBehaviour
         if (toolSO == null)
             return;
             
-        // 使用工具的卖价
         inventoryManager.gold += toolSO.sellPrice;
         inventoryManager.goldText.text = inventoryManager.gold.ToString();
     }
 }
+
 [System.Serializable]
 public class ShopItems
 {

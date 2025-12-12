@@ -79,9 +79,9 @@ GameObject:
   - component: {fileID: 7188600378186488500}
   - component: {fileID: 5866820147041350148}
   - component: {fileID: 8283841965187146864}
-  - component: {fileID: 2745451881320471077}
   - component: {fileID: 7228230788298783431}
   - component: {fileID: 1369789839094667772}
+  - component: {fileID: 7633628130767767768}
   m_Layer: 11
   m_Name: TNT
   m_TagString: Untagged
@@ -219,27 +219,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!95 &2745451881320471077
-Animator:
-  serializedVersion: 5
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3772320130692790875}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 0a9a70607b84b4745be6578d031a2bf0, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!114 &7228230788298783431
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -270,7 +249,7 @@ MonoBehaviour:
     m_Bits: 2048
   - serializedVersion: 2
     m_Bits: 4096
-  anim: {fileID: 2745451881320471077}
+  anim: {fileID: 7633628130767767768}
   destroyDelay: 0.75
   audioSource: {fileID: 1369789839094667772}
   igniteSound: {fileID: 8300000, guid: 0014330688c216a43ac74b3f67ef189b, type: 3}
@@ -287,7 +266,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -372,3 +351,24 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!95 &7633628130767767768
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3772320130692790875}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 67648ef9ffa8b8b4f807c24e8bbb2f86, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
