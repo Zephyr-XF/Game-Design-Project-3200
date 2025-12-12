@@ -10,6 +10,8 @@ public class BlessingData : ScriptableObject
     
     public StatType statType;
     public int amount;
+    [Tooltip("Sanity cost when choosing this blessing")]
+    public int sanityCost; // New attribute: Sanity Cost
 }
 
 public enum StatType
