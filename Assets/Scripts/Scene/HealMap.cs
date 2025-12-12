@@ -4,20 +4,25 @@ using UnityEngine;
 
 public class HealMap : MonoBehaviour
 {
+    [Header("UI 设置 (必须拖拽)")]
+    [Tooltip("选择菜单：包含回血、回蓝、特殊功能三个按钮")]
+    public GameObject selectionUIPanel;
+
+    [Tooltip("功能 3：点击后要打开的那个特殊界面")]
+    public GameObject specialFeatureUI; // ★ 新增：你要打开的那个界面
+
     [Header("回血设置")]
-    [Tooltip("每次回血的数值")]
     public int healAmount = 1;
-    
-    [Tooltip("回血间隔时间（秒）")]
     public float healInterval = 1f;
-    
-    [Tooltip("是否影响玩家")]
-    public bool affectPlayer = true;
+
+    [Header("Clarity (Sanity) 设置")]
+    public float clarityAmount = 5f;
+    public float clarityInterval = 1f;
 
     [Header("识别方式")]
     public LayerMask playerLayer;
-    public Collider2D healAreaCollider;
-    
+    public bool affectPlayer = true;
+
     [Header("调试")]
     public bool enableDebug = true;
 
@@ -26,198 +31,218 @@ public class HealMap : MonoBehaviour
 
     [Header("音效设置")]
     public AudioSource audioSource;
-    public AudioClip healSound;
-    public AudioClip enterHealZoneSound;
+    public AudioClip enterHealZoneSound; // 激活法阵时的音效
 
-    // 记录当前在回血区域内的玩家及其协程
-    private Dictionary<GameObject, Coroutine> healingCoroutines = new Dictionary<GameObject, Coroutine>();
-    
-    // 防止游戏开始时播放音效
+    [Space(10)]
+    public AudioClip healSound; // 持续恢复时的音效
+
+    // 内部状态
+    private bool isPlayerInRange = false;
+    private GameObject currentPlayerObj;
+    private Coroutine activeCoroutine;
+    private bool isEffectActive = false; // 法阵是否已使用
     private bool isInitialized = false;
-
-    private void Reset()
-    {
-        // 确保回血区 Collider2D 设为 Trigger
-        Collider2D col = GetComponent<Collider2D>();
-        if (col != null)
-        {
-            col.isTrigger = true;
-            
-            if (enableDebug)
-                Debug.Log($"[HealMap] Reset: Collider2D 已设置为 Trigger");
-        }
-    }
-
-    private void OnValidate()
-    {
-        // 在 Inspector 中修改值时自动检查
-        Collider2D col = GetComponent<Collider2D>();
-        if (col != null && !col.isTrigger)
-        {
-            Debug.LogWarning($"[HealMap] ? Collider2D 不是 Trigger！这可能导致敌人碰撞异常。");
-        }
-    }
 
     private void Awake()
     {
-        if (enableDebug)
-            Debug.Log($"[HealMap] Awake 被调用 - Time.time: {Time.time}");
-        
-        // 强制禁用 AudioSource 的 PlayOnAwake，防止自动播放
         if (audioSource != null)
         {
             audioSource.playOnAwake = false;
             audioSource.Stop();
-            
-            if (enableDebug)
-                Debug.Log($"[HealMap] AudioSource.playOnAwake 已设置为 false，已停止播放");
         }
-        
-        // 使用 Awake + 协程，更早地设置初始化标志
+
+        // 隐藏所有相关UI
+        if (selectionUIPanel != null) selectionUIPanel.SetActive(false);
+        if (specialFeatureUI != null) specialFeatureUI.SetActive(false); // ★ 确保特殊界面一开始是关的
+
         StartCoroutine(InitializeAfterDelay());
     }
 
-    private IEnumerator InitializeAfterDelay()
+    private void Update()
     {
-        if (enableDebug)
-            Debug.Log($"[HealMap] 初始化协程开始 - Time.time: {Time.time}");
-        
-        // 使用实际时间延迟，确保场景完全加载
-        yield return new WaitForSeconds(0.2f);
-        isInitialized = true;
-        
-        if (enableDebug)
-            Debug.Log($"[HealMap] ? 初始化完成，音效系统已启用 - Time.time: {Time.time}");
+        // 只有当玩家在范围内、法阵没用过、且按了E键
+        if (isPlayerInRange && !isEffectActive && Input.GetKeyDown(KeyCode.E))
+        {
+            if (selectionUIPanel != null)
+            {
+                // 如果选择面板没打开，就打开；打开了就关闭
+                if (!selectionUIPanel.activeSelf) ShowSelectionUI();
+                else CloseSelectionUI();
+            }
+        }
     }
+
+    // --- UI 相关逻辑 ---
+    private void ShowSelectionUI()
+    {
+        if (selectionUIPanel != null) selectionUIPanel.SetActive(true);
+    }
+
+    private void CloseSelectionUI()
+    {
+        if (selectionUIPanel != null) selectionUIPanel.SetActive(false);
+    }
+
+    // ==========================================
+    // ★★★ 按钮绑定区域 ★★★
+    // ==========================================
+
+    // 按钮 1：回血
+    public void OnChooseHeal()
+    {
+        if (currentPlayerObj == null) return;
+        CloseSelectionUI();
+
+        // 激活法阵视觉效果
+        ActivateShrineState();
+
+        // 启动回血逻辑
+        activeCoroutine = StartCoroutine(HealHealthRoutine(currentPlayerObj));
+        if (enableDebug) Debug.Log("[HealMap] 选择功能：生命恢复");
+    }
+
+    // 按钮 2：回 Clarity/Sanity
+    public void OnChooseClarity()
+    {
+        if (currentPlayerObj == null) return;
+        CloseSelectionUI();
+
+        // 激活法阵视觉效果
+        ActivateShrineState();
+
+        // 启动回蓝逻辑
+        activeCoroutine = StartCoroutine(RestoreClarityRoutine(currentPlayerObj));
+        if (enableDebug) Debug.Log("[HealMap] 选择功能：Sanity 恢复");
+    }
+
+    // ★★★ 按钮 3：打开特殊界面 (新增) ★★★
+    public void OnChooseFeature()
+    {
+        if (currentPlayerObj == null) return;
+
+        // 1. 关闭选择菜单
+        CloseSelectionUI();
+
+        // 2. 打开你想要的那个特殊界面
+        if (specialFeatureUI != null)
+        {
+            specialFeatureUI.SetActive(true);
+        }
+        else
+        {
+            Debug.LogError("[HealMap] 报错：Special Feature UI 没赋值！请在 Inspector 拖入你想打开的界面。");
+        }
+
+        // 3. 激活法阵视觉效果 (变亮、播音效、锁定法阵)
+        // 这样法阵就算“被使用过”了，不能再按 E 交互
+        ActivateShrineState();
+
+        if (enableDebug) Debug.Log("[HealMap] 选择功能：打开特殊界面");
+    }
+
+    // ==========================================
+    // 核心逻辑
+    // ==========================================
+
+    // ★ 提取出来的公共方法：处理法阵“被使用”后的视觉和状态
+    private void ActivateShrineState()
+    {
+        if (isEffectActive) return;
+
+        // 1. 锁定状态，防止再次按 E
+        isEffectActive = true;
+
+        // 2. 播放动画 (变亮/运转)
+        UpdateVisualStateHeal(true);
+
+        // 3. 播放激活音效 (只播一次)
+        if (isInitialized && audioSource != null && enterHealZoneSound != null)
+        {
+            audioSource.PlayOneShot(enterHealZoneSound);
+        }
+    }
+
+    // 停止效果 (用于玩家离开时)
+    private void StopEffect()
+    {
+        // 停止协程 (回血/回蓝)
+        if (activeCoroutine != null)
+        {
+            StopCoroutine(activeCoroutine);
+            activeCoroutine = null;
+        }
+
+        // 如果特殊界面开着，也要强制关掉 (看你需求，一般离开法阵就关掉界面)
+        if (specialFeatureUI != null) specialFeatureUI.SetActive(false);
+
+        // 重置状态
+        isEffectActive = false;
+        CloseSelectionUI();
+        UpdateVisualStateHeal(false);
+    }
+
+    // --- 协程逻辑 (保持不变) ---
+
+    private IEnumerator HealHealthRoutine(GameObject obj)
+    {
+        var playerHealth = obj.GetComponent<PlayerHealth>();
+        while (true)
+        {
+            if (StatsManager.Instance != null && StatsManager.Instance.currentHealth < StatsManager.Instance.maxHealth)
+            {
+                if (playerHealth != null) playerHealth.ChangeHealth(healAmount);
+                if (audioSource != null && healSound != null) audioSource.PlayOneShot(healSound);
+            }
+            yield return new WaitForSeconds(healInterval);
+        }
+    }
+
+    private IEnumerator RestoreClarityRoutine(GameObject obj)
+    {
+        while (true)
+        {
+            if (StatsManager.Instance != null)
+            {
+                if (StatsManager.Instance.currentSanity < StatsManager.Instance.maxSanity)
+                {
+                    StatsManager.Instance.UpdateSanity((int)clarityAmount);
+                    if (audioSource != null && healSound != null) audioSource.PlayOneShot(healSound);
+                }
+            }
+            yield return new WaitForSeconds(clarityInterval);
+        }
+    }
+
+    // --- 触发器逻辑 ---
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (enableDebug)
-            Debug.Log($"[HealMap] OnTriggerEnter2D - 对象: {other.name}, Layer: {LayerMask.LayerToName(other.gameObject.layer)}, Time.time: {Time.time}");
-        
-        if (!affectPlayer)
-            return;
+        if (enableDebug) Debug.Log($"[物理检测] 碰到了: {other.name} (Layer: {other.gameObject.layer})");
+        if (!affectPlayer) return;
 
-        int otherLayer = other.gameObject.layer;
-
-        // 检查是否是玩家
-        if (IsInLayerMask(otherLayer, playerLayer))
+        if (IsInLayerMask(other.gameObject.layer, playerLayer))
         {
-            if (enableDebug)
-                Debug.Log($"[HealMap] 检测到玩家进入 - 对象: {other.name}");
-            StartHealing(other.gameObject);
-        }
-        else if (enableDebug)
-        {
-            Debug.Log($"[HealMap] 非玩家对象进入（已忽略） - 对象: {other.name}, Layer: {LayerMask.LayerToName(otherLayer)}");
+            isPlayerInRange = true;
+            currentPlayerObj = other.gameObject;
         }
     }
 
     private void OnTriggerExit2D(Collider2D other)
     {
-        if (!affectPlayer)
-            return;
-
-        int otherLayer = other.gameObject.layer;
-
-        // 检查是否是玩家
-        if (IsInLayerMask(otherLayer, playerLayer))
+        if (!affectPlayer) return;
+        if (IsInLayerMask(other.gameObject.layer, playerLayer))
         {
-            StopHealing(other.gameObject);
+            isPlayerInRange = false;
+            currentPlayerObj = null;
+            StopEffect();
         }
     }
 
-    private void StartHealing(GameObject obj)
+    // --- 辅助方法 ---
+    private IEnumerator InitializeAfterDelay()
     {
-        UpdateVisualStateHeal(true);
-        
-        if (enableDebug)
-            Debug.Log($"[HealMap] StartHealing 被调用 - 对象: {obj.name}, isInitialized: {isInitialized}, Time.time: {Time.time}");
-        
-        // 播放进入回血区音效（只有在初始化完成后才播放）
-        if (isInitialized && audioSource != null && enterHealZoneSound != null)
-        {
-            audioSource.PlayOneShot(enterHealZoneSound);
-            if (enableDebug)
-                Debug.Log($"[HealMap] ? 进入回血区音效已播放 - 对象: {obj.name}");
-        }
-        else if (!isInitialized && enableDebug)
-        {
-            Debug.Log($"[HealMap] ? 初始化未完成，跳过播放音效 - 对象: {obj.name}");
-        }
-        
-        // 检查玩家是否有 PlayerHealth 组件
-        var playerHealth = obj.GetComponent<PlayerHealth>();
-        if (playerHealth == null)
-        {
-            if (enableDebug)
-                Debug.LogWarning($"HealMap: {obj.name} 没有找到 PlayerHealth 组件，无法回血。");
-            return;
-        }
-
-        // 如果已经在回血，不重复启动
-        if (healingCoroutines.ContainsKey(obj))
-        {
-            if (enableDebug)
-                Debug.Log($"HealMap: {obj.name} 已经在回血区域中。");
-            return;
-        }
-
-        // 启动持续回血协程
-        Coroutine healCoroutine = StartCoroutine(HealOverTime(obj, playerHealth));
-        healingCoroutines.Add(obj, healCoroutine);
-
-        if (enableDebug)
-            Debug.Log($"HealMap: {obj.name} 进入回血区域，开始持续回血。");
-    }
-
-    private void StopHealing(GameObject obj)
-    {
-        UpdateVisualStateHeal(false);
-        // 停止回血协程
-        if (healingCoroutines.TryGetValue(obj, out Coroutine healCoroutine))
-        {
-            if (healCoroutine != null)
-            {
-                StopCoroutine(healCoroutine);
-            }
-
-            healingCoroutines.Remove(obj);
-
-            if (enableDebug)
-                Debug.Log($"HealMap: {obj.name} 离开回血区域，停止回血。");
-        }
-    }
-
-    private IEnumerator HealOverTime(GameObject obj, PlayerHealth playerHealth)
-    {
-        while (true)
-        {
-            // 检查是否已达最大生命值
-            if (StatsManager.Instance != null && 
-                StatsManager.Instance.currentHealth < StatsManager.Instance.maxHealth)
-            {
-                playerHealth.ChangeHealth(healAmount);
-                
-                // 播放回血音效
-                if (audioSource != null && healSound != null)
-                {
-                    audioSource.PlayOneShot(healSound);
-                    if (enableDebug)
-                        Debug.Log($"[HealMap] 播放音效: 回血 - {healSound.name}");
-                }
-
-                if (enableDebug)
-                    Debug.Log($"HealMap: {obj.name} 回血 {healAmount} 点，当前生命值: {StatsManager.Instance.currentHealth}/{StatsManager.Instance.maxHealth}");
-            }
-            else if (enableDebug)
-            {
-                Debug.Log($"HealMap: {obj.name} 生命值已满，暂停回血。");
-            }
-
-            // 等待指定的回血间隔
-            yield return new WaitForSeconds(healInterval);
-        }
+        yield return new WaitForSeconds(0.2f);
+        isInitialized = true;
     }
 
     private bool IsInLayerMask(int layer, LayerMask mask)
@@ -225,25 +250,8 @@ public class HealMap : MonoBehaviour
         return mask == (mask | (1 << layer));
     }
 
-    private void OnDisable()
-    {
-        // 当脚本被禁用时，停止所有回血协程
-        foreach (var kvp in healingCoroutines)
-        {
-            if (kvp.Value != null)
-            {
-                StopCoroutine(kvp.Value);
-            }
-        }
-        healingCoroutines.Clear();
-    }
-
     void UpdateVisualStateHeal(bool isActive)
     {
-        if (anim != null)
-        {
-            // 这里的 "IsActive" 要跟你 Animator 里定义的参数名一致
-            anim.SetBool("IsHeal", isActive);
-        }
+        if (anim != null) anim.SetBool("IsHeal", isActive);
     }
 }
