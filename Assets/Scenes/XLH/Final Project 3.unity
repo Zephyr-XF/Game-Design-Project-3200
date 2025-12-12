@@ -10057,6 +10057,13 @@ MonoBehaviour:
   knockbackForce: 20
   knockbackTime: 0.15
   stunTime: 0.2
+  maxCombo: 4
+  skill1Cooldown: 5
+  skill1DamageMult: 2
+  skill2Cooldown: 8
+  skill2DamageMult: 2
+  skill3Cooldown: 12
+  skill3DamageMult: 8
   speed: 5
   maxHealth: 20
   currentHealth: 20
@@ -19689,6 +19696,7 @@ MonoBehaviour:
   - {fileID: 574637169}
   - {fileID: 1751880694}
   inventoryManager: {fileID: 7793007299355662410}
+  toolManager: {fileID: 0}
 --- !u!1001 &1732995056
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -23131,30 +23139,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1753089813167445961, guid: 81597ad4ace0155499fd4bf225d6ebb4, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1753089813167445961, guid: 81597ad4ace0155499fd4bf225d6ebb4, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1753089813167445961, guid: 81597ad4ace0155499fd4bf225d6ebb4, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1753089813167445961, guid: 81597ad4ace0155499fd4bf225d6ebb4, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1753089813167445961, guid: 81597ad4ace0155499fd4bf225d6ebb4, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1753089813167445961, guid: 81597ad4ace0155499fd4bf225d6ebb4, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 3909062953070099411, guid: 81597ad4ace0155499fd4bf225d6ebb4, type: 3}
       propertyPath: m_LocalPosition.x
       value: 646.9329
@@ -23195,57 +23179,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4384854473394671389, guid: 81597ad4ace0155499fd4bf225d6ebb4, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4384854473394671389, guid: 81597ad4ace0155499fd4bf225d6ebb4, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4384854473394671389, guid: 81597ad4ace0155499fd4bf225d6ebb4, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4384854473394671389, guid: 81597ad4ace0155499fd4bf225d6ebb4, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4384854473394671389, guid: 81597ad4ace0155499fd4bf225d6ebb4, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4384854473394671389, guid: 81597ad4ace0155499fd4bf225d6ebb4, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 5231395651138723477, guid: 81597ad4ace0155499fd4bf225d6ebb4, type: 3}
       propertyPath: m_Name
       value: BlessingSysterm
-      objectReference: {fileID: 0}
-    - target: {fileID: 5513271665649259892, guid: 81597ad4ace0155499fd4bf225d6ebb4, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5513271665649259892, guid: 81597ad4ace0155499fd4bf225d6ebb4, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5513271665649259892, guid: 81597ad4ace0155499fd4bf225d6ebb4, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5513271665649259892, guid: 81597ad4ace0155499fd4bf225d6ebb4, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5513271665649259892, guid: 81597ad4ace0155499fd4bf225d6ebb4, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5513271665649259892, guid: 81597ad4ace0155499fd4bf225d6ebb4, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

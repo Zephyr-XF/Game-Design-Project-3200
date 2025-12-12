@@ -7,15 +7,18 @@ public class MemoryUI : MonoBehaviour
     public static MemoryUI Instance;
 
     [Header("UI Elements")]
-    public GameObject panel; // 整个弹窗面板
-    public Image memoryImage; // 显示碎片大图
-    public TMP_Text contentText; // 用于显示剧情文本
-    public GameObject buttonsContainer; // 包含两个按钮的父物体，方便统一隐藏
+    public GameObject panel; 
+    public Image memoryImage; 
+    public RawImage videoDisplay; // 现在改名叫 shatterTarget 可能更合适，但保留原名也可以
+    public TMP_Text contentText; 
+    public GameObject buttonsContainer; 
     public Button reminisceButton;
     public Button shatterButton;
-    public AudioSource audioSource; // 用于播放回忆语音
+    public AudioSource audioSource;
+    // VideoPlayer 引用已移除
 
     private MemoryFragment currentFragment;
+
     private void Awake()
     {
         if (Instance == null) Instance = this;
@@ -23,7 +26,9 @@ public class MemoryUI : MonoBehaviour
 
         if (panel != null) panel.SetActive(false);
         if (contentText != null) contentText.gameObject.SetActive(false);
+        if (videoDisplay != null) videoDisplay.gameObject.SetActive(false);
     }
+    // SetupVideoTexture 方法已移除
 
     private void Start()
     {
@@ -40,21 +45,41 @@ public class MemoryUI : MonoBehaviour
         if (fragment == null) return;
         
         currentFragment = fragment;
+
+        // 1. 深度清理战场
+        var oldDebris = GameObject.FindGameObjectsWithTag("Untagged"); 
+        foreach(var obj in oldDebris) {
+            if(obj.name.StartsWith("Debris_Root")) Destroy(obj);
+        }
         
         if (buttonsContainer != null) buttonsContainer.SetActive(true);
         if (contentText != null) contentText.gameObject.SetActive(false);
         
-        // Stop any previous audio
         if (audioSource != null) audioSource.Stop();
         
-        if (memoryImage != null && fragment.detailImage != null)
+        // 隐藏旧 Image
+        if (memoryImage != null) memoryImage.gameObject.SetActive(false);
+        
+        // 设置 Raw Image
+        if (videoDisplay != null)
         {
-            memoryImage.sprite = fragment.detailImage;
-            memoryImage.gameObject.SetActive(true);
+             if (fragment.detailImage != null)
+             {
+                 videoDisplay.texture = fragment.detailImage.texture; 
+                 // 2. 强制复活 RawImage
+                 videoDisplay.gameObject.SetActive(true);
+                 videoDisplay.color = Color.white;
+                 videoDisplay.transform.localScale = Vector3.one;
+                 videoDisplay.transform.localRotation = Quaternion.identity;
+             }
+             else
+             {
+                 videoDisplay.gameObject.SetActive(false);
+             }
         }
-        else if (memoryImage != null)
+        else if (videoDisplay != null)
         {
-            memoryImage.gameObject.SetActive(false);
+             videoDisplay.gameObject.SetActive(false);
         }
 
         if (panel != null) panel.SetActive(true);
@@ -70,7 +95,7 @@ public class MemoryUI : MonoBehaviour
     {
         if (currentFragment == null) return;
 
-        // 不直接关闭，而是进入阅读模式
+        // 视频保持暂停 (定格状态)
         StartCoroutine(ShowReminisceContent());
     }
 
@@ -86,21 +111,19 @@ public class MemoryUI : MonoBehaviour
             contentText.gameObject.SetActive(true);
         }
 
-        float waitTime = 3.0f; // 默认最少显示3秒，防止音频太短看不清字
+        float waitTime = 3.0f; // 默认最少显示3秒
 
         // 3. 播放语音并计算等待时间
         if (audioSource != null && currentFragment.memoryVoice != null)
         {
             audioSource.PlayOneShot(currentFragment.memoryVoice);
-            
-            // 如果音频长度超过3秒，就按音频长度来等
             if (currentFragment.memoryVoice.length > waitTime)
             {
                 waitTime = currentFragment.memoryVoice.length;
             }
         }
 
-        // 4. 等待 (智能时长)
+        // 4. 等待
         yield return new WaitForSecondsRealtime(waitTime); 
         
         // 5. 关闭 UI
@@ -113,9 +136,29 @@ public class MemoryUI : MonoBehaviour
     private void OnShatterClicked()
     {
         if (currentFragment == null) return;
+        StartCoroutine(PlayShatterEffectAndClose());
+    }
 
+    private System.Collections.IEnumerator PlayShatterEffectAndClose()
+    {
+        // 1. 隐藏按钮
+        if (buttonsContainer != null) buttonsContainer.SetActive(false);
+
+        // 2. 恢复时间！让物理引擎动起来！
+        Time.timeScale = 1f;
+
+        // 3. 只有 RawImage 是可见的，我们炸碎它！
+        if (UiImageShatter.Instance != null && videoDisplay != null && videoDisplay.texture != null)
+        {
+            UiImageShatter.Instance.Shatter(videoDisplay);
+        }
+
+        // 4. 等待碎裂动画差不多掉落完
+        yield return new WaitForSeconds(3.0f); // 也就是我们看碎渣飞的时间
+
+        // 5. 关闭并应用效果
         Close();
-        Time.timeScale = 1f; 
+        // Time.timeScale 已经是 1 了，不用再设
         currentFragment.PerformShatter();
     }
 }

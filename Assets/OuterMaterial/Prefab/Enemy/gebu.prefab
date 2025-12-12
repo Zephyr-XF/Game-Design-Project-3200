@@ -208,7 +208,7 @@ Animator:
   m_GameObject: {fileID: 2461705112143784334}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 610cb5b3f18107c428ea90eb3993ea78, type: 2}
+  m_Controller: {fileID: 9100000, guid: 7a6897d2c49fb3646bb93e36461a7e45, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -257,7 +257,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fbfbbef9afbdad546acf77c35342405f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 100
+  maxHealth: 10
   currentHealth: 0
   expReward: 3
   hitSound: {fileID: 8300000, guid: fd25a15f9797641458336cccfb445343, type: 3}
@@ -287,6 +287,7 @@ MonoBehaviour:
   playerLayers:
     serializedVersion: 2
     m_Bits: 64
+  totalAttackAnimations: 2
   skill2Prefab: {fileID: 6881190740127541632, guid: ec82f937f4615a64ca3ca98ba62a1fb9, type: 3}
   skill2Damage: 30
   skill2Radius: 2

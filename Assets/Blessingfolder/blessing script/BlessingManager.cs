@@ -115,6 +115,12 @@ public class BlessingManager : MonoBehaviour
                      StatsManager.Instance.currentHealth = StatsManager.Instance.maxHealth; // Heal up
                      StatsManager.Instance.UpdateHealth(0);
                  }
+
+                 // Apply Sanity Cost
+                 if(choice.sanityCost > 0)
+                 {
+                     StatsManager.Instance.UpdateSanity(-choice.sanityCost);
+                 }
             }
         });
     }

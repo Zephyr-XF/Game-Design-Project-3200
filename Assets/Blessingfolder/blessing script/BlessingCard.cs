@@ -27,6 +27,12 @@ public class BlessingCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         godImage.sprite = Data.godImage;
         godNameText.text = Data.godName;
         descriptionText.text = Data.description;
+        
+        // Show Sanity Cost if applicable
+        if (Data.sanityCost > 0)
+        {
+            descriptionText.text += $"\n<color=#FF0000>Sanity Cost: {Data.sanityCost}</color>";
+        }
 
         selectButton.onClick.RemoveAllListeners();
         selectButton.onClick.AddListener(() => BlessingManager.Instance.ChooseBlessing(Data));

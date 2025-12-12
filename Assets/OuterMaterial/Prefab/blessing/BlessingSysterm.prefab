@@ -720,6 +720,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2003027925825002220}
     m_Modifications:
+    - target: {fileID: 2573979889788940722, guid: 681c7165bbf82ec4588e028435f3394a, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -16.604
+      objectReference: {fileID: 0}
+    - target: {fileID: 2573979889788940722, guid: 681c7165bbf82ec4588e028435f3394a, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -318
+      objectReference: {fileID: 0}
     - target: {fileID: 5242296483796253151, guid: 681c7165bbf82ec4588e028435f3394a, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -804,6 +812,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: card1 (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 8471520963875872684, guid: 681c7165bbf82ec4588e028435f3394a, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 411.1979
+      objectReference: {fileID: 0}
+    - target: {fileID: 8471520963875872684, guid: 681c7165bbf82ec4588e028435f3394a, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -16.603886
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -833,6 +849,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2003027925825002220}
     m_Modifications:
+    - target: {fileID: 2573979889788940722, guid: 681c7165bbf82ec4588e028435f3394a, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -323
+      objectReference: {fileID: 0}
     - target: {fileID: 4401417800938575575, guid: 681c7165bbf82ec4588e028435f3394a, type: 3}
       propertyPath: m_Color.b
       value: 0.96570545
@@ -929,6 +949,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: card1
       objectReference: {fileID: 0}
+    - target: {fileID: 8471520963875872684, guid: 681c7165bbf82ec4588e028435f3394a, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 318.5454
+      objectReference: {fileID: 0}
+    - target: {fileID: 8471520963875872684, guid: 681c7165bbf82ec4588e028435f3394a, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -17.8577
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -958,6 +986,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2003027925825002220}
     m_Modifications:
+    - target: {fileID: 2573979889788940722, guid: 681c7165bbf82ec4588e028435f3394a, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -312
+      objectReference: {fileID: 0}
     - target: {fileID: 5242296483796253151, guid: 681c7165bbf82ec4588e028435f3394a, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -1041,6 +1073,18 @@ PrefabInstance:
     - target: {fileID: 8348302760730210295, guid: 681c7165bbf82ec4588e028435f3394a, type: 3}
       propertyPath: m_Name
       value: card1 (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 8471520963875872684, guid: 681c7165bbf82ec4588e028435f3394a, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 479.122
+      objectReference: {fileID: 0}
+    - target: {fileID: 8471520963875872684, guid: 681c7165bbf82ec4588e028435f3394a, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -20
+      objectReference: {fileID: 0}
+    - target: {fileID: 8471520963875872684, guid: 681c7165bbf82ec4588e028435f3394a, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -241
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
