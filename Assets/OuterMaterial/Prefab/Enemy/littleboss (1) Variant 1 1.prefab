@@ -257,7 +257,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fbfbbef9afbdad546acf77c35342405f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 100
+  maxHealth: 10
   currentHealth: 100
   expReward: 3
   hitSound: {fileID: 8300000, guid: fd25a15f9797641458336cccfb445343, type: 3}
@@ -287,6 +287,7 @@ MonoBehaviour:
   playerLayers:
     serializedVersion: 2
     m_Bits: 64
+  totalAttackAnimations: 2
   skill2Prefab: {fileID: 0}
   skill2Damage: 3
   skill2Radius: 2
