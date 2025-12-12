@@ -3503,6 +3503,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6008582101670756569, guid: b57bc64207d6fc24099160915bdb988f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6553161389309972425, guid: b57bc64207d6fc24099160915bdb988f, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -193109,7 +193113,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7749113909401707938, guid: 393512fbfeaaa3241a06e4249a51bca9, type: 3}
       propertyPath: m_AnimatedTiles.Array.data[17].second.m_AnimationSpeed
-      value: 5.0000005
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 7749113909401707938, guid: 393512fbfeaaa3241a06e4249a51bca9, type: 3}
       propertyPath: m_AnimatedTiles.Array.data[18].second.m_AnimationSpeed
@@ -193141,7 +193145,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7749113909401707938, guid: 393512fbfeaaa3241a06e4249a51bca9, type: 3}
       propertyPath: m_AnimatedTiles.Array.data[25].second.m_AnimationSpeed
-      value: 5.0000005
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 7749113909401707938, guid: 393512fbfeaaa3241a06e4249a51bca9, type: 3}
       propertyPath: m_AnimatedTiles.Array.data[26].second.m_AnimationSpeed
@@ -205031,6 +205035,34 @@ PrefabInstance:
     - target: {fileID: 494760183933563497, guid: 599dea7d5e8639747aef3a9b05d0ca20, type: 3}
       propertyPath: m_Name
       value: ==Camera==
+      objectReference: {fileID: 0}
+    - target: {fileID: 574425995729415529, guid: 599dea7d5e8639747aef3a9b05d0ca20, type: 3}
+      propertyPath: baseRedSat
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 574425995729415529, guid: 599dea7d5e8639747aef3a9b05d0ca20, type: 3}
+      propertyPath: baseBlueSat
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 574425995729415529, guid: 599dea7d5e8639747aef3a9b05d0ca20, type: 3}
+      propertyPath: baseBlurSize
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 574425995729415529, guid: 599dea7d5e8639747aef3a9b05d0ca20, type: 3}
+      propertyPath: baseRedIntensity
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 574425995729415529, guid: 599dea7d5e8639747aef3a9b05d0ca20, type: 3}
+      propertyPath: baseBlueIntensity
+      value: 1.69
+      objectReference: {fileID: 0}
+    - target: {fileID: 574425995729415529, guid: 599dea7d5e8639747aef3a9b05d0ca20, type: 3}
+      propertyPath: baseHazeIntensity
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 574425995729415529, guid: 599dea7d5e8639747aef3a9b05d0ca20, type: 3}
+      propertyPath: baseGreenIntensity
+      value: 0.62
       objectReference: {fileID: 0}
     - target: {fileID: 1283491547705661573, guid: 599dea7d5e8639747aef3a9b05d0ca20, type: 3}
       propertyPath: m_BoundingShape2D

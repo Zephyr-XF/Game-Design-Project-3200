@@ -21,6 +21,13 @@ public class BlessingCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
     public void Setup(BlessingData newData)
     {
+        if (newData == null)
+        {
+            Debug.LogError("BlessingCard received null data!");
+            gameObject.SetActive(false);
+            return;
+        }
+
         InitializeScale();
 
         Data = newData;
