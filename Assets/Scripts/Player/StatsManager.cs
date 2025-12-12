@@ -15,8 +15,8 @@ public class StatsManager : MonoBehaviour
     public float knockbackForce;
     public float knockbackTime;
     public float stunTime;
+    public float minAttackInterval = 0.2f;
 
-    // --- 新增区域: 连击与技能数值 ---
     [Header("Combo & Skill Stats")]
     public int maxCombo = 4;
 
@@ -31,6 +31,11 @@ public class StatsManager : MonoBehaviour
     [Space(10)]
     public float skill3Cooldown = 12f;
     public float skill3DamageMult = 8.0f;
+
+    // --- 新增 --- 用于控制动画事件是否能触发额外特写的开关
+    [Header("Special Effects")]
+    [Tooltip("如果为true，在成功破防后，由动画事件触发的特写将会被执行")]
+    public bool canTriggerAnimEventCinematic = false;
     // --- 新增区域结束 ---
 
     [Header("Movement Stats")]
@@ -52,6 +57,7 @@ public class StatsManager : MonoBehaviour
             Destroy(gameObject);
     }
 
+    // ... (其他函数保持不变)
     public void UpdateMaxHealth(int amount)
     {
         maxHealth += amount;
@@ -67,16 +73,13 @@ public class StatsManager : MonoBehaviour
     public void UpdateSpeed(int amount)
     {
         speed += amount;
-        // 这个可以保留，用于实时刷新属性面板的数值
         if (statsUI != null) statsUI.UpdateAllStats();
     }
 
     public void UpdateSanity(int amount)
     {
         currentSanity += amount;
-        // 使用 Mathf.Clamp 将值限制在 0 和 maxSanity 之间
         currentSanity = Mathf.Clamp(currentSanity, 0, maxSanity);
-        
         if (statsUI != null) statsUI.UpdateAllStats();
     }
 }
