@@ -7,20 +7,62 @@ public class BlessingUI : MonoBehaviour
 {
     public GameObject blessingPanel;
     public BlessingCard[] cards; // Assign 3 card slots in Inspector
+    public TMP_Text quoteText; // 拖拽一个 Text 进来显示台词
+
     [Header("Animation Settings")]
     public float animationHoldDuration = 1.5f; // Time to hold the chosen card on screen
+
+    private bool isSelectionLocked = false; // 锁定状态，防止动画期间显示台词
 
     private void Start()
     {
         // Ensure the panel is hidden instantly when the game starts
         if (blessingPanel != null)
             blessingPanel.SetActive(false);
+        
+        if (quoteText != null) quoteText.text = ""; // 一开始清空
+    }
+
+    public void UpdateQuote(string text, Vector3 cardPosition)
+    {
+        // 如果被锁定了，禁止更新台词，并强制确保它是隐藏的
+        if (isSelectionLocked) 
+        {
+            ClearQuote();
+            return;
+        }
+
+        if (quoteText != null)
+        {
+            quoteText.text = text;
+            if (!string.IsNullOrEmpty(text))
+            {
+                // Offset Y to appear above the card. Adjust 150f as needed based on your UI scale.
+                quoteText.transform.position = cardPosition + new Vector3(0, 350f, 0); 
+                quoteText.gameObject.SetActive(true);
+            }
+            else
+            {
+                quoteText.gameObject.SetActive(false);
+            }
+        }
+    }
+
+    public void ClearQuote()
+    {
+        if (quoteText != null)
+        {
+            quoteText.text = "";
+            quoteText.gameObject.SetActive(false);
+        }
     }
 
     private Coroutine currentAnimation;
 
     public void ShowBlessings(BlessingData[] options)
     {
+        isSelectionLocked = false; // 解锁：新的一轮开始了
+
         // Stop any running hide animation to prevent conflicts
         if (currentAnimation != null) StopCoroutine(currentAnimation);
         
@@ -74,6 +116,9 @@ public class BlessingUI : MonoBehaviour
 
     private System.Collections.IEnumerator ChosenOneAnimation(BlessingData chosenData, System.Action onComplete)
     {
+        isSelectionLocked = true; // 上锁！动画期间禁止显示台词
+        ClearQuote(); // 立即隐藏任何台词
+        
         float elapsed = 0f;
         
         // Ensure panel is active

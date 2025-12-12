@@ -632,7 +632,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75d9aee6e07f8b54ab34392f7a3b9844, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cutsceneData: {fileID: 11400000, guid: 002e906e44fe76c4290d6c256b4c3009, type: 2}
+  cutsceneData: {fileID: 11400000, guid: 941217d6ac84d7a439ca6e322f10d632, type: 2}
   displayImage: {fileID: 53449301}
   subtitleText: {fileID: 730611993}
   audioSource: {fileID: 1205967274}

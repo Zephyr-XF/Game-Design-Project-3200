@@ -349,7 +349,7 @@ MonoBehaviour:
   dashCooldown: 1
   showDirectionRay: 0
   rayLength: 2
-  rayColor: {r: 1, g: 0, b: 0, a: 1}
+  rayColor: {r: 1, g: 0, b: 0, a: 0.93333334}
   facingRight: 1
 --- !u!95 &8974902892306802055
 Animator:
@@ -436,7 +436,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 370478030684cc84eaef9921c4e46a12, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  animator: {fileID: 8974902892306802055}
+  characterRenderer: {fileID: 3169596355234946492}
   healthBarFill: {fileID: 0}
+  damageColor: {r: 1, g: 0, b: 0, a: 0.5137255}
+  flashDuration: 0.2
   enableDebug: 0
 --- !u!114 &-3789490186338773622
 MonoBehaviour:
@@ -495,18 +499,11 @@ MonoBehaviour:
     m_Bits: 128
   statsUI: {fileID: 0}
   anim: {fileID: 8974902892306802055}
-  maxCombo: 4
   comboResetTimer: 1.5
   minAttackInterval: 0.6
   attackAnmiTrigger: AttackTrigger
-  skill1Cooldown: 1
-  skill1DamageMult: 2
   skill1AnimTrigger: Skill1Trigger
-  skill2Cooldown: 1
-  skill2DamageMult: 3
   skill2AnimTrigger: Skill2Trigger
-  skill3Cooldown: 12
-  skill3DamageMult: 4
   skill3AnimTrigger: Skill3Trigger
 --- !u!82 &1902462081826184213
 AudioSource:
