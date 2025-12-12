@@ -1022,10 +1022,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: DialogueSystem
       objectReference: {fileID: 0}
-    - target: {fileID: 4283480277402550035, guid: a3e1b8daf74a59d4eb02bb46f5a68ad0, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1415,10 +1411,6 @@ PrefabInstance:
     - target: {fileID: 5231395651138723477, guid: 81597ad4ace0155499fd4bf225d6ebb4, type: 3}
       propertyPath: m_Name
       value: BlessingSysterm
-      objectReference: {fileID: 0}
-    - target: {fileID: 5231395651138723477, guid: 81597ad4ace0155499fd4bf225d6ebb4, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5513271665649259892, guid: 81597ad4ace0155499fd4bf225d6ebb4, type: 3}
       propertyPath: m_AnchorMax.y
@@ -6968,10 +6960,6 @@ PrefabInstance:
     - target: {fileID: 7364886543953029387, guid: 7c1f7d42ceef317489cad05224e1073f, type: 3}
       propertyPath: m_Name
       value: MemorySysterm
-      objectReference: {fileID: 0}
-    - target: {fileID: 7364886543953029387, guid: 7c1f7d42ceef317489cad05224e1073f, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
