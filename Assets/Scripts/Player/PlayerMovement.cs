@@ -193,7 +193,7 @@ public class PlayerMovement : MonoBehaviour
 
         Vector2 direction = (transform.position - enemy.position).normalized;
         rb.velocity = direction * force;
-        StartCoroutine(KnockbackCounter(stunTime));
+        StartCoroutine(KnockbackCounter(stunTime * 0));
     }
 
     IEnumerator KnockbackCounter(float stunTime)
