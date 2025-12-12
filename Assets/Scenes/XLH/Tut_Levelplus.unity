@@ -7908,7 +7908,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: babf39b281d0e8943bd10a6d6f6d56c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawnId: 10
+  spawnId: 9
   useTransformPosition: 1
   spawnRoot: {fileID: 2011586105}
   localSpawnPosition: {x: 0, y: 0}
@@ -195765,7 +195765,7 @@ PrefabInstance:
       objectReference: {fileID: 1488601685}
     - target: {fileID: 6722457941211305851, guid: d701cfabc7dcecd418eaaae7c1ed4517, type: 3}
       propertyPath: targetLevelIndex
-      value: 10
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 6722457941211305851, guid: d701cfabc7dcecd418eaaae7c1ed4517, type: 3}
       propertyPath: enemyDetectionCollider
