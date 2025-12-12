@@ -35,7 +35,7 @@ public class MerchantNPC : MonoBehaviour
         }
 
         // 3. 处理输入
-        if (isPlayerInRange && Input.GetKeyDown(KeyCode.F))
+        if (isPlayerInRange && Input.GetKeyDown(KeyCode.G))
         {
             // 如果对话还没开始，就开始对话
             if (!DialogueManager.Instance.IsDialogueActive())
