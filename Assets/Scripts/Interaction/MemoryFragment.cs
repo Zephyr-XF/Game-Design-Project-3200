@@ -5,6 +5,8 @@ public class MemoryFragment : MonoBehaviour
     [Header("Data")]
     [TextArea] public string memoryContent; // 直接存储文本内容
     public AudioClip memoryVoice; // 回忆时的配音
+    // 视频字段已移除
+    
     [Tooltip("回忆奖励的Sanity值，0表示使用Manager默认值")]
     public int customSanityReward = 0;
     

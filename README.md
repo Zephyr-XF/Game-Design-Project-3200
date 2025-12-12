@@ -28,7 +28,13 @@ BlessingManager.Instance.TriggerBlessing();
 3.点击任意一个选项关闭页面
 4.BlessingManager.Instance.CloseBlessingUI(); 强制关闭页面
 5.测试按钮B
-
+- 每个神新增了台词
+- 完成人对话系统 (DialogueSysterm/Shopper1)prefab
+- 将prefab拉进场景  在shopkeep脚本中挂载相应的shop canvas和shop manager
+- 完成碎片回忆系统 (MemorySysterm/Trophy  draft paper)prefab
+- 直接拉入场景
+- 完成开场以及结尾动画 OpeningScene EndingScene
+- 动画播放完毕后可以设置特定场景跳转
 ---
 
 ## 待办事项（共同编辑）
