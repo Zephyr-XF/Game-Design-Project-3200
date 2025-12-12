@@ -113,13 +113,43 @@ public class BlessingManager : MonoBehaviour
             // Apply stats immediately to current instance too
             if(StatsManager.Instance != null)
             {
-                 StatsManager.Instance.damage += (choice.statType == StatType.Damage ? choice.amount : 0);
-                 if(choice.statType == StatType.Speed) StatsManager.Instance.UpdateSpeed(choice.amount);
-                 if(choice.statType == StatType.MaxHealth) 
+                 // --- New Switch Logic for All Stats ---
+                 foreach (var mod in choice.modifiers)
                  {
-                     StatsManager.Instance.UpdateMaxHealth(choice.amount);
-                     StatsManager.Instance.currentHealth = StatsManager.Instance.maxHealth; // Heal up
-                     StatsManager.Instance.UpdateHealth(0);
+                     switch (mod.statType)
+                     {
+                         case StatType.Damage:
+                             StatsManager.Instance.damage += mod.amount;
+                             break;
+                         case StatType.Speed:
+                             StatsManager.Instance.UpdateSpeed(mod.amount);
+                             break;
+                         case StatType.MaxHealth:
+                             StatsManager.Instance.UpdateMaxHealth(mod.amount);
+                             StatsManager.Instance.currentHealth = StatsManager.Instance.maxHealth; // Heal up
+                             StatsManager.Instance.UpdateHealth(0); 
+                             break;
+                             
+                         case StatType.Impact:
+                             StatsManager.Instance.impact += mod.amount;
+                             break;
+                             
+                         case StatType.Skill2Cooldown:
+                             StatsManager.Instance.skill2Cooldown += (mod.amount / 10.0f); // e.g. -10 => -1.0s
+                             break;
+                             
+                         case StatType.Skill2DamageMult:
+                             StatsManager.Instance.skill2DamageMult += (mod.amount / 10.0f); // e.g. 5 => +0.5x
+                             break;
+                             
+                         case StatType.MinAttackInterval:
+                             StatsManager.Instance.minAttackInterval += (mod.amount / 100.0f); // e.g. -5 => -0.05s
+                             break;
+                             
+                         case StatType.TriggerCinematic:
+                             if (mod.amount > 0) StatsManager.Instance.canTriggerAnimEventCinematic = true;
+                             break;
+                     }
                  }
 
                  // Apply Sanity Cost
@@ -150,6 +180,11 @@ public class BlessingManager : MonoBehaviour
     private int bonusDamage = 0;
     private int bonusSpeed = 0;
     private int bonusMaxHealth = 0;
+    private int bonusImpact = 0;
+    private int bonusSkill2Cooldown = 0; // Stored as raw int
+    private int bonusSkill2DamageMult = 0; // Stored as raw int
+    private int bonusMinAttackInterval = 0; // Stored as raw int
+    private bool bonusCinematicTrigger = false; // New: Cinematic trigger
 
     private void OnEnable()
     {
@@ -170,6 +205,16 @@ public class BlessingManager : MonoBehaviour
             StatsManager.Instance.UpdateSpeed(bonusSpeed);
             StatsManager.Instance.UpdateMaxHealth(bonusMaxHealth);
             
+            StatsManager.Instance.impact += bonusImpact;
+            StatsManager.Instance.skill2Cooldown += (bonusSkill2Cooldown / 10.0f);
+            StatsManager.Instance.skill2DamageMult += (bonusSkill2DamageMult / 10.0f);
+            StatsManager.Instance.minAttackInterval += (bonusMinAttackInterval / 100.0f);
+            
+            if(bonusCinematicTrigger) 
+                StatsManager.Instance.canTriggerAnimEventCinematic = true;
+            
+            // Reset health to full
+            
             // Reset health to full
             StatsManager.Instance.currentHealth = StatsManager.Instance.maxHealth;
             StatsManager.Instance.UpdateHealth(0); // Refresh UI
@@ -178,17 +223,35 @@ public class BlessingManager : MonoBehaviour
 
     private void ApplyStatPersistent(BlessingData data)
     {
-        switch (data.statType)
+        foreach (var mod in data.modifiers)
         {
-            case StatType.Damage:
-                bonusDamage += data.amount;
-                break;
-            case StatType.Speed:
-                bonusSpeed += data.amount;
-                break;
-            case StatType.MaxHealth:
-                bonusMaxHealth += data.amount;
-                break;
+            switch (mod.statType)
+            {
+                case StatType.Damage:
+                    bonusDamage += mod.amount;
+                    break;
+                case StatType.Speed:
+                    bonusSpeed += mod.amount;
+                    break;
+                case StatType.MaxHealth:
+                    bonusMaxHealth += mod.amount;
+                    break;
+                case StatType.Impact:
+                    bonusImpact += mod.amount;
+                    break;
+                case StatType.Skill2Cooldown:
+                    bonusSkill2Cooldown += mod.amount;
+                    break;
+                case StatType.Skill2DamageMult:
+                    bonusSkill2DamageMult += mod.amount;
+                    break;
+                case StatType.MinAttackInterval:
+                    bonusMinAttackInterval += mod.amount;
+                    break;
+                case StatType.TriggerCinematic:
+                    if (mod.amount > 0) bonusCinematicTrigger = true;
+                    break;
+            }
         }
     }
 }
