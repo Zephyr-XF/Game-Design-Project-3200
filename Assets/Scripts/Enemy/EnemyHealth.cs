@@ -11,11 +11,11 @@ public class EnemyHealth : MonoBehaviour
 
     // ★★★ 新增：音效设置 ★★★
     [Header("音效设置")]
-    public AudioClip hitSound;       // 请在 Inspector 里把受伤音效拖到这里
-    private AudioSource audioSource; // 用来播放声音的组件
+    public AudioClip hitSound;        // 受伤音效
+    private AudioSource audioSource;
 
     [Header("UI 设置")]
-    public GameObject hudPrefab; // 拖入 EnemyHUD Prefab
+    public GameObject hudPrefab;
     private EnemyHUD myHUD;
 
     // ★★★ 血条挂载点 ★★★
@@ -23,10 +23,10 @@ public class EnemyHealth : MonoBehaviour
     public Transform healthBarPoint;
 
     [Header("清醒值/韧性系统")]
-    public float maxResilience = 50f; // 最大韧性
+    public float maxResilience = 50f;
     public float currentResilience;
-    public float shatterDuration = 5f; // 清醒状态持续时间
-    public float shatterDamageMultiplier = 2f; // 清醒状态下的受伤倍率
+    public float shatterDuration = 5f;
+    public float shatterDamageMultiplier = 2f;
 
     // 事件
     public delegate void MonsterDefeated(int exp);
@@ -36,6 +36,9 @@ public class EnemyHealth : MonoBehaviour
     private EnemyMovement enemyMovement;
     private SpriteRenderer spriteRenderer;
 
+    // ★★★ 新增：防止鞭尸标记 ★★★
+    private bool isDead = false;
+
     private void Start()
     {
         currentHealth = maxHealth;
@@ -43,38 +46,28 @@ public class EnemyHealth : MonoBehaviour
         enemyMovement = GetComponent<EnemyMovement>();
         spriteRenderer = GetComponent<SpriteRenderer>();
 
-        // ★★★ 新增：初始化 AudioSource ★★★
+        // 初始化 AudioSource
         audioSource = GetComponent<AudioSource>();
-        // 如果怪物身上没有 AudioSource，自动加一个，防止报错
         if (audioSource == null)
         {
             audioSource = gameObject.AddComponent<AudioSource>();
-            audioSource.playOnAwake = false; // 确保不会一出生就乱叫
+            audioSource.playOnAwake = false;
         }
 
-        // 生成血条
+        // 生成血条 (逻辑保持不变)
         if (hudPrefab != null)
         {
-            // 1. 查找场景里的 WorldCanvas
             GameObject canvasObj = GameObject.Find("WorldCanvas");
-
             if (canvasObj != null)
             {
-                // 生成在 Canvas 下面
                 GameObject hudObj = Instantiate(hudPrefab, canvasObj.transform);
-
-                // 获取 HUD 脚本
                 myHUD = hudObj.GetComponent<EnemyHUD>();
-
-                // ★★★ 把 healthBarPoint 传过去 ★★★
                 myHUD.Setup(this, healthBarPoint);
-
-                // 重要：修正缩放
                 hudObj.transform.localScale = Vector3.one;
             }
             else
             {
-                Debug.LogError("场景中找不到名为 'WorldCanvas' 的画布！请创建一个 RenderMode 为 World Space 的 Canvas。");
+                Debug.LogError("场景中找不到名为 'WorldCanvas' 的画布！");
             }
         }
     }
@@ -82,17 +75,18 @@ public class EnemyHealth : MonoBehaviour
     /// <summary>
     /// 玩家攻击时调用此方法
     /// </summary>
-    /// <param name="damage">基础伤害</param>
-    /// <param name="poiseDamage">削韧值(冲击力)</param>
     public void TakeDamage(int damage, float poiseDamage)
     {
+        // ★★★ 如果已经死了，直接忽略后续伤害，防止重复触发死亡逻辑 ★★★
+        if (isDead) return;
+
         // 尝试播放受击特效
         if (TryGetComponent(out EnemyVisuals visuals))
         {
             visuals.PlayHitEffect();
         }
 
-        // ★★★ 新增：播放受伤音效 ★★★
+        // 播放受伤音效
         if (audioSource != null && hitSound != null)
         {
             audioSource.PlayOneShot(hitSound);
@@ -101,26 +95,23 @@ public class EnemyHealth : MonoBehaviour
         // 1. 判断是否处于清醒(破防)状态
         bool isShattered = (enemyMovement.enemyState == EnemyState.dreamshatter);
 
-        // 2. 计算最终伤害 (清醒状态下伤害翻倍)
+        // 2. 计算最终伤害
         int finalDamage = isShattered ? Mathf.RoundToInt(damage * shatterDamageMultiplier) : damage;
 
         currentHealth -= finalDamage;
 
-        // 3. 死亡检测
+        // ★★★ 3. 死亡检测 (关键修改) ★★★
         if (currentHealth <= 0)
         {
-            if (OnMonsterDefeated != null) OnMonsterDefeated(expReward);
-            if (myHUD != null) Destroy(myHUD.gameObject); // 销毁血条
-            Destroy(gameObject); // 销毁怪物
+            Die(); // 调用专门的死亡方法
             return;
         }
 
-        // 4. 处理韧性逻辑 (只有在未处于清醒状态时才扣除韧性)
+        // 4. 处理韧性逻辑 (只有活着且未破防时才扣)
         if (!isShattered)
         {
             currentResilience -= poiseDamage;
 
-            // 如果韧性归零，进入清醒状态
             if (currentResilience <= 0)
             {
                 StartCoroutine(EnterDreamshatterState());
@@ -128,22 +119,48 @@ public class EnemyHealth : MonoBehaviour
         }
     }
 
-    // 处理清醒状态的协程
+    // ★★★ 新增：专门处理死亡逻辑的方法 ★★★
+    void Die()
+    {
+        isDead = true; // 标记已死
+
+        // 1. 切换到死亡状态 (EnemyMovement 会负责播放动画和关掉碰撞体)
+        if (enemyMovement != null)
+        {
+            enemyMovement.ChangeState(EnemyState.dead);
+        }
+
+        // 2. 发送奖励
+        if (OnMonsterDefeated != null) OnMonsterDefeated(expReward);
+
+        // 3. 销毁血条 UI (血条不需要等动画播完，现在就可以消失)
+        if (myHUD != null) Destroy(myHUD.gameObject);
+
+        // ★ 注意：不要在这里 Destroy(gameObject)，要等动画事件！
+    }
+
+    // ★★★ 这个方法必须由 Animator Event 调用 ★★★
+    // 请在 Death 动画的最后一帧添加事件，Function 选择 DestroyEnemy
+    public void DestroyEnemy()
+    {
+        Destroy(gameObject);
+    }
+
+    // 处理清醒状态的协程 (保持不变)
     IEnumerator EnterDreamshatterState()
     {
         currentResilience = 0;
-        // 切换到 Dreamshatter 状态
         enemyMovement.ChangeState(EnemyState.dreamshatter);
-        Debug.Log(">>> 敌人进入清醒状态！无法移动且受到双倍伤害！");
+        Debug.Log(">>> 敌人进入清醒状态！");
 
-        // 等待指定时间
         yield return new WaitForSeconds(shatterDuration);
 
-        // 恢复状态
-        currentResilience = maxResilience; // 韧性回满
-        Debug.Log("<<< 敌人从清醒状态恢复！");
-
-        // 切换回 Idle
-        enemyMovement.ChangeState(EnemyState.idle);
+        // 如果在这期间死了，就不需要恢复了
+        if (!isDead)
+        {
+            currentResilience = maxResilience;
+            Debug.Log("<<< 敌人从清醒状态恢复！");
+            enemyMovement.ChangeState(EnemyState.idle);
+        }
     }
 }
