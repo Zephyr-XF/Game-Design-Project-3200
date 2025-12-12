@@ -272,10 +272,10 @@ MonoBehaviour:
   baseBlueSat: 1
   baseBlurSize: 0
   baseHazeIntensity: 0
-  breakTargetSaturation: 0.5
+  breakIntensityMultiplier: 0.8
+  breakSaturationMultiplier: 0.5
   breakTargetBlur: 3
-  breakTargetHaze: 0.5
-  breakTargetIntensity: 1
+  breakTargetHaze: 0.3
 --- !u!1 &3938693788693331601
 GameObject:
   m_ObjectHideFlags: 0

@@ -10230,10 +10230,6 @@ PrefabInstance:
       propertyPath: statsUI
       value: 
       objectReference: {fileID: 1064273514}
-    - target: {fileID: 7731727476320265924, guid: dc855fc24a34dd7479c131ae7f828d18, type: 3}
-      propertyPath: skill3Cooldown
-      value: 1
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -12222,30 +12218,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: ==Camera==
       objectReference: {fileID: 0}
-    - target: {fileID: 574425995729415529, guid: 599dea7d5e8639747aef3a9b05d0ca20, type: 3}
-      propertyPath: breakTargetHaze
-      value: 0.3
-      objectReference: {fileID: 0}
-    - target: {fileID: 574425995729415529, guid: 599dea7d5e8639747aef3a9b05d0ca20, type: 3}
-      propertyPath: breakTargetIntensity
-      value: 0.8
-      objectReference: {fileID: 0}
-    - target: {fileID: 574425995729415529, guid: 599dea7d5e8639747aef3a9b05d0ca20, type: 3}
-      propertyPath: breakTargetSaturation
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 574425995729415529, guid: 599dea7d5e8639747aef3a9b05d0ca20, type: 3}
-      propertyPath: breakIntensityMultiplier
-      value: 0.8
-      objectReference: {fileID: 0}
-    - target: {fileID: 574425995729415529, guid: 599dea7d5e8639747aef3a9b05d0ca20, type: 3}
-      propertyPath: breakSaturationMultiplier
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 889629898840508549, guid: 599dea7d5e8639747aef3a9b05d0ca20, type: 3}
-      propertyPath: playerRoot
-      value: 
-      objectReference: {fileID: 905802674}
     - target: {fileID: 2580625938274815450, guid: 599dea7d5e8639747aef3a9b05d0ca20, type: 3}
       propertyPath: m_Follow
       value: 
@@ -12294,8 +12266,7 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 889629898840508549, guid: 599dea7d5e8639747aef3a9b05d0ca20, type: 3}
+    m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
@@ -12818,10 +12789,6 @@ PrefabInstance:
       propertyPath: cameraFilter
       value: 
       objectReference: {fileID: 589292296}
-    - target: {fileID: 8716551396896936519, guid: 12c5220adb32d0641976430b6dca8619, type: 3}
-      propertyPath: transitionSpeed
-      value: 10
-      objectReference: {fileID: 0}
     - target: {fileID: 8716551396896936519, guid: 12c5220adb32d0641976430b6dca8619, type: 3}
       propertyPath: mainGameplayCamera
       value: 

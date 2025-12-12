@@ -495,18 +495,11 @@ MonoBehaviour:
     m_Bits: 128
   statsUI: {fileID: 0}
   anim: {fileID: 8974902892306802055}
-  maxCombo: 4
   comboResetTimer: 1.5
   minAttackInterval: 0.6
   attackAnmiTrigger: AttackTrigger
-  skill1Cooldown: 1
-  skill1DamageMult: 2
   skill1AnimTrigger: Skill1Trigger
-  skill2Cooldown: 1
-  skill2DamageMult: 3
   skill2AnimTrigger: Skill2Trigger
-  skill3Cooldown: 12
-  skill3DamageMult: 4
   skill3AnimTrigger: Skill3Trigger
 --- !u!82 &1902462081826184213
 AudioSource:

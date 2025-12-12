@@ -47,9 +47,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mainGameplayCamera: {fileID: 0}
   breakEffectCameraObject: {fileID: 0}
+  cameraFilter: {fileID: 0}
+  breakUI: {fileID: 0}
   timeFreezeClips:
   - {fileID: 8300000, guid: ca2e13af867ceb444b2cc7a25542d32e, type: 3}
   managerAudioSource: {fileID: 3643696256444282673}
+  maxFreezeDuration: 3
+  transitionSpeed: 10
 --- !u!82 &3643696256444282673
 AudioSource:
   m_ObjectHideFlags: 0
