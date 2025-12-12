@@ -1,9 +1,13 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 using System.Collections; // 引用协程所需的命名空间
 
 public class PlayerHealth : MonoBehaviour
 {
+    // 死亡事件 - 其他脚本可以订阅这个事件
+    public static event Action OnPlayerDied;
+
     [Header("Component References")]
     public Animator animator; // 拖拽玩家身上的Animator组件到这里
     public Renderer characterRenderer; // 新增：拖拽玩家模型或精灵的Renderer组件
@@ -53,6 +57,8 @@ public class PlayerHealth : MonoBehaviour
         {
             characterRenderer.material.color = originalColor;
         }
+        
+        if (enableDebug) Debug.Log("[PlayerHealth] OnEnable - 玩家已激活，死亡状态已重置");
     }
 
     public void ChangeHealth(int amount)
@@ -125,6 +131,7 @@ public class PlayerHealth : MonoBehaviour
     {
         StatsManager.Instance.currentHealth = StatsManager.Instance.maxHealth;
         UpdateHealthUI();
+        if (enableDebug) Debug.Log($"[PlayerHealth] 血量已重置为最大值: {StatsManager.Instance.maxHealth}");
     }
 
     private void UpdateHealthUI()
@@ -140,23 +147,52 @@ public class PlayerHealth : MonoBehaviour
         if (isDead) return;
         isDead = true;
 
-        Debug.Log("玩家死亡。触发死亡动画...");
+        if (enableDebug) Debug.Log("[PlayerHealth] Die() - 玩家死亡，播放死亡动画...");
 
         if (animator != null)
         {
             animator.SetTrigger("Die");
+            if (enableDebug) Debug.Log("[PlayerHealth] 死亡动画触发器已设置");
         }
         else
         {
-            Debug.LogWarning("Animator未找到！立即禁用对象。");
+            Debug.LogWarning("[PlayerHealth] Animator未找到！立即触发死亡事件并禁用对象。");
+            TriggerDeathEvent();
             gameObject.SetActive(false);
         }
     }
 
+    /// <summary>
+    /// 由动画事件调用：当死亡动画播放完毕时
+    /// </summary>
     public void OnDeathAnimationFinished()
     {
-        Debug.Log("死亡动画播放完毕。禁用玩家对象。");
+        if (enableDebug) Debug.Log("[PlayerHealth] OnDeathAnimationFinished() - 死亡动画播放完毕");
+        
+        // 真正的死亡处理：触发死亡事件
+        TriggerDeathEvent();
+        
+        // 禁用玩家对象
         gameObject.SetActive(false);
+        if (enableDebug) Debug.Log("[PlayerHealth] 玩家对象已禁用");
+    }
+
+    /// <summary>
+    /// 触发死亡事件，通知所有订阅者
+    /// </summary>
+    private void TriggerDeathEvent()
+    {
+        if (enableDebug)
+        {
+            // 检查是否有订阅者
+            int subscriberCount = OnPlayerDied?.GetInvocationList()?.Length ?? 0;
+            Debug.Log($"[PlayerHealth] 准备触发死亡事件 OnPlayerDied，当前订阅者数量: {subscriberCount}");
+        }
+
+        // 触发事件
+        OnPlayerDied?.Invoke();
+
+        if (enableDebug) Debug.Log("[PlayerHealth] 死亡事件已触发！");
     }
 }
 

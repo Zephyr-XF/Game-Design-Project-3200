@@ -66,6 +66,8 @@ MonoBehaviour:
   otherTriggerLayers:
   - serializedVersion: 2
     m_Bits: 512
+  - serializedVersion: 2
+    m_Bits: 1
   anim: {fileID: 5920540775942357963}
   destroyDelay: 0.4
   audioSource: {fileID: 3583832321397533642}
