@@ -61,7 +61,7 @@ public class DialogueManager : MonoBehaviour
         // 增加一个小延迟防止启动对话的那一次按键直接跳过第一句
         if (isDialogueActive && Time.time > dialogueStartTime + 0.1f)
         {
-            if (Input.GetKeyDown(KeyCode.F))
+            if (Input.GetKeyDown(KeyCode.G))
             {
                 DisplayNextSentence();
             }

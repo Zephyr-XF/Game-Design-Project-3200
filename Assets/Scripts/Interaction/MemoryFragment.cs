@@ -13,7 +13,7 @@ public class MemoryFragment : MonoBehaviour
     [Header("Settings")]
     public bool isShattered = false;
     public float interactionRange = 2.0f;
-    public KeyCode interactKey = KeyCode.F;
+    public KeyCode interactKey = KeyCode.H;
     
     [Header("Visuals")]
     public Sprite detailImage; // UI里显示的高清大图

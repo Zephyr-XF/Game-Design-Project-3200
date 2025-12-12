@@ -76,7 +76,6 @@ public class StatsManager : MonoBehaviour
         currentSanity += amount;
         // 使用 Mathf.Clamp 将值限制在 0 和 maxSanity 之间
         currentSanity = Mathf.Clamp(currentSanity, 0, maxSanity);
-        
-        if (statsUI != null) statsUI.UpdateAllStats();
+
     }
 }

@@ -102,7 +102,7 @@ MonoBehaviour:
   customSanityReward: 0
   isShattered: 0
   interactionRange: 2
-  interactKey: 102
+  interactKey: 104
   detailImage: {fileID: 21300000, guid: bf07145c960ba8f4181734d652644d56, type: 3}
   visualModel: {fileID: 5220423439784296767}
   shatterEffect: {fileID: 0}

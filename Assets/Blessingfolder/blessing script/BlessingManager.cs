@@ -43,6 +43,7 @@ public class BlessingManager : MonoBehaviour
 
     public void TriggerBlessing()
     {
+        isSelecting = false; // Unlock selection for new round
         Debug.Log("Blessing Triggered!");
         // 1. Pause Game
         Time.timeScale = 0;
@@ -93,8 +94,13 @@ public class BlessingManager : MonoBehaviour
         }
     }
 
+    private bool isSelecting = false; // Add selection lock
+
     public void ChooseBlessing(BlessingData choice)
     {
+        if (isSelecting) return; // Prevent double click
+        isSelecting = true;
+
         // 1. Apply Stat (Persistent)
         ApplyStatPersistent(choice);
 
@@ -119,7 +125,17 @@ public class BlessingManager : MonoBehaviour
                  // Apply Sanity Cost
                  if(choice.sanityCost > 0)
                  {
-                     StatsManager.Instance.UpdateSanity(-choice.sanityCost);
+                     // Apply Sanity Cost via PlayerSanity wrapper
+                     var playerSanity = FindObjectOfType<PlayerSanity>();
+                     if (playerSanity != null)
+                     {
+                         playerSanity.ChangeSanity(-choice.sanityCost);
+                     }
+                     else
+                     {
+                         // Fallback just in case
+                         StatsManager.Instance.UpdateSanity(-choice.sanityCost);
+                     }
                  }
             }
         });
