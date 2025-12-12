@@ -12,6 +12,8 @@ public class BlessingUI : MonoBehaviour
     [Header("Animation Settings")]
     public float animationHoldDuration = 1.5f; // Time to hold the chosen card on screen
 
+    private bool isSelectionLocked = false; // 锁定状态，防止动画期间显示台词
+
     private void Start()
     {
         // Ensure the panel is hidden instantly when the game starts
@@ -23,6 +25,13 @@ public class BlessingUI : MonoBehaviour
 
     public void UpdateQuote(string text, Vector3 cardPosition)
     {
+        // 如果被锁定了，禁止更新台词，并强制确保它是隐藏的
+        if (isSelectionLocked) 
+        {
+            ClearQuote();
+            return;
+        }
+
         if (quoteText != null)
         {
             quoteText.text = text;
@@ -52,6 +61,8 @@ public class BlessingUI : MonoBehaviour
 
     public void ShowBlessings(BlessingData[] options)
     {
+        isSelectionLocked = false; // 解锁：新的一轮开始了
+
         // Stop any running hide animation to prevent conflicts
         if (currentAnimation != null) StopCoroutine(currentAnimation);
         
@@ -105,6 +116,9 @@ public class BlessingUI : MonoBehaviour
 
     private System.Collections.IEnumerator ChosenOneAnimation(BlessingData chosenData, System.Action onComplete)
     {
+        isSelectionLocked = true; // 上锁！动画期间禁止显示台词
+        ClearQuote(); // 立即隐藏任何台词
+        
         float elapsed = 0f;
         
         // Ensure panel is active
