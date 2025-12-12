@@ -10,7 +10,7 @@ public class ShopKeeper : MonoBehaviour
     public CanvasGroup shopCanvasGroup;
     public ShopManager shopManager;
     
-    [Header("ÉÌµêÎïÆ·ÁÐ±í")]
+    [Header("商店物品列表")]
     [SerializeField] private List<ShopItems> shopItems;
     [SerializeField] private List<ShopTools> shopTools;
     
@@ -20,7 +20,7 @@ public class ShopKeeper : MonoBehaviour
     
     void Update()
     {
-        // ä¼åå¤çå³é­ï¼åªè¦ååºå¼çï¼æäºå¨é®å°±åºè¯¥è½å³é­ (ä¸ç®¡æ¯å¦å¨èå´å)
+        // 优先处理关闭：只要商店开着，按下交互键就应该能关闭（不管是否在范围内）
         if (isShopOpen)
         {
             if (Input.GetButtonDown("Interact") || Input.GetKeyDown(KeyCode.Escape))
@@ -30,7 +30,7 @@ public class ShopKeeper : MonoBehaviour
             return; 
         }
 
-        // åªæå¨æ²¡å¼åºä¸äººå¨èå´åæ¶ï¼æåè®¸æå¼
+        // 只有在没开店且人在范围内时，才允许打开
         if (playerInRange)
         {
             if (Input.GetButtonDown("Interact"))
@@ -66,6 +66,7 @@ public class ShopKeeper : MonoBehaviour
         shopCanvasGroup.blocksRaycasts = false;
         shopCanvasGroup.interactable = false;
     }
+    
     public void OpenItemShop()
     {
         shopManager.PopulateShopItems(shopItems);

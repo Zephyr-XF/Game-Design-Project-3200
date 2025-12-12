@@ -29,8 +29,8 @@ RectTransform:
   m_GameObject: {fileID: 615677598409220053}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.34, y: 0.34, z: 0.34}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 8296208027173059382}
   - {fileID: 8036955527639729290}
@@ -149,10 +149,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemSO: {fileID: 0}
+  toolSO: {fileID: 0}
   itemNameText: {fileID: 8595080747239940092}
   priceText: {fileID: 2801868381226759988}
   itemImage: {fileID: 1558631082649565404}
   shopManager: {fileID: 0}
+  shopInfo: {fileID: 0}
+  price: 0
 --- !u!1 &2290271513956775552
 GameObject:
   m_ObjectHideFlags: 0
