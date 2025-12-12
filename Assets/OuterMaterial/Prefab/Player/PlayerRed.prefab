@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1214544378384854324}
   - component: {fileID: 7189528599867205863}
   - component: {fileID: 4533037936640423192}
-  m_Layer: 7
+  m_Layer: 6
   m_Name: Square
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -115,7 +115,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3871933538491090331}
-  m_Layer: 7
+  m_Layer: 6
   m_Name: AttackPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -147,7 +147,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7614014208765442829}
   - component: {fileID: 817943564665004010}
-  m_Layer: 7
+  m_Layer: 6
   m_Name: Capsule
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -258,7 +258,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.18, y: 6.24, z: -0.022313561}
-  m_LocalScale: {x: 0.8, y: 0.8, z: 0.8}
+  m_LocalScale: {x: 0.68, y: 0.68, z: 0.68}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1214544378384854324}
@@ -455,6 +455,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sanityBarFill: {fileID: 0}
+  cameraFilter: {fileID: 0}
+  screenOverlayImage: {fileID: 0}
+  lowSanityOverlayColor: {r: 1, g: 1, b: 1, a: 0.11372549}
+  lowSanityTexture: {fileID: 21300000, guid: 453df55f145bb5546a6077637e62e3b3, type: 3}
   enableDebug: 0
 --- !u!114 &8215818355899740188
 MonoBehaviour:
@@ -500,11 +504,11 @@ MonoBehaviour:
   statsUI: {fileID: 0}
   anim: {fileID: 8974902892306802055}
   comboResetTimer: 1.5
-  minAttackInterval: 0.6
   attackAnmiTrigger: AttackTrigger
   skill1AnimTrigger: Skill1Trigger
   skill2AnimTrigger: Skill2Trigger
   skill3AnimTrigger: Skill3Trigger
+  tossAnimTrigger: TossTrigger
 --- !u!82 &1902462081826184213
 AudioSource:
   m_ObjectHideFlags: 0
