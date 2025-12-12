@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 297291711366873881}
   - component: {fileID: 650984642912407200}
   - component: {fileID: 7938503836564948474}
+  - component: {fileID: 386713362855637313}
   m_Layer: 0
   m_Name: ShopKeeper
   m_TagString: Untagged
@@ -166,6 +167,23 @@ MonoBehaviour:
     price: 5
   shopWeapons: []
   shopArmor: []
+--- !u!114 &386713362855637313
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1984675462850095592}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 204a3250e41aa8c49a39a9da0be096ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dialogueData: {fileID: 11400000, guid: c523c1d01a5c5314d868092f36cbb6a3, type: 2}
+  interactRange: 3
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!1 &2727180078155549569
 GameObject:
   m_ObjectHideFlags: 0
