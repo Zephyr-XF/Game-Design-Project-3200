@@ -5,11 +5,11 @@ using UnityEngine;
 public class HealMap : MonoBehaviour
 {
     [Header("UI 设置 (必须拖拽)")]
-    [Tooltip("选择菜单：包含回血、回蓝、特殊功能三个按钮")]
+    [Tooltip("选择菜单：包含回血、回蓝、祝福三个按钮")]
     public GameObject selectionUIPanel;
 
-    [Tooltip("功能 3：点击后要打开的那个特殊界面")]
-    public GameObject specialFeatureUI; // ★ 新增：你要打开的那个界面
+    // ★ 已移除：不再需要手动拖拽 Blessing 面板，直接用单例调用
+    // public GameObject specialFeatureUI; 
 
     [Header("回血设置")]
     public int healAmount = 1;
@@ -51,23 +51,35 @@ public class HealMap : MonoBehaviour
             audioSource.Stop();
         }
 
-        // 隐藏所有相关UI
+        // 隐藏选择菜单
         if (selectionUIPanel != null) selectionUIPanel.SetActive(false);
-        if (specialFeatureUI != null) specialFeatureUI.SetActive(false); // ★ 确保特殊界面一开始是关的
 
         StartCoroutine(InitializeAfterDelay());
     }
 
     private void Update()
     {
-        // 只有当玩家在范围内、法阵没用过、且按了E键
-        if (isPlayerInRange && !isEffectActive && Input.GetKeyDown(KeyCode.E))
+        // 只要按下 E 键，无论条件是否满足，先打印状态！
+        if (Input.GetKeyDown(KeyCode.E))
         {
-            if (selectionUIPanel != null)
+            if (enableDebug)
             {
-                // 如果选择面板没打开，就打开；打开了就关闭
-                if (!selectionUIPanel.activeSelf) ShowSelectionUI();
-                else CloseSelectionUI();
+                string uiStatus = (selectionUIPanel != null) ? "正常" : "【空！请拖拽】";
+                Debug.Log($"[调试] 按了E键 >>> 玩家在范围内: {isPlayerInRange} | 效果运行中: {isEffectActive} | UI面板: {uiStatus}");
+            }
+
+            // 原有的逻辑
+            if (isPlayerInRange && !isEffectActive)
+            {
+                if (selectionUIPanel != null)
+                {
+                    if (!selectionUIPanel.activeSelf) ShowSelectionUI();
+                    else CloseSelectionUI();
+                }
+                else
+                {
+                    Debug.LogError("[HealMap] 报错：Selection UI Panel 没赋值！去 Inspector 里拖进去！");
+                }
             }
         }
     }
@@ -115,36 +127,34 @@ public class HealMap : MonoBehaviour
         if (enableDebug) Debug.Log("[HealMap] 选择功能：Sanity 恢复");
     }
 
-    // ★★★ 按钮 3：打开特殊界面 (新增) ★★★
+    // ★★★ 按钮 3：打开 Blessing 系统 (修改) ★★★
     public void OnChooseFeature()
     {
         if (currentPlayerObj == null) return;
 
-        // 1. 关闭选择菜单
+        // 1. 关闭原来的 3 选 1 菜单
         CloseSelectionUI();
 
-        // 2. 打开你想要的那个特殊界面
-        if (specialFeatureUI != null)
+        // 2. 调用 BlessingManager 单例打开祝福界面
+        if (BlessingManager.Instance != null)
         {
-            specialFeatureUI.SetActive(true);
+            BlessingManager.Instance.TriggerBlessing();
+            if (enableDebug) Debug.Log("[HealMap] 调用 BlessingManager 打开祝福界面");
         }
         else
         {
-            Debug.LogError("[HealMap] 报错：Special Feature UI 没赋值！请在 Inspector 拖入你想打开的界面。");
+            Debug.LogError("[HealMap] 致命错误：场景里找不到 BlessingManager！请把 BlessingSystem Prefab 拖进场景！");
         }
 
         // 3. 激活法阵视觉效果 (变亮、播音效、锁定法阵)
         // 这样法阵就算“被使用过”了，不能再按 E 交互
         ActivateShrineState();
-
-        if (enableDebug) Debug.Log("[HealMap] 选择功能：打开特殊界面");
     }
 
     // ==========================================
     // 核心逻辑
     // ==========================================
 
-    // ★ 提取出来的公共方法：处理法阵“被使用”后的视觉和状态
     private void ActivateShrineState()
     {
         if (isEffectActive) return;
@@ -172,8 +182,11 @@ public class HealMap : MonoBehaviour
             activeCoroutine = null;
         }
 
-        // 如果特殊界面开着，也要强制关掉 (看你需求，一般离开法阵就关掉界面)
-        if (specialFeatureUI != null) specialFeatureUI.SetActive(false);
+        // ★ 新增：如果玩家离开法阵范围，强制关闭祝福界面
+        if (BlessingManager.Instance != null)
+        {
+            BlessingManager.Instance.CloseBlessingUI();
+        }
 
         // 重置状态
         isEffectActive = false;
